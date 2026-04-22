@@ -377,24 +377,28 @@ export default function Editor() {
               </h2>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 {[
-                  { id: 'minimalist', name: 'Minimalista' },
-                  { id: 'corporate', name: 'Corporativo' },
-                  { id: 'creative', name: 'Criativo' },
+                  { id: 'minimalist', name: 'Minimalista', img: '/templates/minimalist.png' },
+                  { id: 'corporate', name: 'Corporativo', img: '/templates/corporate.png' },
+                  { id: 'creative', name: 'Criativo', img: '/templates/creative.png' },
                 ].map((t) => (
                   <button 
                     key={t.id}
                     onClick={() => setTemplate(t.id as any)}
                     style={{ 
-                      padding: '20px', 
+                      padding: '0', 
                       borderRadius: '12px', 
                       background: data.settings?.template === t.id ? 'rgba(59, 130, 246, 0.1)' : 'rgba(255,255,255,0.05)',
                       border: data.settings?.template === t.id ? '2px solid var(--accent)' : '1px solid var(--card-border)',
                       color: 'white',
                       textAlign: 'center',
-                      fontWeight: 600
+                      overflow: 'hidden',
+                      transition: 'all 0.2s ease'
                     }}
                   >
-                    {t.name}
+                    <div style={{ height: '120px', overflow: 'hidden' }}>
+                      <img src={t.img} alt={t.name} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: data.settings?.template === t.id ? 1 : 0.6 }} />
+                    </div>
+                    <div style={{ padding: '12px', fontWeight: 600, fontSize: '13px' }}>{t.name}</div>
                   </button>
                 ))}
               </div>

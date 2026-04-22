@@ -164,13 +164,24 @@ export default function LandingPage() {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', maxWidth: '1200px', margin: '0 auto' }}>
-          {['Minimalista', 'Corporativo', 'Criativo', 'Executivo'].map((t, i) => (
-            <div key={i} className="glass-card" style={{ padding: '0', overflow: 'hidden' }}>
-              <div style={{ height: '300px', background: '#f8fafc', position: 'relative' }}>
-                <div style={{ position: 'absolute', inset: '20px', background: 'white', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }} />
+          {[
+            { name: 'Minimalista', img: '/templates/minimalist.png' },
+            { name: 'Corporativo', img: '/templates/corporate.png' },
+            { name: 'Criativo', img: '/templates/creative.png' },
+            { name: 'Executivo', img: '/templates/executive.png' },
+          ].map((t, i) => (
+            <div key={i} className="glass-card" style={{ padding: '0', overflow: 'hidden', border: '1px solid var(--card-border)' }}>
+              <div style={{ height: '320px', overflow: 'hidden', background: '#f8fafc' }}>
+                <img 
+                  src={t.img} 
+                  alt={t.name} 
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease' }} 
+                  onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                  onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                />
               </div>
-              <div style={{ padding: '16px', textAlign: 'center' }}>
-                <span style={{ fontWeight: 600 }}>{t}</span>
+              <div style={{ padding: '16px', textAlign: 'center', background: 'rgba(255,255,255,0.02)' }}>
+                <span style={{ fontWeight: 600, fontSize: '14px' }}>{t.name}</span>
               </div>
             </div>
           ))}
