@@ -1,7 +1,7 @@
 'use client';
 
 import { CVData } from '@/store/useCVStore';
-import { Mail, Phone, MapPin, Briefcase, GraduationCap, Trophy } from 'lucide-react';
+import { Mail, Phone, MapPin, Briefcase, GraduationCap, Globe } from 'lucide-react';
 
 interface TemplateProps {
   data: CVData;
@@ -9,18 +9,25 @@ interface TemplateProps {
 }
 
 export default function CorporateV2({ data, lang }: TemplateProps) {
-  const { accentColor } = data.settings;
+  const { accentColor, fontSize, sectionSpacing } = data.settings;
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', minHeight: '1122px', background: 'white' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', minHeight: '1122px', background: 'white', fontSize: `${fontSize}px` }}>
       {/* Main Content (Left) */}
       <div style={{ padding: '60px', borderRight: '1px solid #e2e8f0' }}>
-        <header style={{ marginBottom: '40px' }}>
-          <h1 style={{ fontSize: '36px', fontWeight: 900, color: '#0f172a', marginBottom: '5px' }}>{data.personalInfo.fullName}</h1>
-          <h2 style={{ fontSize: '18px', color: accentColor, fontWeight: 700 }}>{data.personalInfo.jobTitle[lang]}</h2>
+        <header style={{ marginBottom: '40px', display: 'flex', gap: '25px', alignItems: 'center' }}>
+          {data.personalInfo.photo && (
+            <div style={{ width: '100px', height: '100px', borderRadius: '12px', overflow: 'hidden', border: `3px solid ${accentColor}`, flexShrink: 0 }}>
+              <img src={data.personalInfo.photo} alt={data.personalInfo.fullName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
+          )}
+          <div>
+            <h1 style={{ fontSize: '36px', fontWeight: 900, color: '#0f172a', marginBottom: '5px' }}>{data.personalInfo.fullName}</h1>
+            <h2 style={{ fontSize: '18px', color: accentColor, fontWeight: 700 }}>{data.personalInfo.jobTitle[lang]}</h2>
+          </div>
         </header>
 
-        <section style={{ marginBottom: '40px' }}>
+        <section style={{ marginBottom: `${sectionSpacing}px` }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
             <div style={{ width: '32px', height: '32px', background: accentColor, borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
               <Briefcase size={18} />
@@ -61,10 +68,12 @@ export default function CorporateV2({ data, lang }: TemplateProps) {
       <div style={{ background: '#f8fafc', padding: '60px 30px' }}>
         <section style={{ marginBottom: '40px' }}>
           <h3 style={{ fontSize: '14px', fontWeight: 800, textTransform: 'uppercase', marginBottom: '20px', color: '#0f172a' }}>Contacto</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', fontSize: '12px', color: '#475569' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', fontSize: '11px', color: '#475569' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><Mail size={16} color={accentColor} /> {data.personalInfo.email}</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><Phone size={16} color={accentColor} /> {data.personalInfo.phone}</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><MapPin size={16} color={accentColor} /> {data.personalInfo.location}</div>
+            {data.personalInfo.linkedin && <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><Globe size={16} color={accentColor} /> {data.personalInfo.linkedin}</div>}
+            {data.personalInfo.website && <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><Globe size={16} color={accentColor} /> {data.personalInfo.website}</div>}
           </div>
         </section>
 

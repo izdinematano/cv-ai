@@ -20,24 +20,19 @@ export default function Tech({ data, lang }: TemplateProps) {
       fontFamily: '"JetBrains Mono", monospace, system-ui',
       fontSize: `${fontSize}px`
     }}>
-      {/* Dark Sidebar */}
       <div style={{ background: '#0f172a', color: 'white', padding: '40px 25px' }}>
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <div style={{ 
-            width: '120px', 
-            height: '120px', 
-            borderRadius: '50%', 
-            background: 'rgba(255,255,255,0.05)', 
-            border: `3px solid ${accentColor}`,
-            margin: '0 auto 20px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <Cpu size={48} color={accentColor} />
-          </div>
-          <h1 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '5px' }}>{data.personalInfo.fullName}</h1>
-          <div style={{ fontSize: '11px', color: accentColor, fontWeight: 700, textTransform: 'uppercase' }}>{data.personalInfo.jobTitle[lang]}</div>
+          {data.personalInfo.photo ? (
+            <div style={{ width: '120px', height: '120px', borderRadius: '24px', border: `3px solid ${accentColor}`, margin: '0 auto 20px', overflow: 'hidden' }}>
+              <img src={data.personalInfo.photo} alt={data.personalInfo.fullName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
+          ) : (
+            <div style={{ width: '120px', height: '120px', borderRadius: '24px', background: 'rgba(255,255,255,0.05)', border: `3px solid ${accentColor}`, margin: '0 auto 20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Cpu size={48} color={accentColor} />
+            </div>
+          )}
+          <h1 style={{ fontSize: '18px', fontWeight: 800, marginBottom: '5px' }}>{data.personalInfo.fullName}</h1>
+          <div style={{ fontSize: '10px', color: accentColor, fontWeight: 700, textTransform: 'uppercase' }}>{data.personalInfo.jobTitle[lang]}</div>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
@@ -46,7 +41,9 @@ export default function Tech({ data, lang }: TemplateProps) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '11px', color: '#94a3b8' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Mail size={14} /> {data.personalInfo.email}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Phone size={14} /> {data.personalInfo.phone}</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Code2 size={14} /> github.com/user</div>
+              {data.personalInfo.linkedin && <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Globe size={14} /> {data.personalInfo.linkedin}</div>}
+              {data.personalInfo.website && <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Globe size={14} /> {data.personalInfo.website}</div>}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Code2 size={14} /> GitHub Profile</div>
             </div>
           </section>
 
@@ -61,11 +58,10 @@ export default function Tech({ data, lang }: TemplateProps) {
         </div>
       </div>
 
-      {/* Main Content */}
       <div style={{ padding: '50px', background: 'white' }}>
         <section style={{ marginBottom: `${sectionSpacing * 1.5}px` }}>
           <h3 style={{ color: '#0f172a', fontSize: '16px', fontWeight: 900, marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ color: accentColor }}>01.</span> Professional Overview
+            <span style={{ color: accentColor }}>01.</span> Overview
           </h3>
           <p style={{ color: '#475569', lineHeight: 1.7 }}>{data.summary[lang]}</p>
         </section>
@@ -86,18 +82,6 @@ export default function Tech({ data, lang }: TemplateProps) {
               </div>
             ))}
           </div>
-        </section>
-
-        <section>
-          <h3 style={{ color: '#0f172a', fontSize: '16px', fontWeight: 900, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ color: accentColor }}>03.</span> Education
-          </h3>
-          {data.education.map((edu) => (
-            <div key={edu.id} style={{ marginBottom: '15px' }}>
-              <div style={{ fontWeight: 800 }}>{edu.degree[lang]}</div>
-              <div style={{ fontSize: '13px', color: '#64748b' }}>{edu.institution} | {edu.year}</div>
-            </div>
-          ))}
         </section>
       </div>
     </div>

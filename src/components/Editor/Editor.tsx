@@ -5,7 +5,8 @@ import { translateCVField, improveCVField } from '@/lib/openrouter';
 import { 
   Sparkles, Plus, Trash2, User, Briefcase, GraduationCap, 
   Code, Palette, Settings, Layout, Wand2, FileText, 
-  Award, FolderGit2, Languages, Share2, Camera, ChevronDown, ChevronUp, ZoomIn, ZoomOut
+  Award, FolderGit2, Languages, Share2, Camera, ChevronDown, ChevronUp, ZoomIn, ZoomOut,
+  Globe, Link as LinkIcon
 } from 'lucide-react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -81,7 +82,7 @@ export default function Editor() {
   );
 
   return (
-    <div style={{ display: 'flex', height: 'calc(100vh - 70px)', background: '#0a0a0a' }}>
+    <div style={{ display: 'flex', height: 'calc(100vh - 65px)', background: '#0a0a0a', overflow: 'hidden' }}>
       {/* Sidebar Controls (Inputs) */}
       <div style={{ width: '500px', borderRight: '1px solid var(--card-border)', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
         {/* Tabs */}
@@ -130,18 +131,74 @@ export default function Editor() {
                 <AnimatePresence>
                   {openSections.includes('personal') && (
                     <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} style={{ overflow: 'hidden' }}>
-                      <div style={{ padding: '20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                        <div className="form-group" style={{ gridColumn: 'span 2' }}>
-                          <label>Nome Completo</label>
-                          <input value={data.personalInfo.fullName} onChange={(e) => updatePersonalInfo({ fullName: e.target.value })} placeholder="Ex: João Mavie" />
+                      <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                        {/* Photo Upload */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', background: 'rgba(255,255,255,0.02)', padding: '15px', borderRadius: '12px', border: '1px dashed var(--card-border)' }}>
+                          <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', border: '2px solid var(--accent)' }}>
+                            {data.personalInfo.photo ? (
+                              <img src={data.personalInfo.photo} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            ) : (
+                              <Camera size={30} color="var(--accent)" />
+                            )}
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <label style={{ fontSize: '12px', fontWeight: 700, marginBottom: '8px', display: 'block' }}>Foto de Perfil</label>
+                            <input 
+                              type="file" 
+                              accept="image/*"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  const reader = new FileReader();
+                                  reader.onloadend = () => updatePersonalInfo({ photo: reader.result as string });
+                                  reader.readAsDataURL(file);
+                                }
+                              }}
+                              style={{ fontSize: '11px' }}
+                            />
+                            {data.personalInfo.photo && (
+                              <button onClick={() => updatePersonalInfo({ photo: '' })} style={{ marginTop: '8px', color: 'var(--error)', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '4px', background: 'transparent' }}>
+                                <Trash2 size={12} /> Remover Foto
+                              </button>
+                            )}
+                          </div>
                         </div>
-                        <div className="form-group">
-                          <label>Email</label>
-                          <input value={data.personalInfo.email} onChange={(e) => updatePersonalInfo({ email: e.target.value })} />
-                        </div>
-                        <div className="form-group">
-                          <label>Telefone</label>
-                          <input value={data.personalInfo.phone} onChange={(e) => updatePersonalInfo({ phone: e.target.value })} />
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                          <div className="form-group" style={{ gridColumn: 'span 2' }}>
+                            <label>Nome Completo</label>
+                            <input value={data.personalInfo.fullName} onChange={(e) => updatePersonalInfo({ fullName: e.target.value })} placeholder="Ex: João Mavie" />
+                          </div>
+                          <div className="form-group">
+                            <label>Título Profissional ({activeLanguage.toUpperCase()})</label>
+                            <input value={data.personalInfo.jobTitle[activeLanguage]} onChange={(e) => updatePersonalInfo({ jobTitle: { ...data.personalInfo.jobTitle, [activeLanguage]: e.target.value } })} placeholder="Ex: Software Engineer" />
+                          </div>
+                          <div className="form-group">
+                            <label>Email</label>
+                            <input value={data.personalInfo.email} onChange={(e) => updatePersonalInfo({ email: e.target.value })} />
+                          </div>
+                          <div className="form-group">
+                            <label>Telefone</label>
+                            <input value={data.personalInfo.phone} onChange={(e) => updatePersonalInfo({ phone: e.target.value })} />
+                          </div>
+                          <div className="form-group">
+                            <label>Localização</label>
+                            <input value={data.personalInfo.location} onChange={(e) => updatePersonalInfo({ location: e.target.value })} placeholder="Ex: Maputo, Moçambique" />
+                          </div>
+                          
+                          <div style={{ gridColumn: 'span 2', marginTop: '10px' }}>
+                            <h4 style={{ fontSize: '12px', fontWeight: 800, color: '#94a3b8', marginBottom: '15px', textTransform: 'uppercase' }}>Links e Redes Sociais</h4>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                              <div style={{ position: 'relative' }}>
+                                <Globe size={14} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--accent)' }} />
+                                <input style={{ paddingLeft: '36px' }} value={data.personalInfo.linkedin} onChange={(e) => updatePersonalInfo({ linkedin: e.target.value })} placeholder="linkedin.com/in/seu-perfil" />
+                              </div>
+                              <div style={{ position: 'relative' }}>
+                                <Globe size={14} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--accent)' }} />
+                                <input style={{ paddingLeft: '36px' }} value={data.personalInfo.website} onChange={(e) => updatePersonalInfo({ website: e.target.value })} placeholder="www.seu-portfolio.com" />
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </motion.div>
