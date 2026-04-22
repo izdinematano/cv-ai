@@ -380,6 +380,7 @@ export default function Editor() {
                   { id: 'minimalist', name: 'Minimalista', img: '/templates/minimalist.png' },
                   { id: 'corporate', name: 'Corporativo', img: '/templates/corporate.png' },
                   { id: 'creative', name: 'Criativo', img: '/templates/creative.png' },
+                  { id: 'executive', name: 'Executivo', img: '/templates/executive.png' },
                 ].map((t) => (
                   <button 
                     key={t.id}

@@ -3,6 +3,8 @@
 import { useCVStore } from '@/store/useCVStore';
 import Minimalist from '../Templates/Minimalist';
 import Corporate from '../Templates/Corporate';
+import Creative from '../Templates/Creative';
+import Executive from '../Templates/Executive';
 
 export default function Preview() {
   const { data, activeLanguage } = useCVStore();
@@ -12,6 +14,10 @@ export default function Preview() {
     switch (template) {
       case 'corporate':
         return <Corporate data={data} lang={activeLanguage} />;
+      case 'creative':
+        return <Creative data={data} lang={activeLanguage} />;
+      case 'executive':
+        return <Executive data={data} lang={activeLanguage} />;
       case 'minimalist':
       default:
         return <Minimalist data={data} lang={activeLanguage} />;

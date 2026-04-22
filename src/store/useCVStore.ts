@@ -36,7 +36,7 @@ export interface CVData {
   skills: MultilingualField[];
   languages: { name: string; level: MultilingualField }[];
   settings: {
-    template: 'minimalist' | 'corporate' | 'creative';
+    template: 'minimalist' | 'corporate' | 'creative' | 'executive';
     accentColor: string;
     fontFamily: string;
   };
