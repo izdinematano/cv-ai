@@ -163,19 +163,18 @@ export default function LandingPage() {
           <Link href="/editor" className="btn-outline">Ver todos os designs</Link>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', maxWidth: '1200px', margin: '0 auto' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '32px', maxWidth: '1200px', margin: '0 auto' }}>
           {[
-            { name: 'Minimalista v1', img: '/templates/minimalist.png' },
-            { name: 'Minimalista v2', img: '/templates/minimalist-v2.png' },
-            { name: 'Corporativo v1', img: '/templates/corporate.png' },
-            { name: 'Corporativo v2', img: '/templates/corporate-v2.png' },
-            { name: 'Criativo v1', img: '/templates/creative.png' },
-            { name: 'Criativo v2', img: '/templates/creative-v2.png' },
-            { name: 'Executivo v1', img: '/templates/executive.png' },
-            { name: 'Executivo v2', img: '/templates/executive-v2.png' },
+            { name: 'Tech / IT Pro', img: '/templates/tech.png', badge: 'Popular para Software Engineers' },
+            { name: 'Executivo v2', img: '/templates/executive-v2.png', badge: 'Ideal para Liderança' },
+            { name: 'Moderno Assimétrico', img: '/templates/modern.png', badge: 'Estilo SaaS Moderno' },
+            { name: 'Estudante / Junior', img: '/templates/student.png', badge: 'Primeiro Emprego' },
           ].map((t, i) => (
-            <div key={i} className="glass-card" style={{ padding: '0', overflow: 'hidden', border: '1px solid var(--card-border)' }}>
-              <div style={{ height: '320px', overflow: 'hidden', background: '#f8fafc' }}>
+            <div key={i} className="glass-card" style={{ padding: '0', overflow: 'hidden', border: '1px solid var(--card-border)', position: 'relative' }}>
+              <div style={{ position: 'absolute', top: '12px', right: '12px', background: 'var(--accent)', color: 'white', padding: '4px 10px', borderRadius: '8px', fontSize: '10px', fontWeight: 800, zIndex: 2 }}>
+                A4 VERTICAL
+              </div>
+              <div style={{ height: '420px', overflow: 'hidden', background: '#f8fafc' }}>
                 <img 
                   src={t.img} 
                   alt={t.name} 
@@ -184,8 +183,9 @@ export default function LandingPage() {
                   onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
                 />
               </div>
-              <div style={{ padding: '16px', textAlign: 'center', background: 'rgba(255,255,255,0.02)' }}>
-                <span style={{ fontWeight: 600, fontSize: '14px' }}>{t.name}</span>
+              <div style={{ padding: '20px', background: 'rgba(255,255,255,0.02)' }}>
+                <div style={{ fontWeight: 800, fontSize: '15px', marginBottom: '4px' }}>{t.name}</div>
+                <div style={{ fontSize: '11px', color: 'var(--muted-foreground)' }}>{t.badge}</div>
               </div>
             </div>
           ))}

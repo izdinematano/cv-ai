@@ -1,3 +1,5 @@
+'use client';
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -21,6 +23,20 @@ export interface Education {
   year: string;
 }
 
+export interface Project {
+  id: string;
+  name: string;
+  link: string;
+  description: MultilingualField;
+}
+
+export interface Certification {
+  id: string;
+  name: string;
+  issuer: string;
+  year: string;
+}
+
 export interface CVData {
   personalInfo: {
     fullName: string;
@@ -28,6 +44,8 @@ export interface CVData {
     phone: string;
     location: string;
     linkedin: string;
+    website: string;
+    photo?: string;
     jobTitle: MultilingualField;
   };
   summary: MultilingualField;
@@ -35,10 +53,15 @@ export interface CVData {
   education: Education[];
   skills: MultilingualField[];
   languages: { name: string; level: MultilingualField }[];
+  projects: Project[];
+  certifications: Certification[];
   settings: {
-    template: 'minimalist' | 'minimalist-v2' | 'corporate' | 'corporate-v2' | 'creative' | 'creative-v2' | 'executive' | 'executive-v2';
+    template: string;
     accentColor: string;
     fontFamily: string;
+    fontSize: number;
+    lineHeight: number;
+    sectionSpacing: number;
   };
 }
 
@@ -49,19 +72,32 @@ interface CVState {
   
   // Actions
   setLanguage: (lang: 'pt' | 'en') => void;
-  setTemplate: (template: CVData['settings']['template']) => void;
+  setTemplate: (template: string) => void;
   setAccentColor: (color: string) => void;
+  updateSettings: (settings: Partial<CVData['settings']>) => void;
   updatePersonalInfo: (info: Partial<CVData['personalInfo']>) => void;
   updateSummary: (summary: Partial<MultilingualField>) => void;
+  
+  // Array Actions
   addExperience: () => void;
   updateExperience: (id: string, exp: Partial<Experience>) => void;
   removeExperience: (id: string) => void;
+  
   addEducation: () => void;
   updateEducation: (id: string, edu: Partial<Education>) => void;
   removeEducation: (id: string) => void;
+
+  addProject: () => void;
+  updateProject: (id: string, proj: Partial<Project>) => void;
+  removeProject: (id: string) => void;
+
+  addCertification: () => void;
+  updateCertification: (id: string, cert: Partial<Certification>) => void;
+  removeCertification: (id: string) => void;
+  
   addSkill: (skill: string) => void;
-  updateSkill: (index: number, skill: string) => void;
   removeSkill: (index: number) => void;
+  
   setConverting: (val: boolean) => void;
   setData: (data: CVData) => void;
 }
@@ -73,6 +109,7 @@ const initialData: CVData = {
     phone: '',
     location: '',
     linkedin: '',
+    website: '',
     jobTitle: { pt: '', en: '' },
   },
   summary: { pt: '', en: '' },
@@ -80,10 +117,15 @@ const initialData: CVData = {
   education: [],
   skills: [],
   languages: [],
+  projects: [],
+  certifications: [],
   settings: {
     template: 'minimalist',
     accentColor: '#3b82f6',
     fontFamily: 'Inter',
+    fontSize: 14,
+    lineHeight: 1.5,
+    sectionSpacing: 25,
   },
 };
 
@@ -106,6 +148,11 @@ export const useCVStore = create<CVState>()(
           data: { ...state.data, settings: { ...state.data.settings, accentColor: color } }
         })),
 
+      updateSettings: (settings) =>
+        set((state) => ({
+          data: { ...state.data, settings: { ...state.data.settings, ...settings } }
+        })),
+
       updatePersonalInfo: (info) => 
         set((state) => ({ 
           data: { ...state.data, personalInfo: { ...state.data.personalInfo, ...info } } 
@@ -123,7 +170,7 @@ export const useCVStore = create<CVState>()(
             experience: [
               ...state.data.experience,
               {
-                id: crypto.randomUUID(),
+                id: Math.random().toString(36).substr(2, 9),
                 company: '',
                 position: { pt: '', en: '' },
                 period: '',
@@ -156,7 +203,7 @@ export const useCVStore = create<CVState>()(
             education: [
               ...state.data.education,
               {
-                id: crypto.randomUUID(),
+                id: Math.random().toString(36).substr(2, 9),
                 institution: '',
                 degree: { pt: '', en: '' },
                 year: '',
@@ -181,19 +228,75 @@ export const useCVStore = create<CVState>()(
           },
         })),
 
+      addProject: () =>
+        set((state) => ({
+          data: {
+            ...state.data,
+            projects: [
+              ...state.data.projects,
+              {
+                id: Math.random().toString(36).substr(2, 9),
+                name: '',
+                link: '',
+                description: { pt: '', en: '' },
+              },
+            ],
+          },
+        })),
+
+      updateProject: (id, proj) =>
+        set((state) => ({
+          data: {
+            ...state.data,
+            projects: state.data.projects.map((p) => (p.id === id ? { ...p, ...proj } : p)),
+          },
+        })),
+
+      removeProject: (id) =>
+        set((state) => ({
+          data: {
+            ...state.data,
+            projects: state.data.projects.filter((p) => p.id !== id),
+          },
+        })),
+
+      addCertification: () =>
+        set((state) => ({
+          data: {
+            ...state.data,
+            certifications: [
+              ...state.data.certifications,
+              {
+                id: Math.random().toString(36).substr(2, 9),
+                name: '',
+                issuer: '',
+                year: '',
+              },
+            ],
+          },
+        })),
+
+      updateCertification: (id, cert) =>
+        set((state) => ({
+          data: {
+            ...state.data,
+            certifications: state.data.certifications.map((c) => (c.id === id ? { ...c, ...cert } : c)),
+          },
+        })),
+
+      removeCertification: (id) =>
+        set((state) => ({
+          data: {
+            ...state.data,
+            certifications: state.data.certifications.filter((c) => c.id !== id),
+          },
+        })),
+
       addSkill: (skill) =>
         set((state) => ({
           data: {
             ...state.data,
             skills: [...state.data.skills, { pt: skill, en: '' }],
-          },
-        })),
-
-      updateSkill: (index, skill) =>
-        set((state) => ({
-          data: {
-            ...state.data,
-            skills: state.data.skills.map((s, i) => (i === index ? { ...s, pt: skill } : s)),
           },
         })),
 
@@ -209,21 +312,13 @@ export const useCVStore = create<CVState>()(
       setData: (data) => set({ data }),
     }),
     {
-      name: 'cv-storage',
-      // Merge partial state to prevent crashes with old data
+      name: 'cv-storage-pro',
       merge: (persistedState: any, currentState) => {
         const mergedData = { ...currentState.data, ...(persistedState?.data || {}) };
-        
-        // Ensure settings always exist
-        if (!mergedData.settings) {
-          mergedData.settings = initialData.settings;
-        }
-        
-        return {
-          ...currentState,
-          ...persistedState,
-          data: mergedData
-        };
+        if (!mergedData.settings) mergedData.settings = initialData.settings;
+        if (!mergedData.projects) mergedData.projects = [];
+        if (!mergedData.certifications) mergedData.certifications = [];
+        return { ...currentState, ...persistedState, data: mergedData };
       }
     }
   )
