@@ -387,8 +387,8 @@ export default function Editor() {
                     style={{ 
                       padding: '20px', 
                       borderRadius: '12px', 
-                      background: data.settings.template === t.id ? 'rgba(59, 130, 246, 0.1)' : 'rgba(255,255,255,0.05)',
-                      border: data.settings.template === t.id ? '2px solid var(--accent)' : '1px solid var(--card-border)',
+                      background: data.settings?.template === t.id ? 'rgba(59, 130, 246, 0.1)' : 'rgba(255,255,255,0.05)',
+                      border: data.settings?.template === t.id ? '2px solid var(--accent)' : '1px solid var(--card-border)',
                       color: 'white',
                       textAlign: 'center',
                       fontWeight: 600
@@ -416,8 +416,8 @@ export default function Editor() {
                         height: '32px', 
                         borderRadius: '50%', 
                         background: c,
-                        border: data.settings.accentColor === c ? '2px solid white' : 'none',
-                        boxShadow: data.settings.accentColor === c ? '0 0 10px ' + c : 'none'
+                        border: data.settings?.accentColor === c ? '2px solid white' : 'none',
+                        boxShadow: data.settings?.accentColor === c ? '0 0 10px ' + c : 'none'
                       }}
                     />
                   ))}

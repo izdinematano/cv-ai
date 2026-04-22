@@ -210,6 +210,21 @@ export const useCVStore = create<CVState>()(
     }),
     {
       name: 'cv-storage',
+      // Merge partial state to prevent crashes with old data
+      merge: (persistedState: any, currentState) => {
+        const mergedData = { ...currentState.data, ...(persistedState?.data || {}) };
+        
+        // Ensure settings always exist
+        if (!mergedData.settings) {
+          mergedData.settings = initialData.settings;
+        }
+        
+        return {
+          ...currentState,
+          ...persistedState,
+          data: mergedData
+        };
+      }
     }
   )
 );

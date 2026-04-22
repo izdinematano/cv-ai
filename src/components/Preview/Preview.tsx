@@ -6,7 +6,7 @@ import Corporate from '../Templates/Corporate';
 
 export default function Preview() {
   const { data, activeLanguage } = useCVStore();
-  const { template } = data.settings;
+  const template = data?.settings?.template || 'minimalist';
 
   const renderTemplate = () => {
     switch (template) {
