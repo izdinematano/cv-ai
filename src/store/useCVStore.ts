@@ -35,6 +35,11 @@ export interface CVData {
   education: Education[];
   skills: MultilingualField[];
   languages: { name: string; level: MultilingualField }[];
+  settings: {
+    template: 'minimalist' | 'corporate' | 'creative';
+    accentColor: string;
+    fontFamily: string;
+  };
 }
 
 interface CVState {
@@ -44,6 +49,8 @@ interface CVState {
   
   // Actions
   setLanguage: (lang: 'pt' | 'en') => void;
+  setTemplate: (template: CVData['settings']['template']) => void;
+  setAccentColor: (color: string) => void;
   updatePersonalInfo: (info: Partial<CVData['personalInfo']>) => void;
   updateSummary: (summary: Partial<MultilingualField>) => void;
   addExperience: () => void;
@@ -73,6 +80,11 @@ const initialData: CVData = {
   education: [],
   skills: [],
   languages: [],
+  settings: {
+    template: 'minimalist',
+    accentColor: '#3b82f6',
+    fontFamily: 'Inter',
+  },
 };
 
 export const useCVStore = create<CVState>()(
@@ -84,6 +96,16 @@ export const useCVStore = create<CVState>()(
 
       setLanguage: (lang) => set({ activeLanguage: lang }),
       
+      setTemplate: (template) =>
+        set((state) => ({
+          data: { ...state.data, settings: { ...state.data.settings, template } }
+        })),
+
+      setAccentColor: (color) =>
+        set((state) => ({
+          data: { ...state.data, settings: { ...state.data.settings, accentColor: color } }
+        })),
+
       updatePersonalInfo: (info) => 
         set((state) => ({ 
           data: { ...state.data, personalInfo: { ...state.data.personalInfo, ...info } } 

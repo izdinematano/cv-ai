@@ -6,9 +6,13 @@ import { useCVStore } from '@/store/useCVStore';
 import { pdf } from '@react-pdf/renderer';
 import { CVDocument } from './Export/PDFDocument';
 import { saveAs } from 'file-saver';
+import { useState } from 'react';
+import SaveModal from './Auth/SaveModal';
+import Link from 'next/link';
 
 export default function Header() {
   const { data, activeLanguage } = useCVStore();
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
 
   const handleDownload = async (lang: 'pt' | 'en') => {
     try {
@@ -33,21 +37,23 @@ export default function Header() {
       zIndex: 50
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <div style={{ 
-          background: 'var(--accent)', 
-          width: '32px', 
-          height: '32px', 
-          borderRadius: '8px', 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center',
-          boxShadow: '0 0 15px var(--accent-glow)'
-        }}>
-          <Sparkles size={20} color="white" />
-        </div>
-        <h1 style={{ fontSize: '20px', fontWeight: 700, letterSpacing: '-0.02em' }}>
-          CV-Gen <span style={{ color: 'var(--accent)' }}>AI</span>
-        </h1>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ 
+            background: 'var(--accent)', 
+            width: '32px', 
+            height: '32px', 
+            borderRadius: '8px', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            boxShadow: '0 0 15px var(--accent-glow)'
+          }}>
+            <Sparkles size={20} color="white" />
+          </div>
+          <h1 style={{ fontSize: '20px', fontWeight: 700, letterSpacing: '-0.02em' }}>
+            CV-Gen <span style={{ color: 'var(--accent)' }}>AI</span>
+          </h1>
+        </Link>
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
@@ -57,19 +63,21 @@ export default function Header() {
           <button 
             className="btn-outline" 
             style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px' }}
-            onClick={() => handleDownload('pt')}
+            onClick={() => setIsSaveModalOpen(true)}
           >
-            <FileDown size={18} /> PT.pdf
+            Guardar
           </button>
           <button 
             className="btn-primary" 
             style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px' }}
-            onClick={() => handleDownload('en')}
+            onClick={() => handleDownload(activeLanguage)}
           >
-            <FileDown size={18} /> EN.pdf
+            <FileDown size={18} /> Exportar PDF
           </button>
         </div>
       </div>
+
+      <SaveModal isOpen={isSaveModalOpen} onClose={() => setIsSaveModalOpen(false)} />
     </header>
   );
 }

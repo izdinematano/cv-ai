@@ -56,3 +56,45 @@ export async function translateCVField(
     return text; // Fallback to original text
   }
 }
+
+export async function improveCVField(
+  text: string,
+  lang: 'pt' | 'en',
+  modelType: TranslationModel = 'advanced'
+) {
+  if (!text) return '';
+  
+  const prompt = `
+    You are a professional CV editor.
+    Improve the following CV text in ${lang === 'pt' ? 'Portuguese' : 'English'} to make it more professional, impactful, and clear.
+    
+    IMPORTANT RULES:
+    1. Keep the same language.
+    2. Use action verbs and quantifiable achievements if possible.
+    3. Maintain the same formatting.
+    4. Output ONLY the improved text.
+    
+    TEXT TO IMPROVE:
+    "${text}"
+  `;
+
+  try {
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: MODELS[modelType],
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    });
+
+    const data = await response.json();
+    return data.choices[0].message.content.trim();
+  } catch (error) {
+    console.error('AI Improvement error:', error);
+    return text;
+  }
+}

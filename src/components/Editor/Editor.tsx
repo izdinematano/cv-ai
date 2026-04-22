@@ -1,12 +1,22 @@
 'use client';
 
 import { useCVStore } from '@/store/useCVStore';
-import { translateCVField } from '@/lib/openrouter';
-import { Sparkles, Plus, Trash2, User, Briefcase, GraduationCap, Code } from 'lucide-react';
+import { translateCVField, improveCVField } from '@/lib/openrouter';
+import { Sparkles, Plus, Trash2, User, Briefcase, GraduationCap, Code, Palette, Settings, Layout, Wand2 } from 'lucide-react';
 import { useState } from 'react';
 
 export default function Editor() {
-  const { data, activeLanguage, updatePersonalInfo, updateSummary, addExperience, updateExperience, removeExperience, addEducation, updateEducation, removeEducation, addSkill, updateSkill, removeSkill, isConverting, setConverting } = useCVStore();
+  const { data, activeLanguage, updatePersonalInfo, updateSummary, addExperience, updateExperience, removeExperience, addEducation, updateEducation, removeEducation, addSkill, updateSkill, removeSkill, isConverting, setConverting, setTemplate, setAccentColor } = useCVStore();
+  const [activeTab, setActiveTab] = useState<'content' | 'design'>('content');
+
+  const calculateScore = () => {
+    let score = 20; // Base score
+    if (data.personalInfo.fullName) score += 10;
+    if (data.summary[activeLanguage]) score += 20;
+    if (data.experience.length > 0) score += 30;
+    if (data.skills.length > 0) score += 20;
+    return Math.min(score, 100);
+  };
 
   const handleMagicConvert = async (field: any, value: string, section: string, id?: string) => {
     if (!value) return;
@@ -28,9 +38,82 @@ export default function Editor() {
     setConverting(false);
   };
 
+  const handleAIImprove = async (field: any, value: string, section: string, id?: string) => {
+    if (!value) return;
+    setConverting(true);
+    const result = await improveCVField(value, activeLanguage);
+    
+    if (section === 'summary') {
+      updateSummary({ [activeLanguage]: result });
+    } else if (section === 'experience' && id) {
+      const exp = data.experience.find(e => e.id === id);
+      if (exp) {
+        updateExperience(id, { [field]: { ...exp[field as keyof typeof exp] as any, [activeLanguage]: result } });
+      }
+    }
+    setConverting(false);
+  };
+
   return (
-    <div className="editor-container" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '32px', overflowY: 'auto', height: '100%' }}>
-      {/* Personal Info */}
+    <div className="editor-container" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      {/* Tabs */}
+      <div style={{ display: 'flex', borderBottom: '1px solid var(--card-border)', background: 'rgba(255,255,255,0.02)' }}>
+        <button 
+          onClick={() => setActiveTab('content')}
+          style={{ 
+            flex: 1, padding: '16px', fontSize: '14px', fontWeight: 600, 
+            color: activeTab === 'content' ? 'var(--accent)' : 'var(--muted-foreground)',
+            borderBottom: activeTab === 'content' ? '2px solid var(--accent)' : 'none',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'
+          }}
+        >
+          <Layout size={18} /> Conteúdo
+        </button>
+        <button 
+          onClick={() => setActiveTab('design')}
+          style={{ 
+            flex: 1, padding: '16px', fontSize: '14px', fontWeight: 600, 
+            color: activeTab === 'design' ? 'var(--accent)' : 'var(--muted-foreground)',
+            borderBottom: activeTab === 'design' ? '2px solid var(--accent)' : 'none',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'
+          }}
+        >
+          <Palette size={18} /> Design
+        </button>
+      </div>
+
+      <div style={{ padding: '24px', flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '32px' }}>
+        {/* CV Score Indicator */}
+        <div style={{ 
+          background: 'rgba(59, 130, 246, 0.05)', 
+          padding: '16px', 
+          borderRadius: '12px', 
+          border: '1px solid rgba(59, 130, 246, 0.2)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ position: 'relative', width: '48px', height: '48px' }}>
+              <svg viewBox="0 0 36 36" style={{ transform: 'rotate(-90deg)' }}>
+                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#1e293b" strokeWidth="3" />
+                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--accent)" strokeWidth="3" strokeDasharray={`${calculateScore()}, 100`} />
+              </svg>
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 800 }}>
+                {calculateScore()}%
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: '13px', fontWeight: 700 }}>Score do CV</div>
+              <div style={{ fontSize: '11px', color: 'var(--muted-foreground)' }}>Melhore os campos para aumentar</div>
+            </div>
+          </div>
+          <Sparkles size={18} color="var(--accent)" />
+        </div>
+
+        {activeTab === 'content' ? (
+          <>
+            {/* Personal Info */}
       <section className="glass-card" style={{ padding: '24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
           <User size={20} color="var(--accent)" />
@@ -91,14 +174,24 @@ export default function Editor() {
             <Sparkles size={20} color="var(--accent)" />
             <h2 style={{ fontSize: '18px' }}>Resumo Profissional</h2>
           </div>
-          <button 
-            className="btn-outline" 
-            style={{ padding: '6px 12px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}
-            onClick={() => handleMagicConvert('summary', data.summary[activeLanguage], 'summary')}
-            disabled={isConverting}
-          >
-            <Sparkles size={14} /> Converter p/ {activeLanguage === 'pt' ? 'Inglês' : 'Português'}
-          </button>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button 
+              className="btn-outline" 
+              style={{ padding: '6px 12px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}
+              onClick={() => handleMagicConvert('summary', data.summary[activeLanguage], 'summary')}
+              disabled={isConverting}
+            >
+              <Sparkles size={14} /> Converter p/ {activeLanguage === 'pt' ? 'Inglês' : 'Português'}
+            </button>
+            <button 
+              className="btn-outline" 
+              style={{ padding: '6px 12px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px', borderColor: 'var(--accent)' }}
+              onClick={() => handleAIImprove('summary', data.summary[activeLanguage], 'summary')}
+              disabled={isConverting}
+            >
+              <Wand2 size={14} color="var(--accent)" /> Melhorar c/ IA
+            </button>
+          </div>
         </div>
         <textarea 
           rows={4}
@@ -142,9 +235,14 @@ export default function Editor() {
               <label>Descrição ({activeLanguage.toUpperCase()})</label>
               <div style={{ position: 'relative' }}>
                 <textarea rows={3} value={exp.description[activeLanguage]} onChange={(e) => updateExperience(exp.id, { description: { ...exp.description, [activeLanguage]: e.target.value } })} />
-                <button className="magic-btn" onClick={() => handleMagicConvert('description', exp.description[activeLanguage], 'experience', exp.id)} disabled={isConverting} style={{ top: '10px' }}>
-                  <Sparkles size={14} />
-                </button>
+                <div style={{ position: 'absolute', right: '8px', top: '10px', display: 'flex', gap: '4px' }}>
+                  <button className="magic-btn" style={{ position: 'static', transform: 'none' }} onClick={() => handleAIImprove('description', exp.description[activeLanguage], 'experience', exp.id)} disabled={isConverting}>
+                    <Wand2 size={14} />
+                  </button>
+                  <button className="magic-btn" style={{ position: 'static', transform: 'none' }} onClick={() => handleMagicConvert('description', exp.description[activeLanguage], 'experience', exp.id)} disabled={isConverting}>
+                    <Sparkles size={14} />
+                  </button>
+                </div>
               </div>
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px' }}>
@@ -270,7 +368,65 @@ export default function Editor() {
           </p>
         </div>
       </section>
+          </>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+            <section className="glass-card" style={{ padding: '24px' }}>
+              <h2 style={{ fontSize: '18px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Layout size={20} color="var(--accent)" /> Escolher Template
+              </h2>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                {[
+                  { id: 'minimalist', name: 'Minimalista' },
+                  { id: 'corporate', name: 'Corporativo' },
+                  { id: 'creative', name: 'Criativo' },
+                ].map((t) => (
+                  <button 
+                    key={t.id}
+                    onClick={() => setTemplate(t.id as any)}
+                    style={{ 
+                      padding: '20px', 
+                      borderRadius: '12px', 
+                      background: data.settings.template === t.id ? 'rgba(59, 130, 246, 0.1)' : 'rgba(255,255,255,0.05)',
+                      border: data.settings.template === t.id ? '2px solid var(--accent)' : '1px solid var(--card-border)',
+                      color: 'white',
+                      textAlign: 'center',
+                      fontWeight: 600
+                    }}
+                  >
+                    {t.name}
+                  </button>
+                ))}
+              </div>
+            </section>
 
+            <section className="glass-card" style={{ padding: '24px' }}>
+              <h2 style={{ fontSize: '18px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Palette size={20} color="var(--accent)" /> Cores e Estilo
+              </h2>
+              <div className="form-group">
+                <label>Cor de Destaque</label>
+                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                  {['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#0f172a'].map((c) => (
+                    <button 
+                      key={c}
+                      onClick={() => setAccentColor(c)}
+                      style={{ 
+                        width: '32px', 
+                        height: '32px', 
+                        borderRadius: '50%', 
+                        background: c,
+                        border: data.settings.accentColor === c ? '2px solid white' : 'none',
+                        boxShadow: data.settings.accentColor === c ? '0 0 10px ' + c : 'none'
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            </section>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
