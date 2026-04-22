@@ -377,10 +377,14 @@ export default function Editor() {
               </h2>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 {[
-                  { id: 'minimalist', name: 'Minimalista', img: '/templates/minimalist.png' },
-                  { id: 'corporate', name: 'Corporativo', img: '/templates/corporate.png' },
-                  { id: 'creative', name: 'Criativo', img: '/templates/creative.png' },
-                  { id: 'executive', name: 'Executivo', img: '/templates/executive.png' },
+                  { id: 'minimalist', name: 'Minimalista v1', img: '/templates/minimalist.png' },
+                  { id: 'minimalist-v2', name: 'Minimalista v2', img: '/templates/minimalist-v2.png' },
+                  { id: 'corporate', name: 'Corporativo v1', img: '/templates/corporate.png' },
+                  { id: 'corporate-v2', name: 'Corporativo v2', img: '/templates/corporate-v2.png' },
+                  { id: 'creative', name: 'Criativo v1', img: '/templates/creative.png' },
+                  { id: 'creative-v2', name: 'Criativo v2', img: '/templates/creative-v2.png' },
+                  { id: 'executive', name: 'Executivo v1', img: '/templates/executive.png' },
+                  { id: 'executive-v2', name: 'Executivo v2', img: '/templates/executive-v2.png' },
                 ].map((t) => (
                   <button 
                     key={t.id}

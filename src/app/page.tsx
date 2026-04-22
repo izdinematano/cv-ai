@@ -165,10 +165,14 @@ export default function LandingPage() {
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', maxWidth: '1200px', margin: '0 auto' }}>
           {[
-            { name: 'Minimalista', img: '/templates/minimalist.png' },
-            { name: 'Corporativo', img: '/templates/corporate.png' },
-            { name: 'Criativo', img: '/templates/creative.png' },
-            { name: 'Executivo', img: '/templates/executive.png' },
+            { name: 'Minimalista v1', img: '/templates/minimalist.png' },
+            { name: 'Minimalista v2', img: '/templates/minimalist-v2.png' },
+            { name: 'Corporativo v1', img: '/templates/corporate.png' },
+            { name: 'Corporativo v2', img: '/templates/corporate-v2.png' },
+            { name: 'Criativo v1', img: '/templates/creative.png' },
+            { name: 'Criativo v2', img: '/templates/creative-v2.png' },
+            { name: 'Executivo v1', img: '/templates/executive.png' },
+            { name: 'Executivo v2', img: '/templates/executive-v2.png' },
           ].map((t, i) => (
             <div key={i} className="glass-card" style={{ padding: '0', overflow: 'hidden', border: '1px solid var(--card-border)' }}>
               <div style={{ height: '320px', overflow: 'hidden', background: '#f8fafc' }}>
