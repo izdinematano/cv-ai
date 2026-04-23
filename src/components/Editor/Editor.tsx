@@ -13,6 +13,7 @@ import {
   FolderGit2,
   Globe,
   GraduationCap,
+  Import,
   Languages,
   Link as LinkIcon,
   Palette,
@@ -23,7 +24,11 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import TemplateGallery from '@/components/Preview/TemplateGallery';
-import { improveCVField } from '@/lib/openrouter';
+import {
+  extractCVDataFromRawCV,
+  improveCVField,
+  recommendTemplateWithAI,
+} from '@/lib/openrouter';
 import { getTemplateRecommendation } from '@/lib/recommendations';
 import { getTemplateDefinition } from '@/lib/templateCatalog';
 import { useCVStore } from '@/store/useCVStore';
@@ -104,16 +109,20 @@ export default function Editor() {
     isConverting,
     setConverting,
     setTemplate,
+    setData,
     setAccentColor,
     updateSettings,
   } = useCVStore();
 
   const [activeTab, setActiveTab] = useState<'content' | 'design'>('content');
   const [openSections, setOpenSections] = useState<string[]>([
+    'import',
     'personal',
     'summary',
     'experience',
   ]);
+  const [rawCVInput, setRawCVInput] = useState('');
+  const [importStatus, setImportStatus] = useState('');
 
   const toggleSection = (id: string) => {
     setOpenSections((current) =>
@@ -147,6 +156,63 @@ export default function Editor() {
   const score = calculateScore();
   const scoreColor = score < 40 ? '#ef4444' : score < 70 ? '#f59e0b' : '#10b981';
   const selectedTemplate = getTemplateDefinition(data.settings.template);
+
+  const handleImportCV = async () => {
+    if (!rawCVInput.trim()) return;
+
+    setConverting(true);
+    setImportStatus('A analisar o CV e a estruturar os dados...');
+
+    try {
+      const importedData = await extractCVDataFromRawCV(rawCVInput, activeLanguage);
+      if (!importedData) {
+        setImportStatus('Nao foi possivel interpretar o CV. Cola mais conteudo e tenta novamente.');
+        return;
+      }
+
+      const mergedData = {
+        ...data,
+        ...importedData,
+        personalInfo: {
+          ...data.personalInfo,
+          ...(importedData.personalInfo || {}),
+          jobTitle: {
+            ...data.personalInfo.jobTitle,
+            ...(importedData.personalInfo?.jobTitle || {}),
+          },
+        },
+        summary: {
+          ...data.summary,
+          ...(importedData.summary || {}),
+        },
+        settings: {
+          ...data.settings,
+        },
+      } as typeof data;
+
+      const suggestion = await recommendTemplateWithAI(rawCVInput, mergedData, activeLanguage);
+
+      setData({
+        ...mergedData,
+        settings: {
+          ...mergedData.settings,
+          template: suggestion.template || mergedData.settings.template,
+        },
+      });
+
+      if (suggestion.template) {
+        setTemplate(suggestion.template);
+      }
+
+      setImportStatus(
+        suggestion.reason
+          ? `CV importado com sucesso. Modelo sugerido: ${suggestion.badge} - ${suggestion.reason}`
+          : 'CV importado com sucesso.'
+      );
+    } finally {
+      setConverting(false);
+    }
+  };
 
   const handleAIImprove = async (
     value: string,
@@ -308,6 +374,97 @@ export default function Editor() {
 
         {activeTab === 'content' ? (
           <>
+            <div className="glass-card" style={{ padding: 0, overflow: 'hidden' }}>
+              <SectionHeader
+                id="import"
+                icon={Import}
+                title="Importar CV Existente"
+                isOpen={openSections.includes('import')}
+                onToggle={toggleSection}
+              />
+              <AnimatePresence initial={false}>
+                {openSections.includes('import') && (
+                  <motion.div
+                    initial={{ height: 0 }}
+                    animate={{ height: 'auto' }}
+                    exit={{ height: 0 }}
+                    style={{ overflow: 'hidden' }}
+                  >
+                    <div
+                      style={{
+                        padding: '20px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '14px',
+                      }}
+                    >
+                      <div
+                        style={{
+                          background: 'rgba(16,185,129,0.08)',
+                          border: '1px solid rgba(16,185,129,0.2)',
+                          borderRadius: '14px',
+                          padding: '16px',
+                        }}
+                      >
+                        <div style={{ fontSize: '13px', fontWeight: 800, marginBottom: '6px' }}>
+                          Cola o texto do teu CV e deixa a IA organizar tudo.
+                        </div>
+                        <p style={{ fontSize: '12px', color: '#94a3b8', lineHeight: 1.7 }}>
+                          A app tenta extrair experiencias, educacao, skills, resumo e ainda sugerir o melhor modelo
+                          para o teu perfil. Funciona melhor com texto copiado de PDF, Word ou LinkedIn.
+                        </p>
+                      </div>
+
+                      <div className="form-group">
+                        <label>Texto do CV</label>
+                        <textarea
+                          rows={8}
+                          value={rawCVInput}
+                          onChange={(event) => setRawCVInput(event.target.value)}
+                          placeholder="Cole aqui o conteudo completo do CV para a IA estruturar e melhorar..."
+                          style={{ resize: 'vertical', minHeight: '180px' }}
+                        />
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                        <button
+                          className="btn-primary"
+                          onClick={handleImportCV}
+                          disabled={isConverting || !rawCVInput.trim()}
+                          style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                        >
+                          <Sparkles size={16} /> Importar com IA
+                        </button>
+                        <button
+                          className="btn-outline"
+                          onClick={() => setRawCVInput('')}
+                          disabled={isConverting || !rawCVInput}
+                        >
+                          Limpar texto
+                        </button>
+                      </div>
+
+                      {importStatus ? (
+                        <div
+                          style={{
+                            background: 'rgba(59,130,246,0.08)',
+                            border: '1px solid rgba(59,130,246,0.18)',
+                            borderRadius: '12px',
+                            padding: '14px',
+                            fontSize: '12px',
+                            lineHeight: 1.7,
+                            color: '#cbd5e1',
+                          }}
+                        >
+                          {importStatus}
+                        </div>
+                      ) : null}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
             <div className="glass-card" style={{ padding: 0, overflow: 'hidden' }}>
               <SectionHeader
                 id="personal"

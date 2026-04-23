@@ -12,6 +12,9 @@ import ExecutiveV2 from '../Templates/ExecutiveV2';
 import Tech from '../Templates/Tech';
 import Modern from '../Templates/Modern';
 import Student from '../Templates/Student';
+import Studio from '../Templates/Studio';
+import Atlas from '../Templates/Atlas';
+import Bold from '../Templates/Bold';
 
 export const renderTemplateById = (
   template: string,
@@ -39,6 +42,12 @@ export const renderTemplateById = (
       return <Modern data={data} lang={lang} />;
     case 'student':
       return <Student data={data} lang={lang} />;
+    case 'studio':
+      return <Studio data={data} lang={lang} />;
+    case 'atlas':
+      return <Atlas data={data} lang={lang} />;
+    case 'bold':
+      return <Bold data={data} lang={lang} />;
     case 'minimalist':
     default:
       return <Minimalist data={data} lang={lang} />;

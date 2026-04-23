@@ -11,6 +11,31 @@ export interface TemplateDefinition {
   featured?: boolean;
 }
 
+const createAvatarDataUri = (name: string, accentColor: string) => {
+  const initials = name
+    .split(' ')
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join('')
+    .toUpperCase();
+
+  const svg = `
+  <svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 320 320">
+    <defs>
+      <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="${accentColor}" />
+        <stop offset="100%" stop-color="#0f172a" />
+      </linearGradient>
+    </defs>
+    <rect width="320" height="320" rx="36" fill="url(#grad)" />
+    <circle cx="160" cy="122" r="58" fill="rgba(255,255,255,0.18)" />
+    <path d="M68 275c20-55 63-83 92-83s72 28 92 83" fill="rgba(255,255,255,0.18)" />
+    <text x="160" y="174" font-family="Arial, sans-serif" font-size="72" font-weight="700" text-anchor="middle" fill="#ffffff">${initials}</text>
+  </svg>`;
+
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+};
+
 export const templateCatalog: TemplateDefinition[] = [
   {
     id: 'minimalist',
@@ -46,7 +71,7 @@ export const templateCatalog: TemplateDefinition[] = [
     badge: 'Premium',
     category: 'Executivo',
     tone: 'Formal com impacto',
-    description: 'Cabecalho forte, foto opcional e uma presenca mais premium para funcoes seniores.',
+    description: 'Cabecalho forte, foto opcional e uma presenca premium para funcoes seniores.',
     accentColor: '#0f766e',
     featured: true,
   },
@@ -118,6 +143,36 @@ export const templateCatalog: TemplateDefinition[] = [
     accentColor: '#f59e0b',
     featured: true,
   },
+  {
+    id: 'studio',
+    name: 'Studio Flow',
+    badge: 'Canva Style',
+    category: 'Creative Pro',
+    tone: 'Colorido e polido',
+    description: 'Blocos elegantes, foto, destaques e um look que lembra construtores premium modernos.',
+    accentColor: '#14b8a6',
+    featured: true,
+  },
+  {
+    id: 'atlas',
+    name: 'Atlas',
+    badge: 'Balanced',
+    category: 'Consulting',
+    tone: 'Estruturado e forte',
+    description: 'Grade bem organizada para perfis analiticos, consultivos, finance e operations.',
+    accentColor: '#0f766e',
+    featured: true,
+  },
+  {
+    id: 'bold',
+    name: 'Bold Frame',
+    badge: 'Impact',
+    category: 'Modern Pro',
+    tone: 'Forte e memoravel',
+    description: 'Tipografia grande, shapes e destaque visual para perfis com ambicao e presenca.',
+    accentColor: '#dc2626',
+    featured: true,
+  },
 ];
 
 export const featuredTemplateIds = templateCatalog
@@ -127,51 +182,127 @@ export const featuredTemplateIds = templateCatalog
 export const getTemplateDefinition = (templateId: string) =>
   templateCatalog.find((template) => template.id === templateId) || templateCatalog[0];
 
+const showcaseProfiles: Record<
+  string,
+  { name: string; jobTitlePt: string; jobTitleEn: string; summaryPt: string; summaryEn: string }
+> = {
+  tech: {
+    name: 'Nelio Cumbe',
+    jobTitlePt: 'Engenheiro de Software Full Stack',
+    jobTitleEn: 'Full Stack Software Engineer',
+    summaryPt: 'Cria plataformas digitais, produtos SaaS e experiencias tecnicas escalaveis com foco em clareza, performance e negocio.',
+    summaryEn: 'Builds scalable digital platforms, SaaS products, and technical experiences with a focus on clarity, performance, and business impact.',
+  },
+  creative: {
+    name: 'Amina Matola',
+    jobTitlePt: 'Brand Designer e Directora Criativa',
+    jobTitleEn: 'Brand Designer and Creative Director',
+    summaryPt: 'Profissional bilingue com experiencia em design, conteudo e estrategia visual para marcas que querem uma presenca forte e moderna.',
+    summaryEn: 'Bilingual professional with experience in design, content, and visual strategy for brands that want a strong modern presence.',
+  },
+  'creative-v2': {
+    name: 'Amina Matola',
+    jobTitlePt: 'Brand Designer e Directora Criativa',
+    jobTitleEn: 'Brand Designer and Creative Director',
+    summaryPt: 'Profissional bilingue com experiencia em design, conteudo e estrategia visual para marcas que querem uma presenca forte e moderna.',
+    summaryEn: 'Bilingual professional with experience in design, content, and visual strategy for brands that want a strong modern presence.',
+  },
+  executive: {
+    name: 'Paulo Cossa',
+    jobTitlePt: 'Director de Operacoes',
+    jobTitleEn: 'Operations Director',
+    summaryPt: 'Lider com historico em crescimento operacional, governance, equipas multidisciplinares e entrega de resultados consistentes.',
+    summaryEn: 'Leader with a track record in operational growth, governance, multidisciplinary teams, and consistent execution.',
+  },
+  'executive-v2': {
+    name: 'Paulo Cossa',
+    jobTitlePt: 'Director de Operacoes',
+    jobTitleEn: 'Operations Director',
+    summaryPt: 'Lider com historico em crescimento operacional, governance, equipas multidisciplinares e entrega de resultados consistentes.',
+    summaryEn: 'Leader with a track record in operational growth, governance, multidisciplinary teams, and consistent execution.',
+  },
+  student: {
+    name: 'Celma Jossias',
+    jobTitlePt: 'Estudante de Engenharia Informatica',
+    jobTitleEn: 'Computer Engineering Student',
+    summaryPt: 'Perfil junior com base academica forte, curiosidade tecnica, portfolio em crescimento e vontade de aprender rapido.',
+    summaryEn: 'Junior profile with a strong academic base, technical curiosity, a growing portfolio, and a high learning pace.',
+  },
+  studio: {
+    name: 'Marta Sitoe',
+    jobTitlePt: 'Marketing Strategist e Copy Lead',
+    jobTitleEn: 'Marketing Strategist and Copy Lead',
+    summaryPt: 'Une posicionamento, conteudo e design para criar campanhas memoraveis e experiencias de marca coerentes.',
+    summaryEn: 'Combines positioning, content, and design to craft memorable campaigns and cohesive brand experiences.',
+  },
+  atlas: {
+    name: 'Ibraimo Issufo',
+    jobTitlePt: 'Business Analyst',
+    jobTitleEn: 'Business Analyst',
+    summaryPt: 'Transforma dados, processos e prioridades estrategicas em planos concretos, dashboards e operacoes mais eficientes.',
+    summaryEn: 'Turns data, processes, and strategic priorities into clear plans, dashboards, and more efficient operations.',
+  },
+  bold: {
+    name: 'Sara Machava',
+    jobTitlePt: 'Growth Product Manager',
+    jobTitleEn: 'Growth Product Manager',
+    summaryPt: 'Conecta produto, growth e comunicacao com foco em aquisicao, ativacao e resultados mensuraveis.',
+    summaryEn: 'Connects product, growth, and communication with a focus on acquisition, activation, and measurable outcomes.',
+  },
+};
+
 export const createShowcaseCVData = (templateId: string): CVData => {
   const template = getTemplateDefinition(templateId);
+  const profile =
+    showcaseProfiles[templateId] ||
+    showcaseProfiles[template.category.toLowerCase()] ||
+    showcaseProfiles.creative;
+
+  const photo = createAvatarDataUri(profile.name, template.accentColor);
 
   return {
     personalInfo: {
-      fullName: 'Amina Matola',
-      email: 'amina@portfolio.pro',
+      fullName: profile.name,
+      email: 'hello@cvgen.pro',
       phone: '+258 84 321 7788',
       location: 'Maputo, Mozambique',
-      linkedin: 'linkedin.com/in/aminamatola',
-      website: 'aminamatola.dev',
+      linkedin: 'linkedin.com/in/showcase-profile',
+      website: 'portfolio.cvgen.pro',
+      photo,
       jobTitle: {
-        pt: 'Product Designer e Estratega de Marca',
-        en: 'Product Designer and Brand Strategist',
+        pt: profile.jobTitlePt,
+        en: profile.jobTitleEn,
       },
     },
     summary: {
-      pt: 'Profissional bilingue com experiencia em design digital, estrategia visual e colaboracao com equipas de produto para criar experiencias memoraveis e orientadas a resultados.',
-      en: 'Bilingual professional combining digital design, visual strategy, and product collaboration to craft memorable experiences and measurable business outcomes.',
+      pt: profile.summaryPt,
+      en: profile.summaryEn,
     },
     experience: [
       {
         id: 'exp-1',
         company: 'MozTech Studio',
         position: {
-          pt: 'Senior Product Designer',
-          en: 'Senior Product Designer',
+          pt: 'Senior Strategist',
+          en: 'Senior Strategist',
         },
         period: '2023 - Presente',
         description: {
-          pt: 'Redesenhei jornadas criticas da plataforma, aumentei a ativacao e alinhei design systems entre produto, marketing e engenharia.',
-          en: 'Redesigned core journeys, increased activation, and aligned design systems across product, marketing, and engineering.',
+          pt: 'Lidera iniciativas de alto impacto, melhora a experiencia do cliente e alinha estrategia, design e execucao.',
+          en: 'Leads high-impact initiatives, improves customer experience, and aligns strategy, design, and execution.',
         },
       },
       {
         id: 'exp-2',
         company: 'BlueWave Agency',
         position: {
-          pt: 'Brand and UX Lead',
-          en: 'Brand and UX Lead',
+          pt: 'Lead Specialist',
+          en: 'Lead Specialist',
         },
         period: '2020 - 2023',
         description: {
-          pt: 'Liderei identidades digitais para fintech, e-commerce e educacao com foco em clareza, consistencia e conversao.',
-          en: 'Led digital identities for fintech, ecommerce, and education with a focus on clarity, consistency, and conversion.',
+          pt: 'Conduziu projetos multidisciplinares, definiu processos e elevou a qualidade das entregas para clientes regionais.',
+          en: 'Drove multidisciplinary projects, defined processes, and raised delivery quality for regional clients.',
         },
       },
     ],
@@ -180,19 +311,19 @@ export const createShowcaseCVData = (templateId: string): CVData => {
         id: 'edu-1',
         institution: 'Universidade Eduardo Mondlane',
         degree: {
-          pt: 'Licenciatura em Design e Multimedia',
-          en: 'Bachelor in Design and Multimedia',
+          pt: 'Licenciatura em Gestao, Design e Tecnologia',
+          en: 'Bachelor in Management, Design, and Technology',
         },
         year: '2019',
       },
     ],
     skills: [
-      { pt: 'UI Design', en: 'UI Design' },
-      { pt: 'Design Systems', en: 'Design Systems' },
-      { pt: 'Research', en: 'Research' },
+      { pt: 'Estrategia', en: 'Strategy' },
+      { pt: 'Comunicacao', en: 'Communication' },
+      { pt: 'Analise', en: 'Analysis' },
+      { pt: 'Leadership', en: 'Leadership' },
       { pt: 'Figma', en: 'Figma' },
-      { pt: 'Brand Strategy', en: 'Brand Strategy' },
-      { pt: 'Prototipagem', en: 'Prototyping' },
+      { pt: 'Research', en: 'Research' },
     ],
     languages: [
       { name: 'Portugues', level: { pt: 'Nativo', en: 'Native' } },
@@ -201,18 +332,18 @@ export const createShowcaseCVData = (templateId: string): CVData => {
     projects: [
       {
         id: 'proj-1',
-        name: 'FinFlow Mobile',
-        link: 'finflow.app',
+        name: 'Growth OS',
+        link: 'growthos.app',
         description: {
-          pt: 'Sistema mobile-first para onboarding financeiro com novo fluxo visual e copy de alta conversao.',
-          en: 'Mobile-first financial onboarding system with a new visual flow and high-converting copy.',
+          pt: 'Framework de crescimento com dashboards, copy orientada a conversao e experiencia digital consistente.',
+          en: 'Growth framework with dashboards, conversion-led copy, and a consistent digital experience.',
         },
       },
     ],
     certifications: [
       {
         id: 'cert-1',
-        name: 'Google UX Design',
+        name: 'Professional Certificate',
         issuer: 'Google',
         year: '2022',
       },
