@@ -1,6 +1,6 @@
 'use client';
 
-import { useCVStore } from '@/store/useCVStore';
+import { type CVData, useCVStore } from '@/store/useCVStore';
 import Minimalist from '../Templates/Minimalist';
 import MinimalistV2 from '../Templates/MinimalistV2';
 import Corporate from '../Templates/Corporate';
@@ -13,31 +13,57 @@ import Tech from '../Templates/Tech';
 import Modern from '../Templates/Modern';
 import Student from '../Templates/Student';
 
-export default function Preview() {
-  const { data, activeLanguage } = useCVStore();
-  const template = data?.settings?.template || 'minimalist';
+export const renderTemplateById = (
+  template: string,
+  data: CVData,
+  lang: 'pt' | 'en'
+) => {
+  switch (template) {
+    case 'corporate':
+      return <Corporate data={data} lang={lang} />;
+    case 'corporate-v2':
+      return <CorporateV2 data={data} lang={lang} />;
+    case 'creative':
+      return <Creative data={data} lang={lang} />;
+    case 'creative-v2':
+      return <CreativeV2 data={data} lang={lang} />;
+    case 'executive':
+      return <Executive data={data} lang={lang} />;
+    case 'executive-v2':
+      return <ExecutiveV2 data={data} lang={lang} />;
+    case 'minimalist-v2':
+      return <MinimalistV2 data={data} lang={lang} />;
+    case 'tech':
+      return <Tech data={data} lang={lang} />;
+    case 'modern':
+      return <Modern data={data} lang={lang} />;
+    case 'student':
+      return <Student data={data} lang={lang} />;
+    case 'minimalist':
+    default:
+      return <Minimalist data={data} lang={lang} />;
+  }
+};
 
-  const renderTemplate = () => {
-    switch (template) {
-      case 'corporate': return <Corporate data={data} lang={activeLanguage} />;
-      case 'corporate-v2': return <CorporateV2 data={data} lang={activeLanguage} />;
-      case 'creative': return <Creative data={data} lang={activeLanguage} />;
-      case 'creative-v2': return <CreativeV2 data={data} lang={activeLanguage} />;
-      case 'executive': return <Executive data={data} lang={activeLanguage} />;
-      case 'executive-v2': return <ExecutiveV2 data={data} lang={activeLanguage} />;
-      case 'minimalist-v2': return <MinimalistV2 data={data} lang={activeLanguage} />;
-      case 'tech': return <Tech data={data} lang={activeLanguage} />;
-      case 'modern': return <Modern data={data} lang={activeLanguage} />;
-      case 'student': return <Student data={data} lang={activeLanguage} />;
-      case 'minimalist':
-      default:
-        return <Minimalist data={data} lang={activeLanguage} />;
-    }
-  };
+interface PreviewProps {
+  dataOverride?: CVData;
+  langOverride?: 'pt' | 'en';
+  templateOverride?: string;
+}
+
+export default function Preview({
+  dataOverride,
+  langOverride,
+  templateOverride,
+}: PreviewProps) {
+  const store = useCVStore();
+  const data = dataOverride || store.data;
+  const activeLanguage = langOverride || store.activeLanguage;
+  const template = templateOverride || data?.settings?.template || 'minimalist';
 
   return (
     <div style={{ transformOrigin: 'top center' }}>
-      {renderTemplate()}
+      {renderTemplateById(template, data, activeLanguage)}
     </div>
   );
 }

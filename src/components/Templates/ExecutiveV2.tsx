@@ -25,7 +25,7 @@ export default function ExecutiveV2({ data, lang }: TemplateProps) {
           <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><MapPin size={12} /> {data.personalInfo.location}</span>
           <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><Phone size={12} /> {data.personalInfo.phone}</span>
           <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><Mail size={12} /> {data.personalInfo.email}</span>
-          {data.personalInfo.linkedin && <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><Globe size={12} /> LinkedIn</span>}
+          {data.personalInfo.linkedin && <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><Globe size={12} /> {data.personalInfo.linkedin}</span>}
         </div>
         <h2 style={{ fontSize: '16px', fontWeight: 700, color: accentColor, textTransform: 'uppercase', letterSpacing: '4px' }}>{data.personalInfo.jobTitle[lang]}</h2>
       </header>

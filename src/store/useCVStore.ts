@@ -74,8 +74,11 @@ interface CVState {
   data: CVData;
   activeLanguage: 'pt' | 'en';
   isConverting: boolean;
+  hasChosenTemplate: boolean;
   setLanguage: (lang: 'pt' | 'en') => void;
   setTemplate: (template: string) => void;
+  completeTemplateSelection: () => void;
+  resetTemplateSelection: () => void;
   setAccentColor: (color: string) => void;
   updateSettings: (settings: Partial<CVData['settings']>) => void;
   updatePersonalInfo: (info: Partial<CVData['personalInfo']>) => void;
@@ -161,6 +164,7 @@ export const useCVStore = create<CVState>()(
       data: initialData,
       activeLanguage: 'pt',
       isConverting: false,
+      hasChosenTemplate: false,
 
       setLanguage: (lang) => set({ activeLanguage: lang }),
 
@@ -171,6 +175,9 @@ export const useCVStore = create<CVState>()(
             settings: { ...state.data.settings, template },
           },
         })),
+
+      completeTemplateSelection: () => set({ hasChosenTemplate: true }),
+      resetTemplateSelection: () => set({ hasChosenTemplate: false }),
 
       setAccentColor: (color) =>
         set((state) => ({
@@ -402,6 +409,7 @@ export const useCVStore = create<CVState>()(
           ...currentState,
           ...persisted,
           data: mergedData,
+          hasChosenTemplate: persisted?.hasChosenTemplate ?? currentState.hasChosenTemplate,
         };
       },
     }

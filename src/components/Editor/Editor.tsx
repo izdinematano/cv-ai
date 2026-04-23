@@ -22,8 +22,10 @@ import {
   User,
   type LucideIcon,
 } from 'lucide-react';
+import TemplateGallery from '@/components/Preview/TemplateGallery';
 import { improveCVField } from '@/lib/openrouter';
 import { getTemplateRecommendation } from '@/lib/recommendations';
+import { getTemplateDefinition } from '@/lib/templateCatalog';
 import { useCVStore } from '@/store/useCVStore';
 
 function SectionHeader({
@@ -144,6 +146,7 @@ export default function Editor() {
 
   const score = calculateScore();
   const scoreColor = score < 40 ? '#ef4444' : score < 70 ? '#f59e0b' : '#10b981';
+  const selectedTemplate = getTemplateDefinition(data.settings.template);
 
   const handleAIImprove = async (
     value: string,
@@ -259,6 +262,48 @@ export default function Editor() {
               }}
             />
           </div>
+        </div>
+
+        <div
+          className="glass-card"
+          style={{
+            padding: '18px 20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '14px',
+            background:
+              'linear-gradient(135deg, rgba(15,23,42,0.9) 0%, rgba(30,41,59,0.72) 100%)',
+          }}
+        >
+          <div>
+            <div style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 800, marginBottom: '4px' }}>
+              MODELO ATIVO
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span
+                style={{
+                  width: '12px',
+                  height: '12px',
+                  borderRadius: '999px',
+                  background: selectedTemplate.accentColor,
+                  boxShadow: `0 0 14px ${selectedTemplate.accentColor}`,
+                }}
+              />
+              <div>
+                <div style={{ fontSize: '16px', fontWeight: 800 }}>{selectedTemplate.name}</div>
+                <div style={{ color: '#94a3b8', fontSize: '12px' }}>{selectedTemplate.badge}</div>
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={() => setActiveTab('design')}
+            className="btn-outline"
+            style={{ padding: '10px 14px', fontSize: '12px', fontWeight: 700 }}
+          >
+            Trocar modelo
+          </button>
         </div>
 
         {activeTab === 'content' ? (
@@ -1234,40 +1279,11 @@ export default function Editor() {
               <h3 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '16px' }}>
                 Template
               </h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                {[
-                  { id: 'minimalist', name: 'Minimalista v1' },
-                  { id: 'minimalist-v2', name: 'Minimalista v2' },
-                  { id: 'corporate', name: 'Corporativo v1' },
-                  { id: 'corporate-v2', name: 'Corporativo v2' },
-                  { id: 'creative', name: 'Criativo v1' },
-                  { id: 'creative-v2', name: 'Criativo v2' },
-                  { id: 'executive', name: 'Executivo v1' },
-                  { id: 'executive-v2', name: 'Executivo v2' },
-                  { id: 'tech', name: 'Tech / IT' },
-                  { id: 'modern', name: 'Moderno Pro' },
-                  { id: 'student', name: 'Estudante' },
-                ].map((template) => (
-                  <button
-                    key={template.id}
-                    onClick={() => setTemplate(template.id)}
-                    style={{
-                      padding: '12px',
-                      borderRadius: '8px',
-                      background:
-                        data.settings.template === template.id
-                          ? 'var(--accent)'
-                          : 'rgba(255,255,255,0.05)',
-                      border: '1px solid var(--card-border)',
-                      color: 'white',
-                      fontSize: '12px',
-                      fontWeight: 600,
-                    }}
-                  >
-                    {template.name}
-                  </button>
-                ))}
-              </div>
+              <TemplateGallery
+                compact
+                activeTemplate={data.settings.template}
+                onSelect={(templateId) => setTemplate(templateId)}
+              />
             </section>
 
             <section>

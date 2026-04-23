@@ -21,8 +21,8 @@ export default function Minimalist({ data, lang }: TemplateProps) {
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><Mail size={12} /> {data.personalInfo.email}</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><Phone size={12} /> {data.personalInfo.phone}</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><MapPin size={12} /> {data.personalInfo.location}</div>
-          {data.personalInfo.linkedin && <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><Globe size={12} /> LinkedIn</div>}
-          {data.personalInfo.website && <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><Globe size={12} /> Website</div>}
+          {data.personalInfo.linkedin && <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><Globe size={12} /> {data.personalInfo.linkedin}</div>}
+          {data.personalInfo.website && <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}><Globe size={12} /> {data.personalInfo.website}</div>}
         </div>
       </header>
 

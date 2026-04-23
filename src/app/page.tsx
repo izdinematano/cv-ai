@@ -1,10 +1,15 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { ArrowRight, Globe, Shield, Sparkles, Zap } from 'lucide-react';
+import TemplateGallery from '@/components/Preview/TemplateGallery';
+import { useCVStore } from '@/store/useCVStore';
 
 export default function LandingPage() {
+  const router = useRouter();
+  const { setTemplate, completeTemplateSelection } = useCVStore();
   const steps = [
     {
       step: '01',
@@ -22,6 +27,12 @@ export default function LandingPage() {
       desc: 'Quando estiveres satisfeito, exporta o teu CV profissional em formato A4.',
     },
   ];
+
+  const handleTemplateSelect = (templateId: string) => {
+    setTemplate(templateId);
+    completeTemplateSelection();
+    router.push('/editor');
+  };
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--background)', color: 'white', overflowX: 'hidden' }}>
@@ -209,7 +220,7 @@ export default function LandingPage() {
           <div>
             <h2 style={{ fontSize: '40px', marginBottom: '16px' }}>Templates Profissionais</h2>
             <p style={{ color: 'var(--muted-foreground)', fontSize: '18px' }}>
-              Escolhe o estilo que melhor se adapta ao teu perfil.
+              Escolhe primeiro o modelo que mais combina contigo e entra logo no editor com esse visual selecionado.
             </p>
           </div>
           <Link href="/editor" className="btn-outline">
@@ -217,27 +228,8 @@ export default function LandingPage() {
           </Link>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '32px', maxWidth: '1200px', margin: '0 auto' }}>
-          {[
-            { name: 'Tech / IT Pro', img: '/templates/tech.png', badge: 'Popular para Software Engineers' },
-            { name: 'Executivo v2', img: '/templates/executive-v2.png', badge: 'Ideal para Lideranca' },
-            { name: 'Moderno Assimetrico', img: '/templates/modern.png', badge: 'Estilo contemporaneo' },
-            { name: 'Estudante / Junior', img: '/templates/student.png', badge: 'Primeiro emprego' },
-          ].map((template) => (
-            <div key={template.name} className="glass-card" style={{ padding: 0, overflow: 'hidden', border: '1px solid var(--card-border)', position: 'relative' }}>
-              <div style={{ position: 'absolute', top: '12px', right: '12px', background: 'var(--accent)', color: 'white', padding: '4px 10px', borderRadius: '8px', fontSize: '10px', fontWeight: 800, zIndex: 2 }}>
-                A4 VERTICAL
-              </div>
-              <div style={{ height: '420px', overflow: 'hidden', background: '#f8fafc' }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={template.img} alt={template.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              </div>
-              <div style={{ padding: '20px', background: 'rgba(255,255,255,0.02)' }}>
-                <div style={{ fontWeight: 800, fontSize: '15px', marginBottom: '4px' }}>{template.name}</div>
-                <div style={{ fontSize: '11px', color: 'var(--muted-foreground)' }}>{template.badge}</div>
-              </div>
-            </div>
-          ))}
+        <div style={{ maxWidth: '1320px', margin: '0 auto' }}>
+          <TemplateGallery featuredOnly onSelect={handleTemplateSelect} />
         </div>
       </section>
 

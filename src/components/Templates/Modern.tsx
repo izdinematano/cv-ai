@@ -29,8 +29,8 @@ export default function Modern({ data, lang }: TemplateProps) {
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '12px' }}><Mail size={14} /> {data.personalInfo.email}</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '12px' }}><Phone size={14} /> {data.personalInfo.phone}</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '12px' }}><MapPin size={14} /> {data.personalInfo.location}</div>
-          {data.personalInfo.linkedin && <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '12px' }}><Globe size={14} /> LinkedIn</div>}
-          {data.personalInfo.website && <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '12px' }}><Globe size={14} /> Website</div>}
+          {data.personalInfo.linkedin && <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '12px' }}><Globe size={14} /> {data.personalInfo.linkedin}</div>}
+          {data.personalInfo.website && <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '12px' }}><Globe size={14} /> {data.personalInfo.website}</div>}
         </div>
       </header>
 
