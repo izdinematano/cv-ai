@@ -74,7 +74,7 @@ export default function Creative({ data, lang }: TemplateProps) {
           <h2 style={{ fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', borderBottom: `2px solid ${accentColor}`, paddingBottom: '8px', marginBottom: '15px' }}>Competências</h2>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
             {data.skills.map((skill, i) => (
-              <span key={i} style={{ background: 'rgba(255,255,255,0.1)', padding: '5px 12px', borderRadius: '100px', fontSize: '10px' }}>{skill.pt}</span>
+              <span key={i} style={{ background: 'rgba(255,255,255,0.1)', padding: '5px 12px', borderRadius: '100px', fontSize: '10px' }}>{skill[lang] || skill.pt || skill.en}</span>
             ))}
           </div>
         </section>

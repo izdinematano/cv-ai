@@ -1,7 +1,7 @@
 'use client';
 
 import { CVData } from '@/store/useCVStore';
-import { Mail, Phone, MapPin, Globe, Code2, Cpu } from 'lucide-react';
+import { Mail, Phone, Globe, Code2, Cpu } from 'lucide-react';
 
 interface TemplateProps {
   data: CVData;
@@ -51,7 +51,7 @@ export default function Tech({ data, lang }: TemplateProps) {
             <h3 style={{ fontSize: '12px', fontWeight: 800, color: accentColor, textTransform: 'uppercase', marginBottom: '15px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '5px' }}>Stack</h3>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
               {data.skills.map((s, i) => (
-                <span key={i} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', padding: '4px 8px', borderRadius: '4px', fontSize: '10px' }}>{s.pt}</span>
+                <span key={i} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', padding: '4px 8px', borderRadius: '4px', fontSize: '10px' }}>{s[lang] || s.pt || s.en}</span>
               ))}
             </div>
           </section>

@@ -1,7 +1,7 @@
 'use client';
 
 import { CVData } from '@/store/useCVStore';
-import { Sparkles, Star, Zap } from 'lucide-react';
+import { Star, Zap } from 'lucide-react';
 
 interface TemplateProps {
   data: CVData;
@@ -85,7 +85,7 @@ export default function CreativeV2({ data, lang }: TemplateProps) {
             <h3 style={{ fontSize: '14px', fontWeight: 800, textTransform: 'uppercase', marginBottom: '20px', borderBottom: `3px solid ${accentColor}`, display: 'inline-block' }}>Skills</h3>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
               {data.skills.map((skill, i) => (
-                <div key={i} style={{ background: '#f1f5f9', padding: '8px 15px', borderRadius: '12px', fontSize: '12px', fontWeight: 600 }}>{skill.pt}</div>
+                <div key={i} style={{ background: '#f1f5f9', padding: '8px 15px', borderRadius: '12px', fontSize: '12px', fontWeight: 600 }}>{skill[lang] || skill.pt || skill.en}</div>
               ))}
             </div>
           </section>

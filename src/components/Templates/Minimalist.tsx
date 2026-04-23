@@ -63,7 +63,7 @@ export default function Minimalist({ data, lang }: TemplateProps) {
             <h3 style={{ fontSize: '13px', fontWeight: 800, textTransform: 'uppercase', color: '#94a3b8', marginBottom: '15px' }}>Skills</h3>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
               {data.skills.map((s, i) => (
-                <span key={i} style={{ background: '#f8fafc', padding: '4px 10px', borderRadius: '4px', fontSize: '11px', color: '#1e293b' }}>{s.pt}</span>
+                <span key={i} style={{ background: '#f8fafc', padding: '4px 10px', borderRadius: '4px', fontSize: '11px', color: '#1e293b' }}>{s[lang] || s.pt || s.en}</span>
               ))}
             </div>
           </section>

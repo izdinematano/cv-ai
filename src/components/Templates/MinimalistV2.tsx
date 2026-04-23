@@ -67,7 +67,7 @@ export default function MinimalistV2({ data, lang }: TemplateProps) {
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
               {data.skills.map((skill, i) => (
                 <span key={i} style={{ fontSize: '12px', color: '#64748b' }}>
-                  {skill.pt} {i < data.skills.length - 1 && '•'}
+                  {skill[lang] || skill.pt || skill.en} {i < data.skills.length - 1 && '•'}
                 </span>
               ))}
             </div>

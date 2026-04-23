@@ -1,7 +1,7 @@
 'use client';
 
 import { CVData } from '@/store/useCVStore';
-import { Mail, Phone, MapPin, Globe } from 'lucide-react';
+import { Mail, Phone, MapPin } from 'lucide-react';
 
 interface TemplateProps {
   data: CVData;
@@ -32,7 +32,9 @@ export default function Executive({ data, lang }: TemplateProps) {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
         {/* Professional Summary - Full Width with Quote style */}
         <section style={{ position: 'relative', padding: '0 40px' }}>
-          <div style={{ position: 'absolute', left: 0, top: 0, fontSize: '60px', color: accentColor, opacity: 0.2, lineHeight: 1 }}>"</div>
+          <div style={{ position: 'absolute', left: 0, top: 0, fontSize: '60px', color: accentColor, opacity: 0.2, lineHeight: 1 }}>
+            &quot;
+          </div>
           <p style={{ fontSize: '15px', lineHeight: '1.8', fontStyle: 'italic', color: '#334155', textAlign: 'center' }}>
             {data.summary[lang]}
           </p>
@@ -47,7 +49,7 @@ export default function Executive({ data, lang }: TemplateProps) {
                 {data.skills.map((skill, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <div style={{ width: '8px', height: '8px', background: accentColor, transform: 'rotate(45deg)' }} />
-                    <span style={{ fontSize: '13px', fontWeight: 600, color: '#475569' }}>{skill.pt}</span>
+                    <span style={{ fontSize: '13px', fontWeight: 600, color: '#475569' }}>{skill[lang] || skill.pt || skill.en}</span>
                   </div>
                 ))}
               </div>

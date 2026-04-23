@@ -1,8 +1,6 @@
 'use client';
 
 import { CVData } from '@/store/useCVStore';
-import { Mail, Phone, MapPin } from 'lucide-react';
-
 interface TemplateProps {
   data: CVData;
   lang: 'pt' | 'en';
@@ -30,7 +28,7 @@ export default function Corporate({ data, lang }: TemplateProps) {
           <h2 style={{ fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', color: accentColor, marginBottom: '15px' }}>Competências</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {data.skills.map((skill, i) => (
-              <div key={i} style={{ fontSize: '11px', color: '#475569' }}>• {skill.pt}</div>
+              <div key={i} style={{ fontSize: '11px', color: '#475569' }}>• {skill[lang] || skill.pt || skill.en}</div>
             ))}
           </div>
         </section>

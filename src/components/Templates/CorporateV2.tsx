@@ -87,7 +87,7 @@ export default function CorporateV2({ data, lang }: TemplateProps) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {data.skills.map((skill, i) => (
               <div key={i}>
-                <div style={{ fontSize: '12px', marginBottom: '4px', fontWeight: 600 }}>{skill.pt}</div>
+                <div style={{ fontSize: '12px', marginBottom: '4px', fontWeight: 600 }}>{skill[lang] || skill.pt || skill.en}</div>
                 <div style={{ height: '4px', background: '#e2e8f0', borderRadius: '2px' }}>
                   <div style={{ width: '80%', height: '100%', background: accentColor, borderRadius: '2px' }} />
                 </div>

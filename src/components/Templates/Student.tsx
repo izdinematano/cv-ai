@@ -8,7 +8,7 @@ interface TemplateProps {
 }
 
 export default function Student({ data, lang }: TemplateProps) {
-  const { accentColor, fontSize, sectionSpacing } = data.settings;
+  const { accentColor, fontSize } = data.settings;
 
   return (
     <div style={{ padding: '60px', minHeight: '1122px', background: '#fcfcfc', color: '#334155', fontSize: `${fontSize}px` }}>
@@ -55,7 +55,7 @@ export default function Student({ data, lang }: TemplateProps) {
           <h3 style={{ fontSize: '14px', fontWeight: 800, textTransform: 'uppercase', color: accentColor, marginBottom: '15px', letterSpacing: '1px' }}>Competências</h3>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
             {data.skills.map((s, i) => (
-              <span key={i} style={{ border: `1px solid ${accentColor}`, color: accentColor, padding: '4px 12px', borderRadius: '4px', fontSize: '12px', fontWeight: 700 }}>{s.pt}</span>
+              <span key={i} style={{ border: `1px solid ${accentColor}`, color: accentColor, padding: '4px 12px', borderRadius: '4px', fontSize: '12px', fontWeight: 700 }}>{s[lang] || s.pt || s.en}</span>
             ))}
           </div>
         </section>
