@@ -156,17 +156,17 @@ button {
   gap: 6px;
   padding: 7px 10px;
   border-radius: 999px;
-  background: rgba(59, 130, 246, 0.92);
-  color: white;
+  background: var(--accent);
+  color: var(--accent-foreground);
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.04em;
 }
 
 .template-pill-dark {
-  background: rgba(255, 255, 255, 0.08);
-  color: #e2e8f0;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--muted);
+  color: var(--foreground);
+  border: 1px solid var(--card-border);
 }
 
 /* Animations */
@@ -278,4 +278,122 @@ button {
 
 @media (max-width: 640px) {
   .container-narrow { padding: 0 18px; }
+}
+
+/* ---------- Editor layout (split + mobile stack) ---------- */
+.editor-topbar {
+  padding: 14px 22px;
+  border-bottom: 1px solid var(--card-border);
+  background: var(--background);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.editor-shell {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.editor-aside {
+  width: 45%;
+  min-width: 450px;
+  height: 100%;
+  border-right: 1px solid var(--card-border);
+  background: var(--background);
+  position: relative;
+  overflow: hidden;
+}
+
+.editor-preview-pane {
+  flex: 1;
+  height: 100%;
+  overflow: auto;
+  background: var(--background-muted);
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+  position: relative;
+}
+
+.editor-topbar-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--foreground);
+}
+
+.editor-topbar-sub {
+  color: var(--foreground-muted);
+  font-size: 12px;
+}
+
+/* On tablets the min-width aside was causing horizontal scroll. Let it shrink. */
+@media (max-width: 1100px) {
+  .editor-aside {
+    width: 50%;
+    min-width: 380px;
+  }
+}
+
+/* Mobile: stack editor + preview vertically, preview becomes scroll-only and
+ * CV shrinks to fit the viewport via transform, never overlapping the form. */
+@media (max-width: 900px) {
+  .editor-shell {
+    flex-direction: column;
+    overflow: auto;
+  }
+  .editor-aside {
+    width: 100%;
+    min-width: 0;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--card-border);
+    max-height: 70vh;
+    overflow: auto;
+  }
+  .editor-preview-pane {
+    padding: 20px 12px 80px;
+    min-height: 60vh;
+  }
+  .editor-topbar {
+    padding: 12px 14px;
+  }
+}
+
+/* Hide the floating zoom controls on small screens — they overlap the preview
+ * and the CV already auto-fits via the mobile-scale transform. */
+.editor-zoom-dock {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  gap: 10px;
+  z-index: 10;
+}
+
+@media (max-width: 900px) {
+  .editor-zoom-dock { display: none; }
+}
+
+/* Make the A4 export target auto-fit mobile width without changing its
+ * *actual* size (transform only). The PDF export forces 210mm anyway, so the
+ * exported file stays identical to desktop. */
+.cv-export-target {
+  width: 210mm;
+  min-height: 297mm;
+  background: white;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+  transform-origin: top center;
+  border-radius: 4px;
+}
+
+@media (max-width: 900px) {
+  .cv-export-target {
+    /* Fit 210mm (~794px) into small viewports; keeps WYSIWYG identical */
+    transform: scale(var(--preview-fit, 0.45));
+    margin-bottom: calc(-297mm * (1 - var(--preview-fit, 0.45)));
+  }
 }

@@ -45,8 +45,7 @@ export default function EditorPage() {
           minHeight: '100vh',
           display: 'flex',
           flexDirection: 'column',
-          background:
-            'radial-gradient(circle at top, rgba(59,130,246,0.16), transparent 40%), var(--background)',
+          background: 'var(--background)',
         }}
       >
         <Header />
@@ -72,15 +71,6 @@ export default function EditorPage() {
               className="glass-card"
               style={{ padding: '30px', overflow: 'hidden', position: 'relative' }}
             >
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  background:
-                    'radial-gradient(circle at top right, rgba(59,130,246,0.18), transparent 35%)',
-                  pointerEvents: 'none',
-                }}
-              />
               <div style={{ position: 'relative' }}>
                 <div
                   className="template-pill"
@@ -100,7 +90,7 @@ export default function EditorPage() {
                 </h1>
                 <p
                   style={{
-                    color: '#cbd5e1',
+                    color: 'var(--foreground-muted)',
                     fontSize: '17px',
                     lineHeight: 1.7,
                     maxWidth: '780px',
@@ -135,8 +125,8 @@ export default function EditorPage() {
                         width: '24px',
                         height: '24px',
                         borderRadius: '999px',
-                        background: 'rgba(59,130,246,0.16)',
-                        color: '#93c5fd',
+                        background: 'var(--accent-soft)',
+                        color: 'var(--accent)',
                         display: 'inline-flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -147,7 +137,7 @@ export default function EditorPage() {
                     >
                       +
                     </span>
-                    <p style={{ color: '#cbd5e1', lineHeight: 1.6, fontSize: '14px' }}>
+                    <p style={{ color: 'var(--foreground-muted)', lineHeight: 1.6, fontSize: '14px' }}>
                       {item}
                     </p>
                   </div>
@@ -169,18 +159,7 @@ export default function EditorPage() {
     <main style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <Header />
 
-      <div
-        style={{
-          padding: '14px 22px',
-          borderBottom: '1px solid var(--card-border)',
-          background: 'rgba(15, 23, 42, 0.78)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '16px',
-          flexWrap: 'wrap',
-        }}
-      >
+      <div className="editor-topbar">
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
           <div
             style={{
@@ -192,8 +171,8 @@ export default function EditorPage() {
             }}
           />
           <div>
-            <div style={{ fontSize: '15px', fontWeight: 800 }}>{selectedTemplate.name}</div>
-            <div style={{ color: '#94a3b8', fontSize: '12px' }}>
+            <div className="editor-topbar-title">{selectedTemplate.name}</div>
+            <div className="editor-topbar-sub">
               {selectedTemplate.badge} - {selectedTemplate.tone}
             </div>
           </div>
@@ -219,19 +198,9 @@ export default function EditorPage() {
         </div>
       </div>
 
-      <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+      <div className="editor-shell">
         {previewMode === 'split' ? (
-          <aside
-            style={{
-              width: '45%',
-              minWidth: '450px',
-              height: '100%',
-              borderRight: '1px solid var(--card-border)',
-              background: 'rgba(15, 23, 42, 0.32)',
-              backdropFilter: 'blur(20px)',
-              position: 'relative',
-            }}
-          >
+          <aside className="editor-aside">
             <Editor />
 
             <AnimatePresence>
@@ -243,13 +212,13 @@ export default function EditorPage() {
                   style={{
                     position: 'absolute',
                     inset: 0,
-                    background: 'rgba(15, 23, 42, 0.82)',
+                    background: 'rgba(255, 255, 255, 0.9)',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
                     zIndex: 50,
-                    backdropFilter: 'blur(8px)',
+                    backdropFilter: 'blur(6px)',
                   }}
                 >
                   <motion.div
@@ -259,12 +228,12 @@ export default function EditorPage() {
                   >
                     <Sparkles size={40} />
                   </motion.div>
-                  <p style={{ color: 'white', fontWeight: 600, fontSize: '18px' }}>
+                  <p style={{ color: 'var(--foreground)', fontWeight: 700, fontSize: '18px' }}>
                     A IA esta a adaptar o seu CV...
                   </p>
                   <p
                     style={{
-                      color: 'var(--muted-foreground)',
+                      color: 'var(--foreground-muted)',
                       fontSize: '14px',
                       marginTop: '8px',
                     }}
@@ -277,28 +246,8 @@ export default function EditorPage() {
           </aside>
         ) : null}
 
-        <section
-          style={{
-            flex: 1,
-            height: '100%',
-            overflow: 'auto',
-            background: '#14161b',
-            display: 'flex',
-            justifyContent: 'center',
-            padding: '40px',
-            position: 'relative',
-          }}
-        >
-          <div
-            style={{
-              position: 'fixed',
-              bottom: '24px',
-              right: '24px',
-              display: 'flex',
-              gap: '10px',
-              zIndex: 10,
-            }}
-          >
+        <section className="editor-preview-pane">
+          <div className="editor-zoom-dock">
             <button
               onClick={() => setZoom((current) => Math.max(0.5, current - 0.1))}
               className="glass-card"
@@ -344,22 +293,13 @@ export default function EditorPage() {
             </button>
           </div>
 
-          <motion.div
+          <div
             id="cv-export-target"
-            animate={{ scale: zoom }}
-            style={{
-              width: '210mm',
-              minHeight: '297mm',
-              background: 'white',
-              boxShadow: '0 24px 60px rgba(0,0,0,0.45)',
-              transformOrigin: 'top center',
-              borderRadius: '2px',
-              /* overflow intentionally visible so long CVs are never cropped
-                 in preview; the wrapping scroll container already clips */
-            }}
+            className="cv-export-target"
+            style={{ transform: `scale(${zoom})` }}
           >
             <Preview />
-          </motion.div>
+          </div>
         </section>
       </div>
     </main>

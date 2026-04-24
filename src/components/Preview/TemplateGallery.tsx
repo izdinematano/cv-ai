@@ -52,14 +52,12 @@ export default function TemplateGallery({
               borderRadius: '24px',
               overflow: 'hidden',
               border: selected
-                ? '1px solid rgba(96, 165, 250, 0.8)'
-                : '1px solid rgba(255,255,255,0.1)',
-              background: selected
-                ? 'linear-gradient(180deg, rgba(15,23,42,0.96) 0%, rgba(18,35,58,0.92) 100%)'
-                : 'linear-gradient(180deg, rgba(15,23,42,0.84) 0%, rgba(15,23,42,0.94) 100%)',
+                ? `2px solid ${template.accentColor}`
+                : '1px solid var(--card-border)',
+              background: 'var(--card)',
               boxShadow: selected
-                ? '0 18px 40px rgba(14, 165, 233, 0.18)'
-                : '0 18px 35px rgba(2, 6, 23, 0.35)',
+                ? `0 20px 40px ${template.accentColor}33`
+                : 'var(--card-shadow)',
             }}
           >
             <div
@@ -68,7 +66,7 @@ export default function TemplateGallery({
                 height: compact ? '255px' : '360px',
                 overflow: 'hidden',
                 background:
-                  'radial-gradient(circle at top, rgba(255,255,255,0.12), transparent 45%), #e2e8f0',
+                  'linear-gradient(180deg, var(--background-muted) 0%, var(--muted) 100%)',
               }}
             >
               <div
@@ -83,7 +81,7 @@ export default function TemplateGallery({
                 }}
               >
                 <span className="template-pill">{template.category}</span>
-                <span className="template-pill" style={{ background: 'rgba(15,23,42,0.8)' }}>
+                <span className="template-pill template-pill-dark">
                   {template.badge}
                 </span>
               </div>
@@ -99,8 +97,9 @@ export default function TemplateGallery({
                   gap: '8px',
                   padding: '8px 12px',
                   borderRadius: '999px',
-                  background: selected ? 'rgba(59,130,246,0.92)' : 'rgba(15,23,42,0.72)',
-                  color: 'white',
+                  background: selected ? 'var(--accent)' : 'rgba(255,255,255,0.92)',
+                  color: selected ? 'var(--accent-foreground)' : 'var(--foreground)',
+                  border: selected ? 'none' : '1px solid var(--card-border)',
                   fontSize: '11px',
                   fontWeight: 800,
                 }}
@@ -117,7 +116,7 @@ export default function TemplateGallery({
                   transform: `translateX(-50%) scale(${compact ? 0.23 : 0.33})`,
                   width: '760px',
                   transformOrigin: 'top center',
-                  boxShadow: '0 30px 60px rgba(15, 23, 42, 0.18)',
+                  boxShadow: '0 20px 40px rgba(15, 23, 42, 0.12)',
                   pointerEvents: 'none',
                 }}
               >
@@ -149,7 +148,7 @@ export default function TemplateGallery({
                   <div style={{ fontSize: compact ? '16px' : '18px', fontWeight: 800 }}>
                     {template.name}
                   </div>
-                  <div style={{ color: '#94a3b8', fontSize: '12px', marginTop: '4px' }}>
+                  <div style={{ color: 'var(--foreground-muted)', fontSize: '12px', marginTop: '4px' }}>
                     {template.tone}
                   </div>
                 </div>
@@ -167,7 +166,7 @@ export default function TemplateGallery({
                 />
               </div>
 
-              <p style={{ color: '#cbd5e1', fontSize: '13px', lineHeight: 1.6 }}>
+              <p style={{ color: 'var(--foreground-muted)', fontSize: '13px', lineHeight: 1.6 }}>
                 {template.description}
               </p>
 
@@ -185,7 +184,7 @@ export default function TemplateGallery({
                     display: 'flex',
                     gap: '8px',
                     flexWrap: 'wrap',
-                    color: '#e2e8f0',
+                    color: 'var(--foreground-muted)',
                     fontSize: '11px',
                     fontWeight: 700,
                   }}
@@ -201,7 +200,7 @@ export default function TemplateGallery({
                 {onSelect ? (
                   <span
                     style={{
-                      color: selected ? '#93c5fd' : 'white',
+                      color: selected ? template.accentColor : 'var(--accent)',
                       fontSize: '12px',
                       fontWeight: 800,
                     }}

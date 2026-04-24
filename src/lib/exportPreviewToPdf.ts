@@ -25,20 +25,38 @@ export async function exportPreviewToPdf({ fileName }: ExportOptions): Promise<v
     throw new Error('Elemento de pré-visualização não encontrado.');
   }
 
+  // Force an A4-width virtual viewport so media queries, flex/grid breakpoints
+  // and font metrics render *identically* on desktop and on mobile. Without
+  // this, html2canvas inherits `window.innerWidth`, so a phone (~360px) would
+  // render the CV through mobile breakpoints and produce a visibly different
+  // PDF from a desktop capture.
+  // 210mm at 96dpi ≈ 794px.
+  const A4_WIDTH_PX = 794;
+  const A4_HEIGHT_PX = 1123;
+
   const canvas = await html2canvas(target, {
     scale: 2,
     backgroundColor: '#ffffff',
     useCORS: true,
     logging: false,
+    windowWidth: A4_WIDTH_PX,
+    windowHeight: Math.max(A4_HEIGHT_PX, target.scrollHeight),
+    width: A4_WIDTH_PX,
     // Strip transforms from ancestors in the cloned tree so the capture is at
-    // the natural (un-zoomed) size regardless of the live preview zoom.
+    // the natural (un-zoomed) size regardless of the live preview zoom, and
+    // force the target to render at its natural A4 width so mobile viewports
+    // never squeeze or reflow it.
     onclone: (clonedDoc) => {
       const cloned = clonedDoc.getElementById(CV_EXPORT_TARGET_ID) as HTMLElement | null;
       if (!cloned) return;
       cloned.style.transform = 'none';
+      cloned.style.width = '210mm';
+      cloned.style.minWidth = '210mm';
+      cloned.style.maxWidth = '210mm';
       let parent: HTMLElement | null = cloned.parentElement;
       while (parent) {
         parent.style.transform = 'none';
+        parent.style.overflow = 'visible';
         parent = parent.parentElement;
       }
     },
