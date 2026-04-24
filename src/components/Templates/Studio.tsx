@@ -20,22 +20,32 @@ export default function Studio({ data, lang }: TemplateProps) {
         color: '#102033',
         fontSize: `${fontSize}px`,
         position: 'relative',
-        overflow: 'hidden',
       }}
     >
+      {/* Decoration wrapper clips only the corner ornament, never the content */}
       <div
         style={{
           position: 'absolute',
-          right: '-60px',
-          top: '-60px',
-          width: '220px',
+          inset: '0 0 auto 0',
           height: '220px',
-          borderRadius: '40px',
-          background: accentColor,
-          opacity: 0.12,
-          transform: 'rotate(18deg)',
+          overflow: 'hidden',
+          pointerEvents: 'none',
         }}
-      />
+      >
+        <div
+          style={{
+            position: 'absolute',
+            right: '-60px',
+            top: '-60px',
+            width: '220px',
+            height: '220px',
+            borderRadius: '40px',
+            background: accentColor,
+            opacity: 0.12,
+            transform: 'rotate(18deg)',
+          }}
+        />
+      </div>
 
       <div style={{ padding: '54px' }}>
         <header

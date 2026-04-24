@@ -65,14 +65,22 @@ export default function Atlas({ data, lang }: TemplateProps) {
             <h3 style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.18em', color: '#94a3b8', marginBottom: '16px' }}>
               Skills
             </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
               {data.skills.map((skill, index) => (
-                <div key={`${skill.pt}-${skill.en}-${index}`}>
-                  <div style={{ fontSize: '12px', marginBottom: '5px' }}>{skill[lang] || skill.pt || skill.en}</div>
-                  <div style={{ height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '999px' }}>
-                    <div style={{ width: `${78 - index * 6}%`, height: '100%', background: accentColor, borderRadius: '999px' }} />
-                  </div>
-                </div>
+                <span
+                  key={`${skill.pt}-${skill.en}-${index}`}
+                  style={{
+                    fontSize: '11px',
+                    padding: '4px 10px',
+                    borderRadius: '999px',
+                    background: 'rgba(255,255,255,0.08)',
+                    border: '1px solid rgba(255,255,255,0.14)',
+                    color: '#e2e8f0',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {skill[lang] || skill.pt || skill.en}
+                </span>
               ))}
             </div>
           </section>

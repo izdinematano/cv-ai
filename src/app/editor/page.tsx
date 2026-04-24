@@ -353,7 +353,8 @@ export default function EditorPage() {
               boxShadow: '0 24px 60px rgba(0,0,0,0.45)',
               transformOrigin: 'top center',
               borderRadius: '2px',
-              overflow: 'hidden',
+              /* overflow intentionally visible so long CVs are never cropped
+                 in preview; the wrapping scroll container already clips */
             }}
           >
             <Preview />

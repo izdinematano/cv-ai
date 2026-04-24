@@ -84,14 +84,23 @@ export default function CorporateV2({ data, lang }: TemplateProps) {
 
         <section>
           <h3 style={{ fontSize: '14px', fontWeight: 800, textTransform: 'uppercase', marginBottom: '20px', color: '#0f172a' }}>Competências</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
             {data.skills.map((skill, i) => (
-              <div key={i}>
-                <div style={{ fontSize: '12px', marginBottom: '4px', fontWeight: 600 }}>{skill[lang] || skill.pt || skill.en}</div>
-                <div style={{ height: '4px', background: '#e2e8f0', borderRadius: '2px' }}>
-                  <div style={{ width: '80%', height: '100%', background: accentColor, borderRadius: '2px' }} />
-                </div>
-              </div>
+              <span
+                key={i}
+                style={{
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  padding: '4px 10px',
+                  borderRadius: '6px',
+                  background: '#f1f5f9',
+                  border: `1px solid ${accentColor}33`,
+                  color: '#0f172a',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {skill[lang] || skill.pt || skill.en}
+              </span>
             ))}
           </div>
         </section>
