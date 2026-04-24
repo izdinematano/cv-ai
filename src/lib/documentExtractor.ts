@@ -21,31 +21,33 @@ const getExtension = (fileName: string): SupportedExtension | null => {
 async function extractTextFromPdf(file: File): Promise<string> {
   const arrayBuffer = await file.arrayBuffer();
   // Import lazily so the heavy pdf.js bundle is only loaded when needed.
-  // We use the legacy build which does not require a worker for simple text extraction.
-  const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs');
+  // Using the main entry point so Turbopack / webpack can resolve it in every mode.
+  const pdfjsNamespace = (await import('pdfjs-dist')) as unknown as {
+    getDocument: (src: unknown) => { promise: Promise<{
+      numPages: number;
+      getPage: (n: number) => Promise<{
+        getTextContent: () => Promise<{ items: Array<{ str?: string }> }>;
+      }>;
+    }> };
+    GlobalWorkerOptions?: { workerSrc: string };
+  };
 
   try {
-    // Disable worker to avoid extra setup in dev. Slower but reliable.
-    const lib = pdfjsLib as unknown as { GlobalWorkerOptions?: { workerSrc: string } };
-    if (lib.GlobalWorkerOptions) {
-      lib.GlobalWorkerOptions.workerSrc = '';
+    if (pdfjsNamespace.GlobalWorkerOptions) {
+      pdfjsNamespace.GlobalWorkerOptions.workerSrc = '';
     }
   } catch {
     // ignore
   }
 
-  const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer, useWorker: false } as Parameters<
-    typeof pdfjsLib.getDocument
-  >[0]);
+  const loadingTask = pdfjsNamespace.getDocument({ data: arrayBuffer, useWorker: false });
   const pdf = await loadingTask.promise;
 
   const pages: string[] = [];
   for (let i = 1; i <= pdf.numPages; i++) {
     const page = await pdf.getPage(i);
     const textContent = await page.getTextContent();
-    const pageText = (textContent.items as Array<{ str?: string }>)
-      .map((item) => item.str || '')
-      .join(' ');
+    const pageText = textContent.items.map((item) => item.str || '').join(' ');
     pages.push(pageText);
   }
   return pages.join('\n\n').replace(/[ \t]+/g, ' ').trim();
@@ -53,7 +55,11 @@ async function extractTextFromPdf(file: File): Promise<string> {
 
 async function extractTextFromDocx(file: File): Promise<string> {
   const arrayBuffer = await file.arrayBuffer();
-  const mammoth = await import('mammoth/mammoth.browser');
+  // mammoth's package.json declares a "browser" field that points to the
+  // browser bundle, so bundlers pick the right file automatically.
+  const mammoth = (await import('mammoth')) as unknown as {
+    extractRawText: (input: { arrayBuffer: ArrayBuffer }) => Promise<{ value: string }>;
+  };
   const result = await mammoth.extractRawText({ arrayBuffer });
   return (result?.value || '').trim();
 }
