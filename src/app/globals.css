@@ -280,6 +280,160 @@ button {
   .container-narrow { padding: 0 18px; }
 }
 
+/* ---------- Landing hero (blobs + floating CV mockup) ---------- */
+.hero-inner {
+  min-height: 520px;
+}
+
+@media (min-width: 960px) {
+  .hero-inner {
+    grid-template-columns: 1.05fr 1fr !important;
+  }
+}
+
+.hero-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.55;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hero-blob-indigo {
+  width: 520px;
+  height: 520px;
+  background: radial-gradient(circle, rgba(79, 70, 229, 0.35), transparent 70%);
+  top: -180px;
+  left: -120px;
+}
+
+.hero-blob-violet {
+  width: 480px;
+  height: 480px;
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.30), transparent 70%);
+  bottom: -200px;
+  right: -80px;
+}
+
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.04) 1px, transparent 1px);
+  background-size: 38px 38px;
+  mask-image: radial-gradient(circle at center, black 0%, transparent 78%);
+  -webkit-mask-image: radial-gradient(circle at center, black 0%, transparent 78%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hero-mockup {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 500px;
+}
+
+.hero-mockup-frame {
+  width: 100%;
+  max-width: 520px;
+  background: #ffffff;
+  border-radius: 18px;
+  border: 1px solid var(--card-border);
+  box-shadow:
+    0 30px 80px rgba(15, 23, 42, 0.18),
+    0 2px 6px rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+}
+
+.hero-mockup-chrome {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--card-border);
+  background: var(--background-muted);
+}
+
+.hero-mockup-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.hero-mockup-viewport {
+  height: 460px;
+  overflow: hidden;
+  position: relative;
+  background: white;
+}
+
+.hero-mockup-scale {
+  position: absolute;
+  inset: 0;
+  transform: scale(0.6);
+  transform-origin: top left;
+  width: 167%;
+  height: 167%;
+}
+
+.hero-mockup-badge {
+  position: absolute;
+  top: 30px;
+  left: -18px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.12);
+  transform: rotate(2deg);
+}
+
+.hero-mockup-badge-bottom {
+  top: auto;
+  bottom: 40px;
+  left: auto;
+  right: -18px;
+  transform: rotate(-2deg);
+}
+
+/* ---------- Final CTA decorations ---------- */
+.final-cta-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: radial-gradient(circle at center, black 0%, transparent 70%);
+  -webkit-mask-image: radial-gradient(circle at center, black 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.final-cta-glow {
+  position: absolute;
+  width: 520px;
+  height: 520px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.35), transparent 70%);
+  filter: blur(60px);
+  top: -160px;
+  right: -120px;
+  pointer-events: none;
+}
+
+.final-cta > :not(.final-cta-grid):not(.final-cta-glow) {
+  position: relative;
+  z-index: 1;
+}
+
 /* ---------- Global app header (shared by dashboard / editor / admin) ---------- */
 .app-header {
   height: 68px;

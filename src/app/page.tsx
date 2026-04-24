@@ -21,7 +21,9 @@ import {
   LayoutDashboard,
   LogIn,
   Menu,
+  Quote,
   Sparkles,
+  Star,
   Wand2,
   X,
 } from 'lucide-react';
@@ -75,6 +77,8 @@ export default function LandingPage() {
       <HowItWorks />
 
       <FeatureGrid />
+
+      <Testimonials />
 
       <FinalCTA />
 
@@ -240,117 +244,193 @@ const navLinkStyle: React.CSSProperties = {
 /* -------------------------------------------------------------------------- */
 
 function Hero() {
+  const showcase = useMemo(() => createShowcaseCVData('cv5'), []);
   return (
     <section
-      className="container-narrow"
       style={{
-        padding: '72px 24px 72px',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        textAlign: 'center',
+        position: 'relative',
+        overflow: 'hidden',
+        borderBottom: '1px solid var(--card-border)',
       }}
     >
-      <motion.span
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 8,
-          padding: '6px 14px',
-          borderRadius: 999,
-          background: 'var(--accent-soft)',
-          border: '1px solid rgba(79, 70, 229, 0.18)',
-          color: 'var(--accent)',
-          fontSize: 13,
-          fontWeight: 600,
-          marginBottom: 24,
-        }}
-      >
-        <Sparkles size={14} /> Novo: exporta o CV em PDF idêntico ao preview
-      </motion.span>
-
-      <motion.h1
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.05 }}
-        style={{
-          fontSize: 'clamp(36px, 6vw, 64px)',
-          fontWeight: 800,
-          lineHeight: 1.05,
-          letterSpacing: '-0.035em',
-          maxWidth: 820,
-          marginBottom: 18,
-        }}
-      >
-        O teu CV profissional,{' '}
-        <span className="text-gradient">criado com IA</span> em minutos
-      </motion.h1>
-
-      <motion.p
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
-        style={{
-          fontSize: 'clamp(16px, 1.8vw, 18px)',
-          color: 'var(--foreground-muted)',
-          lineHeight: 1.6,
-          maxWidth: 640,
-          marginBottom: 32,
-        }}
-      >
-        Editor bilingue PT/EN, sugestões inteligentes em cada campo e templates
-        premium pensados para Moçambique e o mercado internacional.
-      </motion.p>
-
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.15 }}
-        style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'center' }}
-      >
-        <Link
-          href="/editor"
-          className="btn-primary"
-          style={{
-            padding: '14px 22px',
-            fontSize: 15,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 8,
-          }}
-        >
-          Começar gratuitamente <ArrowRight size={16} />
-        </Link>
-        <a
-          href="#templates"
-          className="btn-outline"
-          style={{
-            padding: '14px 22px',
-            fontSize: 15,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 8,
-          }}
-        >
-          Ver templates
-        </a>
-      </motion.div>
+      {/* Decorative background: two soft colour blobs + subtle grid */}
+      <div aria-hidden className="hero-blob hero-blob-indigo" />
+      <div aria-hidden className="hero-blob hero-blob-violet" />
+      <div aria-hidden className="hero-grid" />
 
       <div
+        className="container-narrow hero-inner"
         style={{
-          marginTop: 24,
-          display: 'flex',
+          position: 'relative',
+          padding: '72px 24px 72px',
+          display: 'grid',
+          gridTemplateColumns: '1fr',
+          gap: 48,
           alignItems: 'center',
-          gap: 8,
-          color: 'var(--muted-foreground)',
-          fontSize: 13,
         }}
       >
-        <CheckCircle2 size={14} color="var(--success)" />
-        Primeiras 2 exportações grátis — sem cartão de crédito.
+        <div style={{ textAlign: 'left' }}>
+          <motion.span
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '6px 14px',
+              borderRadius: 999,
+              background: 'var(--accent-soft)',
+              border: '1px solid rgba(79, 70, 229, 0.18)',
+              color: 'var(--accent)',
+              fontSize: 13,
+              fontWeight: 600,
+              marginBottom: 24,
+            }}
+          >
+            <Sparkles size={14} /> Novo: exporta o CV em PDF idéntico ao preview
+          </motion.span>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.05 }}
+            style={{
+              fontSize: 'clamp(36px, 6vw, 64px)',
+              fontWeight: 800,
+              lineHeight: 1.05,
+              letterSpacing: '-0.035em',
+              maxWidth: 640,
+              marginBottom: 18,
+            }}
+          >
+            O teu CV profissional,{' '}
+            <span className="text-gradient">criado com IA</span> em minutos
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            style={{
+              fontSize: 'clamp(16px, 1.8vw, 18px)',
+              color: 'var(--foreground-muted)',
+              lineHeight: 1.6,
+              maxWidth: 560,
+              marginBottom: 32,
+            }}
+          >
+            Editor bilingue PT/EN, sugestões inteligentes em cada campo e templates
+            premium pensados para Moçambique e o mercado internacional.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.15 }}
+            style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}
+          >
+            <Link
+              href="/editor"
+              className="btn-primary"
+              style={{
+                padding: '14px 22px',
+                fontSize: 15,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+              }}
+            >
+              Começar gratuitamente <ArrowRight size={16} />
+            </Link>
+            <a
+              href="#templates"
+              className="btn-outline"
+              style={{
+                padding: '14px 22px',
+                fontSize: 15,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+              }}
+            >
+              Ver templates
+            </a>
+          </motion.div>
+
+          <div
+            style={{
+              marginTop: 24,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              color: 'var(--muted-foreground)',
+              fontSize: 13,
+            }}
+          >
+            <CheckCircle2 size={14} color="var(--success)" />
+            Primeiras 2 exportações grátis — sem cartão de crédito.
+          </div>
+        </div>
+
+        {/* Floating CV mockup (desktop only) */}
+        <motion.div
+          className="hero-mockup desktop-only"
+          initial={{ opacity: 0, y: 40, rotate: -2 }}
+          animate={{ opacity: 1, y: 0, rotate: -2 }}
+          transition={{ duration: 0.8, delay: 0.25 }}
+        >
+          <motion.div
+            animate={{ y: [0, -12, 0] }}
+            transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+            className="hero-mockup-frame"
+          >
+            <div className="hero-mockup-chrome">
+              <span className="hero-mockup-dot" style={{ background: '#ff5f57' }} />
+              <span className="hero-mockup-dot" style={{ background: '#febc2e' }} />
+              <span className="hero-mockup-dot" style={{ background: '#28c840' }} />
+              <span style={{ marginLeft: 12, fontSize: 11, color: 'var(--muted-foreground)' }}>
+                cv.moztraders.com/editor
+              </span>
+            </div>
+            <div className="hero-mockup-viewport">
+              <div className="hero-mockup-scale">
+                <Preview dataOverride={showcase} templateOverride="cv5" langOverride="pt" />
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Floating badge */}
+          <motion.div
+            className="hero-mockup-badge"
+            initial={{ opacity: 0, scale: 0.7 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.8 }}
+          >
+            <Sparkles size={14} color="var(--accent)" />
+            <div>
+              <div style={{ fontWeight: 800, fontSize: 12 }}>IA a melhorar</div>
+              <div style={{ fontSize: 10.5, color: 'var(--muted-foreground)' }}>
+                Resumo profissional
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div
+            className="hero-mockup-badge hero-mockup-badge-bottom"
+            initial={{ opacity: 0, scale: 0.7 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 1 }}
+          >
+            <CheckCircle2 size={14} color="var(--success)" />
+            <div>
+              <div style={{ fontWeight: 800, fontSize: 12 }}>ATS compatible</div>
+              <div style={{ fontSize: 10.5, color: 'var(--muted-foreground)' }}>
+                Score 94 / 100
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
       </div>
     </section>
   );
@@ -681,6 +761,123 @@ function FeatureGrid() {
 }
 
 /* -------------------------------------------------------------------------- */
+/* Testimonials                                                               */
+/* -------------------------------------------------------------------------- */
+
+function Testimonials() {
+  const items = [
+    {
+      name: 'Ana M.',
+      role: 'Engenheira de Software, Maputo',
+      avatar: 'https://i.pravatar.cc/120?img=47',
+      quote:
+        'Fiz o CV em 20 minutos, a tradução PT/EN poupou-me horas. Consegui a entrevista na semana seguinte.',
+    },
+    {
+      name: 'João P.',
+      role: 'Consultor Financeiro',
+      avatar: 'https://i.pravatar.cc/120?img=12',
+      quote:
+        'O PDF sai exactamente igual ao preview. Nunca mais perdi tempo a formatar em Word.',
+    },
+    {
+      name: 'Sara V.',
+      role: 'Designer de Produto',
+      avatar: 'https://i.pravatar.cc/120?img=32',
+      quote:
+        'Templates são lindos e a IA ajuda mesmo a melhorar os textos. Muito acima do que esperava.',
+    },
+  ];
+  return (
+    <section
+      style={{
+        background: 'var(--background-muted)',
+        borderTop: '1px solid var(--card-border)',
+        borderBottom: '1px solid var(--card-border)',
+      }}
+    >
+      <div className="container-narrow" style={{ padding: '72px 24px' }}>
+        <SectionHeading
+          eyebrow="Quem já usou"
+          title={<>Feedback de quem recebeu <span className="text-gradient">o 'sim'</span></>}
+          subtitle="Estudantes, profissionais e executivos que já exportaram o CV com a nossa app."
+        />
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+            gap: 18,
+            marginTop: 42,
+          }}
+        >
+          {items.map((t, i) => (
+            <motion.div
+              key={t.name}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+              style={{
+                background: 'var(--card)',
+                border: '1px solid var(--card-border)',
+                borderRadius: 'var(--radius-lg)',
+                padding: 24,
+                boxShadow: 'var(--card-shadow)',
+                position: 'relative',
+              }}
+            >
+              <Quote
+                size={28}
+                color="var(--accent)"
+                style={{ opacity: 0.22, position: 'absolute', top: 18, right: 18 }}
+              />
+              <div style={{ display: 'flex', gap: 4, marginBottom: 10 }}>
+                {Array.from({ length: 5 }).map((_, idx) => (
+                  <Star
+                    key={idx}
+                    size={14}
+                    color="#f59e0b"
+                    fill="#f59e0b"
+                  />
+                ))}
+              </div>
+              <p
+                style={{
+                  fontSize: 14.5,
+                  color: 'var(--foreground)',
+                  lineHeight: 1.6,
+                  marginBottom: 18,
+                }}
+              >
+                “{t.quote}”
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={t.avatar}
+                  alt={t.name}
+                  width={40}
+                  height={40}
+                  style={{
+                    borderRadius: '50%',
+                    objectFit: 'cover',
+                    border: '2px solid var(--accent-soft)',
+                  }}
+                />
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 700 }}>{t.name}</div>
+                  <div style={{ fontSize: 12, color: 'var(--muted-foreground)' }}>{t.role}</div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
 /* Final CTA                                                                   */
 /* -------------------------------------------------------------------------- */
 
@@ -688,6 +885,7 @@ function FinalCTA() {
   return (
     <section className="container-narrow" style={{ padding: '28px 24px 80px' }}>
       <div
+        className="final-cta"
         style={{
           borderRadius: 'var(--radius-lg)',
           padding: 'clamp(28px, 5vw, 56px)',
@@ -698,8 +896,12 @@ function FinalCTA() {
           alignItems: 'center',
           textAlign: 'center',
           boxShadow: '0 20px 60px rgba(49, 46, 129, 0.35)',
+          position: 'relative',
+          overflow: 'hidden',
         }}
       >
+        <div aria-hidden className="final-cta-grid" />
+        <div aria-hidden className="final-cta-glow" />
         <h2
           style={{
             fontSize: 'clamp(28px, 4vw, 40px)',
