@@ -13,25 +13,51 @@ const ASSET_BASE = '/templates/resume1';
 const labels = {
   education: { pt: 'EDUCAÇÃO', en: 'EDUCATION' },
   skills: { pt: 'COMPETÊNCIAS', en: 'SKILLS' },
+  languages: { pt: 'IDIOMAS', en: 'LANGUAGES' },
   profile: { pt: 'PERFIL', en: 'PROFILE' },
   experience: { pt: 'EXPERIÊNCIA', en: 'EXPERIENCE' },
+  projects: { pt: 'PROJETOS', en: 'PROJECTS' },
+  certifications: { pt: 'CERTIFICAÇÕES', en: 'CERTIFICATIONS' },
 } as const;
 
 /**
- * Resume 1 template — converted from Locofy layout "CV _ Resume template 1 - pag1".
- * Pixel-perfect layout preserved; image/icon slots use /public/templates/resume1/.
- * The user can replace the photo via data.personalInfo.photo or keep the default illustration.
+ * Resume 1 — converted from Locofy layout. Pixel-perfect base layout, but the
+ * left column also lists Languages, and the right column shows Projects and
+ * Certifications below Experience so the user never loses content.
  */
 export default function Resume1({ data, lang }: TemplateProps) {
-  const { personalInfo, summary, education, skills, experience, settings } = data;
+  const {
+    personalInfo,
+    summary,
+    education,
+    skills,
+    languages,
+    experience,
+    projects,
+    certifications,
+    settings,
+  } = data;
   const accent = settings.accentColor;
 
-  // Name split into up to 2 lines (mirrors layout "Robyn / Kingsley")
   const nameParts = (personalInfo.fullName || '').trim().split(' ');
   const firstName = nameParts[0] || '';
   const lastName = nameParts.slice(1).join(' ');
 
   const photo = personalInfo.photo || `${ASSET_BASE}/Group-1@2x.png`;
+
+  const SectionHeader = ({ title }: { title: string }) => (
+    <div className={styles.sectionHeader}>
+      <b className={styles.sectionTitle}>{title}</b>
+      <div className={styles.sectionRule} />
+    </div>
+  );
+
+  const ProfileHeader = ({ title }: { title: string }) => (
+    <div className={styles.profileHeader}>
+      <b className={styles.profileTitle}>{title}</b>
+      <div className={styles.ruleLong} />
+    </div>
+  );
 
   return (
     <div
@@ -67,11 +93,8 @@ export default function Resume1({ data, lang }: TemplateProps) {
 
         <div className={styles.sectionBlock}>
           {education.length > 0 && (
-            <div className={styles.sectionHeader} style={{ gap: 16 }}>
-              <div className={styles.sectionHeader}>
-                <b className={styles.sectionTitle}>{labels.education[lang]}</b>
-                <div className={styles.sectionRule} />
-              </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%' }}>
+              <SectionHeader title={labels.education[lang]} />
               <div className={styles.sectionBody}>
                 {education.map((edu) => (
                   <div key={edu.id} className={styles.courseBlock}>
@@ -87,16 +110,27 @@ export default function Resume1({ data, lang }: TemplateProps) {
           )}
 
           {skills.length > 0 && (
-            <div className={styles.sectionHeader} style={{ gap: 16 }}>
-              <div className={styles.sectionHeader}>
-                <b className={styles.sectionTitle}>{labels.skills[lang]}</b>
-                <div className={styles.sectionRule} />
-              </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%' }}>
+              <SectionHeader title={labels.skills[lang]} />
               <div className={styles.skillsList}>
                 {skills.map((s, i) => (
                   <div key={i} className={styles.skillRow}>
                     <div className={styles.skillDot} />
                     <div>{s[lang] || s.pt || s.en}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {languages.length > 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%' }}>
+              <SectionHeader title={labels.languages[lang]} />
+              <div className={styles.skillsList}>
+                {languages.map((l, i) => (
+                  <div key={i} className={styles.langRow}>
+                    <span className={styles.langName}>{l.name}</span>
+                    <span className={styles.langLevel}>{l.level[lang]}</span>
                   </div>
                 ))}
               </div>
@@ -143,10 +177,7 @@ export default function Resume1({ data, lang }: TemplateProps) {
           <div className={styles.profileContainer}>
             {summary[lang] && (
               <div className={styles.profileHeaderBlock}>
-                <div className={styles.profileHeader}>
-                  <b className={styles.profileTitle}>{labels.profile[lang]}</b>
-                  <div className={styles.ruleLong} />
-                </div>
+                <ProfileHeader title={labels.profile[lang]} />
                 <div className={styles.profileDescription}>
                   <div className={styles.profileText}>{summary[lang]}</div>
                 </div>
@@ -156,12 +187,8 @@ export default function Resume1({ data, lang }: TemplateProps) {
             {experience.length > 0 && (
               <div className={styles.experienceBlock}>
                 <div className={styles.experienceHeaderWrapper}>
-                  <div className={styles.experienceHeader}>
-                    <b className={styles.profileTitle}>{labels.experience[lang]}</b>
-                  </div>
-                  <div className={styles.ruleLong} />
+                  <ProfileHeader title={labels.experience[lang]} />
                 </div>
-
                 <div className={styles.experienceList}>
                   <div className={styles.experienceItems}>
                     {experience.map((exp) => (
@@ -182,10 +209,44 @@ export default function Resume1({ data, lang }: TemplateProps) {
                 </div>
               </div>
             )}
+
+            {projects.length > 0 && (
+              <div className={styles.experienceBlock}>
+                <div className={styles.experienceHeaderWrapper}>
+                  <ProfileHeader title={labels.projects[lang]} />
+                </div>
+                <div className={styles.experienceItems}>
+                  {projects.map((p) => (
+                    <div key={p.id} className={styles.projectItem}>
+                      <div className={styles.projectName}>{p.name}</div>
+                      {p.link && <div className={styles.projectLink}>{p.link}</div>}
+                      <div className={styles.jobText}>{p.description[lang]}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {certifications.length > 0 && (
+              <div className={styles.experienceBlock}>
+                <div className={styles.experienceHeaderWrapper}>
+                  <ProfileHeader title={labels.certifications[lang]} />
+                </div>
+                <div className={styles.experienceItems}>
+                  {certifications.map((c) => (
+                    <div key={c.id} className={styles.projectItem}>
+                      <div className={styles.projectName}>{c.name}</div>
+                      <div className={styles.jobText}>
+                        {c.issuer} {c.year ? `· ${c.year}` : ''}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </section>
     </div>
   );
 }
-

@@ -1,5 +1,43 @@
 /* Resume 1 - scoped styles (CSS Module). Root uses :root-like variables local to this block. */
 
+.certBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-6);
+  width: var(--width-146);
+}
+.certName {
+  font-weight: 600;
+  color: var(--color-darkslategray);
+  font-size: var(--fs-10);
+}
+.certMeta {
+  font-size: var(--fs-10);
+  color: var(--color-dimgray);
+}
+.langRow {
+  display: flex;
+  justify-content: space-between;
+  width: var(--width-146);
+  font-size: var(--fs-10);
+}
+.langName { font-weight: 600; color: var(--color-darkslategray); }
+.langLevel { color: var(--color-dimgray); }
+.projectItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+.projectName {
+  font-weight: 600;
+  color: var(--color-darkslategray);
+}
+.projectLink {
+  font-size: 9px;
+  color: var(--color-chocolate);
+}
+
 .root {
   /* Colors */
   --color-chocolate: #d57215;
@@ -64,13 +102,14 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: 39px 10px 90px 45px;
+  padding: 39px 22px 60px 45px;
   gap: var(--gap-22);
   text-align: left;
   font-size: 20px;
   color: var(--color-dimgray);
   width: 260px;
   flex-shrink: 0;
+  align-self: stretch;
 }
 
 .nameBlock {
@@ -275,9 +314,10 @@
 .profileWrapper {
   align-self: stretch;
   display: flex;
-  justify-content: flex-end;
-  padding: 21px 23px 0 0;
+  justify-content: flex-start;
+  padding: 21px var(--padding-24) 60px var(--padding-24);
   font-size: 13px;
+  box-sizing: border-box;
 }
 
 .profileContainer {
@@ -285,6 +325,7 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+  width: 100%;
 }
 
 .profileHeaderBlock {
@@ -296,7 +337,7 @@
 .profileHeader {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: var(--gap-10);
 }
 
@@ -315,42 +356,46 @@
 .profileDescription {
   display: flex;
   align-items: flex-start;
-  padding: 0 0 0 var(--padding-24);
+  padding: 0;
   font-size: var(--fs-10);
   color: var(--color-darkslategray);
 }
 
 .profileText {
-  width: 320px;
+  width: 100%;
+  max-width: 360px;
   display: inline-block;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .experienceBlock {
-  width: 345px;
+  width: 100%;
+  max-width: 360px;
   display: flex;
   flex-direction: column;
   gap: var(--gap-16);
 }
 
 .experienceHeaderWrapper {
-  width: 138px;
+  width: 100%;
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: var(--gap-10);
 }
 
 .experienceHeader {
-  width: 124px;
+  width: auto;
   display: flex;
-  padding: 0 var(--padding-24);
+  padding: 0;
   box-sizing: border-box;
 }
 
 .experienceList {
   display: flex;
-  padding: 0 0 0 var(--padding-24);
+  padding: 0;
   font-size: var(--fs-10);
+  width: 100%;
 }
 
 .experienceItems {
@@ -358,17 +403,18 @@
   flex-direction: column;
   align-items: flex-start;
   gap: var(--gap-16);
+  width: 100%;
 }
 
 .experienceItem {
-  width: var(--width-321);
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: var(--gap-6);
 }
 
 .jobHeader {
-  width: var(--width-321);
+  width: 100%;
   display: flex;
   justify-content: space-between;
   gap: var(--gap-20);
@@ -399,6 +445,6 @@
 }
 
 .jobText {
-  width: var(--width-321);
+  width: 100%;
   line-height: 1.5;
 }
