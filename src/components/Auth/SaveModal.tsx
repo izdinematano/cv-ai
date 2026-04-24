@@ -115,37 +115,37 @@ export default function SaveModal({
                 Criar Conta <ArrowRight size={16} />
               </button>
 
+              {/* Nesting a <button> inside PDFDownloadLink cancels the
+                  download in some browsers. Style the anchor directly. */}
               <PDFDownloadLink
                 document={document}
                 fileName={fileName}
-                style={{ textDecoration: 'none' }}
+                className="btn-outline"
                 onClick={() => {
                   onContinueWithoutSave();
                   onClose();
                 }}
+                style={{
+                  width: '100%',
+                  padding: '14px 18px',
+                  fontSize: '15px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  textDecoration: 'none',
+                  cursor: 'pointer',
+                }}
               >
                 {({ loading }) => (
-                  <button
-                    type="button"
-                    className="btn-outline"
-                    disabled={loading}
-                    style={{
-                      width: '100%',
-                      padding: '14px 18px',
-                      fontSize: '15px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '8px',
-                    }}
-                  >
+                  <>
                     {loading ? (
                       <Loader2 size={16} className="animate-spin" />
                     ) : (
                       <Download size={16} />
                     )}
                     {loading ? 'A gerar PDF...' : 'Continuar sem guardar'}
-                  </button>
+                  </>
                 )}
               </PDFDownloadLink>
             </div>

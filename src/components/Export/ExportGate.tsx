@@ -254,21 +254,41 @@ function ReadyToDownload({
       >
         Ao descarregar, este CV será guardado como <b>{cvName}</b> no teu dashboard e consumirá <b>1 exportação</b>.
       </div>
+      {/* IMPORTANT: never nest <button> inside PDFDownloadLink — it renders as
+          <a download="..."> and a nested button cancels the default download.
+          Handle state + record export via the anchor's own onClick. */}
       <PDFDownloadLink
         document={<CVDocument data={data} lang={lang} />}
         fileName={fileName}
+        className="btn-primary"
+        onClick={onDownload}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 10,
+          textDecoration: 'none',
+          cursor: 'pointer',
+        }}
       >
-        {({ loading }) => (
-          <button
-            className="btn-primary"
-            onClick={onDownload}
-            disabled={loading}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}
-          >
-            <Download size={16} />
-            {loading ? 'A gerar PDF...' : 'Descarregar PDF'}
-          </button>
-        )}
+        {({ loading, error }) =>
+          error ? (
+            <>
+              <Download size={16} />
+              Tentar novamente
+            </>
+          ) : loading ? (
+            <>
+              <Download size={16} />
+              A gerar PDF...
+            </>
+          ) : (
+            <>
+              <Download size={16} />
+              Descarregar PDF
+            </>
+          )
+        }
       </PDFDownloadLink>
     </>
   );
