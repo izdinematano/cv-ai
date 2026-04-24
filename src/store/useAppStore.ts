@@ -161,13 +161,16 @@ export const useAppStore = create<AppState>()(
         if (existing) {
           return { ok: false, error: 'Email ja registado.' };
         }
-        const isFirstUser = get().users.length === 0;
+        // Product rule: new registrations are always regular users. The
+        // original "first user becomes admin" bootstrap was useful when the
+        // app had no admin yet; now that an admin exists, promotion must be
+        // explicit (done from the admin panel via `upgradeToAdmin`).
         const user: AppUser = {
           id: createId(),
           email,
           fullName,
           password,
-          role: isFirstUser ? 'admin' : 'user',
+          role: 'user',
           createdAt: nowIso(),
         };
         set((state) => ({

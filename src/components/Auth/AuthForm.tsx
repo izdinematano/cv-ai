@@ -20,7 +20,9 @@ export default function AuthForm({ mode }: AuthFormProps) {
   const [loading, setLoading] = useState(false);
 
   const isRegister = mode === 'register';
-  const isFirstUser = isRegister && users.length === 0;
+  // `users` is no longer used here (first-user-as-admin bootstrap removed).
+  // We keep the import so the hook-order shape is stable.
+  void users;
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -96,21 +98,6 @@ export default function AuthForm({ mode }: AuthFormProps) {
               : 'Bem-vindo de volta. Entra para ver os teus CVs.'}
           </p>
         </div>
-
-        {isFirstUser && (
-          <div
-            style={{
-              background: '#ecfdf5',
-              border: '1px solid #a7f3d0',
-              borderRadius: 10,
-              padding: 12,
-              fontSize: 12.5,
-              color: '#065f46',
-            }}
-          >
-            És o primeiro utilizador — esta conta será criada como <b>administrador</b>.
-          </div>
-        )}
 
         <form
           onSubmit={handleSubmit}

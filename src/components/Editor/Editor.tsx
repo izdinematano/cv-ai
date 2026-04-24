@@ -70,7 +70,7 @@ function SectionHeader({
         justifyContent: 'space-between',
         padding: '16px 20px',
         cursor: 'pointer',
-        background: 'rgba(255,255,255,0.02)',
+        background: 'var(--background-muted)',
         borderBottom: '1px solid var(--card-border)',
       }}
     >
@@ -313,7 +313,7 @@ export default function Editor() {
         style={{
           display: 'flex',
           borderBottom: '1px solid var(--card-border)',
-          background: '#0f1115',
+          background: 'var(--background)',
           position: 'sticky',
           top: 0,
           zIndex: 10,
@@ -326,7 +326,7 @@ export default function Editor() {
             padding: '16px',
             fontSize: '13px',
             fontWeight: 800,
-            color: activeTab === 'content' ? 'var(--accent)' : '#94a3b8',
+            color: activeTab === 'content' ? 'var(--accent)' : 'var(--muted-foreground)',
             borderBottom:
               activeTab === 'content' ? '2px solid var(--accent)' : '2px solid transparent',
             background: 'transparent',
@@ -341,7 +341,7 @@ export default function Editor() {
             padding: '16px',
             fontSize: '13px',
             fontWeight: 800,
-            color: activeTab === 'design' ? 'var(--accent)' : '#94a3b8',
+            color: activeTab === 'design' ? 'var(--accent)' : 'var(--muted-foreground)',
             borderBottom:
               activeTab === 'design' ? '2px solid var(--accent)' : '2px solid transparent',
             background: 'transparent',
@@ -354,17 +354,17 @@ export default function Editor() {
       <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
         <div
           style={{
-            background: 'rgba(59, 130, 246, 0.05)',
+            background: 'var(--background-muted)',
             padding: '20px',
             borderRadius: '16px',
-            border: '1px solid rgba(59, 130, 246, 0.2)',
+            border: '1px solid var(--card-border)',
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
             <span style={{ fontSize: '13px', fontWeight: 800 }}>Forca do Curriculo</span>
             <span style={{ fontSize: '13px', color: scoreColor, fontWeight: 800 }}>{score}%</span>
           </div>
-          <div style={{ height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '6px' }}>
+          <div style={{ height: '6px', background: 'var(--card-border)', borderRadius: '6px' }}>
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${score}%` }}
@@ -386,11 +386,11 @@ export default function Editor() {
             justifyContent: 'space-between',
             gap: '14px',
             background:
-              'linear-gradient(135deg, rgba(15,23,42,0.9) 0%, rgba(30,41,59,0.72) 100%)',
+              'linear-gradient(135deg, var(--background-muted) 0%, var(--background) 100%)',
           }}
         >
           <div>
-            <div style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 800, marginBottom: '4px' }}>
+            <div style={{ fontSize: '11px', color: 'var(--foreground-muted)', fontWeight: 800, marginBottom: '4px' }}>
               MODELO ATIVO
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -405,7 +405,7 @@ export default function Editor() {
               />
               <div>
                 <div style={{ fontSize: '16px', fontWeight: 800 }}>{selectedTemplate.name}</div>
-                <div style={{ color: '#94a3b8', fontSize: '12px' }}>{selectedTemplate.badge}</div>
+                <div style={{ color: 'var(--foreground-muted)', fontSize: '12px' }}>{selectedTemplate.badge}</div>
               </div>
             </div>
           </div>
@@ -447,8 +447,8 @@ export default function Editor() {
                     >
                       <div
                         style={{
-                          background: 'rgba(16,185,129,0.08)',
-                          border: '1px solid rgba(16,185,129,0.2)',
+                          background: 'var(--background-muted)',
+                          border: '1px solid var(--card-border)',
                           borderRadius: '14px',
                           padding: '16px',
                         }}
@@ -456,7 +456,7 @@ export default function Editor() {
                         <div style={{ fontSize: '13px', fontWeight: 800, marginBottom: '6px' }}>
                           Cola o texto do teu CV e deixa a IA organizar tudo.
                         </div>
-                        <p style={{ fontSize: '12px', color: '#94a3b8', lineHeight: 1.7 }}>
+                        <p style={{ fontSize: '12px', color: 'var(--foreground-muted)', lineHeight: 1.7 }}>
                           A app tenta extrair experiencias, educacao, skills, resumo e ainda sugerir o melhor modelo
                           para o teu perfil. Funciona melhor com texto copiado de PDF, Word ou LinkedIn.
                         </p>
@@ -486,7 +486,7 @@ export default function Editor() {
                           <Upload size={14} /> Carregar PDF / DOCX / TXT
                         </button>
                         {importFileName && (
-                          <span style={{ fontSize: '12px', color: '#94a3b8' }}>
+                          <span style={{ fontSize: '12px', color: 'var(--foreground-muted)' }}>
                             {importFileName}
                           </span>
                         )}
@@ -527,13 +527,13 @@ export default function Editor() {
                       {importStatus ? (
                         <div
                           style={{
-                            background: 'rgba(59,130,246,0.08)',
-                            border: '1px solid rgba(59,130,246,0.18)',
+                            background: 'var(--background-muted)',
+                            border: '1px solid var(--card-border)',
                             borderRadius: '12px',
                             padding: '14px',
                             fontSize: '12px',
                             lineHeight: 1.7,
-                            color: '#cbd5e1',
+                            color: 'var(--foreground-muted)',
                           }}
                         >
                           {importStatus}
@@ -574,7 +574,7 @@ export default function Editor() {
                           display: 'flex',
                           alignItems: 'center',
                           gap: '20px',
-                          background: 'rgba(255,255,255,0.02)',
+                          background: 'var(--background-muted)',
                           padding: '15px',
                           borderRadius: '12px',
                           border: '1px dashed var(--card-border)',
@@ -585,7 +585,7 @@ export default function Editor() {
                             width: '80px',
                             height: '80px',
                             borderRadius: '50%',
-                            background: 'rgba(255,255,255,0.05)',
+                            background: 'var(--muted)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -725,7 +725,7 @@ export default function Editor() {
                             style={{
                               fontSize: '12px',
                               fontWeight: 800,
-                              color: '#94a3b8',
+                              color: 'var(--muted-foreground)',
                               marginBottom: '15px',
                               textTransform: 'uppercase',
                             }}
@@ -865,7 +865,7 @@ export default function Editor() {
                           style={{
                             marginBottom: '18px',
                             padding: '16px',
-                            background: 'rgba(255,255,255,0.02)',
+                            background: 'var(--background-muted)',
                             borderRadius: '12px',
                             border: '1px solid var(--card-border)',
                             display: 'flex',
@@ -1012,7 +1012,7 @@ export default function Editor() {
                           style={{
                             marginBottom: '16px',
                             padding: '12px',
-                            background: 'rgba(255,255,255,0.02)',
+                            background: 'var(--background-muted)',
                             borderRadius: '8px',
                             border: '1px solid var(--card-border)',
                             display: 'flex',
@@ -1150,9 +1150,9 @@ export default function Editor() {
                                 });
                               }}
                               style={{
-                                background: 'rgba(255,255,255,0.05)',
+                                background: 'var(--background)',
                                 border: '1px solid var(--card-border)',
-                                color: 'white',
+                                color: 'var(--foreground)',
                                 borderRadius: '8px',
                                 padding: '10px',
                               }}
@@ -1289,7 +1289,7 @@ export default function Editor() {
                           style={{
                             marginBottom: '20px',
                             padding: '16px',
-                            background: 'rgba(255,255,255,0.02)',
+                            background: 'var(--background-muted)',
                             borderRadius: '12px',
                             border: '1px solid var(--card-border)',
                             display: 'flex',
@@ -1415,7 +1415,7 @@ export default function Editor() {
                           style={{
                             marginBottom: '16px',
                             padding: '12px',
-                            background: 'rgba(255,255,255,0.02)',
+                            background: 'var(--background-muted)',
                             borderRadius: '8px',
                             border: '1px solid var(--card-border)',
                             display: 'flex',
@@ -1514,7 +1514,7 @@ export default function Editor() {
                           style={{
                             marginBottom: '16px',
                             padding: '12px',
-                            background: 'rgba(255,255,255,0.02)',
+                            background: 'var(--background-muted)',
                             borderRadius: '8px',
                             border: '1px solid var(--card-border)',
                             display: 'flex',
@@ -1642,7 +1642,7 @@ export default function Editor() {
                       <p
                         style={{
                           fontSize: '12px',
-                          color: '#94a3b8',
+                          color: 'var(--muted-foreground)',
                           lineHeight: 1.55,
                           marginBottom: '12px',
                         }}
@@ -1656,7 +1656,7 @@ export default function Editor() {
                           style={{
                             marginBottom: '18px',
                             padding: '14px',
-                            background: 'rgba(255,255,255,0.03)',
+                            background: 'var(--muted)',
                             borderRadius: '10px',
                             border: '1px solid var(--card-border)',
                             display: 'flex',
@@ -1687,7 +1687,7 @@ export default function Editor() {
                               key={item.id}
                               style={{
                                 padding: '10px',
-                                background: 'rgba(255,255,255,0.02)',
+                                background: 'var(--background-muted)',
                                 borderRadius: '8px',
                                 border: '1px solid var(--card-border)',
                                 display: 'flex',
@@ -1856,7 +1856,7 @@ export default function Editor() {
                 <p
                   style={{
                     fontSize: '12px',
-                    color: '#94a3b8',
+                    color: 'var(--muted-foreground)',
                     lineHeight: 1.5,
                     marginBottom: '12px',
                   }}
@@ -1915,8 +1915,12 @@ export default function Editor() {
                         background: color,
                         border:
                           data.settings.accentColor === color
-                            ? '3px solid white'
-                            : '1px solid rgba(255,255,255,0.15)',
+                            ? '3px solid var(--foreground)'
+                            : '1px solid var(--card-border)',
+                        boxShadow:
+                          data.settings.accentColor === color
+                            ? `0 0 0 2px ${color}33`
+                            : 'none',
                       }}
                     />
                   )
