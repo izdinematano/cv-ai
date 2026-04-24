@@ -28,12 +28,12 @@ export default function Minimalist({ data, lang }: TemplateProps) {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: `${sectionSpacing}px` }}>
         <section>
-          <h3 style={{ fontSize: '13px', fontWeight: 800, textTransform: 'uppercase', color: '#94a3b8', marginBottom: '12px' }}>Perfil</h3>
+          <h3 style={{ fontSize: '13px', fontWeight: 800, textTransform: 'uppercase', color: '#94a3b8', marginBottom: '12px' }}>Profile</h3>
           <p style={{ lineHeight: 1.6 }}>{data.summary[lang]}</p>
         </section>
 
         <section>
-          <h3 style={{ fontSize: '13px', fontWeight: 800, textTransform: 'uppercase', color: '#94a3b8', marginBottom: '20px' }}>Experiência</h3>
+          <h3 style={{ fontSize: '13px', fontWeight: 800, textTransform: 'uppercase', color: '#94a3b8', marginBottom: '20px' }}>Experience</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {data.experience.map((exp) => (
               <div key={exp.id}>
@@ -50,7 +50,7 @@ export default function Minimalist({ data, lang }: TemplateProps) {
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px' }}>
           <section>
-            <h3 style={{ fontSize: '13px', fontWeight: 800, textTransform: 'uppercase', color: '#94a3b8', marginBottom: '15px' }}>Educação</h3>
+            <h3 style={{ fontSize: '13px', fontWeight: 800, textTransform: 'uppercase', color: '#94a3b8', marginBottom: '15px' }}>Education</h3>
             {data.education.map((edu) => (
               <div key={edu.id} style={{ marginBottom: '10px' }}>
                 <div style={{ fontWeight: 700, fontSize: '12px' }}>{edu.degree[lang]}</div>

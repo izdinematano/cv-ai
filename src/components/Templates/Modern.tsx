@@ -37,12 +37,12 @@ export default function Modern({ data, lang }: TemplateProps) {
       <div style={{ padding: '60px', display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '60px' }}>
         <div>
           <section style={{ marginBottom: `${sectionSpacing}px` }}>
-            <h3 style={{ fontSize: '16px', fontWeight: 800, borderBottom: `2px solid ${accentColor}`, paddingBottom: '8px', marginBottom: '20px', textTransform: 'uppercase' }}>Perfil</h3>
+            <h3 style={{ fontSize: '16px', fontWeight: 800, borderBottom: `2px solid ${accentColor}`, paddingBottom: '8px', marginBottom: '20px', textTransform: 'uppercase' }}>Profile</h3>
             <p style={{ lineHeight: 1.8, color: '#475569' }}>{data.summary[lang]}</p>
           </section>
 
           <section style={{ marginBottom: `${sectionSpacing}px` }}>
-            <h3 style={{ fontSize: '16px', fontWeight: 800, borderBottom: `2px solid ${accentColor}`, paddingBottom: '8px', marginBottom: '20px', textTransform: 'uppercase' }}>Educação</h3>
+            <h3 style={{ fontSize: '16px', fontWeight: 800, borderBottom: `2px solid ${accentColor}`, paddingBottom: '8px', marginBottom: '20px', textTransform: 'uppercase' }}>Education</h3>
             {data.education.map((edu) => (
               <div key={edu.id} style={{ marginBottom: '15px' }}>
                 <div style={{ fontWeight: 800 }}>{edu.degree[lang]}</div>
@@ -54,7 +54,7 @@ export default function Modern({ data, lang }: TemplateProps) {
 
         <div>
           <section>
-            <h3 style={{ fontSize: '16px', fontWeight: 800, borderBottom: `2px solid ${accentColor}`, paddingBottom: '8px', marginBottom: '30px', textTransform: 'uppercase' }}>Experiência</h3>
+            <h3 style={{ fontSize: '16px', fontWeight: 800, borderBottom: `2px solid ${accentColor}`, paddingBottom: '8px', marginBottom: '30px', textTransform: 'uppercase' }}>Experience</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
               {data.experience.map((exp) => (
                 <div key={exp.id}>

@@ -151,7 +151,7 @@ function BlockContent({
     case 'projects':
       return <ProjectsBlock block={block} data={data} lang={lang} spec={spec} />;
     case 'certifications':
-      return <CertificationsBlock block={block} data={data} spec={spec} />;
+      return <CertificationsBlock block={block} data={data} lang={lang} spec={spec} />;
     case 'references':
       return <ReferencesBlock block={block} data={data} lang={lang} spec={spec} />;
     default:
@@ -208,7 +208,7 @@ function PhotoBlock({ data }: { data: CVData }) {
     return (
       <img
         src={data.personalInfo.photo}
-        alt={data.personalInfo.fullName || 'Foto de perfil'}
+        alt={data.personalInfo.fullName || 'Profile photo'}
         style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }}
       />
     );
@@ -227,7 +227,7 @@ function PhotoBlock({ data }: { data: CVData }) {
         borderRadius: 'inherit',
       }}
     >
-      Foto
+      Photo
     </div>
   );
 }
@@ -247,7 +247,7 @@ function HeaderBlock({
   return (
     <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', height: '100%', textAlign: align }}>
       <div style={{ fontSize: block.props?.fontSize ?? 28, fontWeight: 800, letterSpacing: '-0.02em', color: block.props?.color ?? spec.textColor }}>
-        {data.personalInfo.fullName || 'Nome Apelido'}
+        {data.personalInfo.fullName || 'First Last'}
       </div>
       <div style={{ fontSize: 13, color: spec.accentColor, fontWeight: 600, marginTop: 4 }}>
         {data.personalInfo.jobTitle[lang] || data.personalInfo.jobTitle.pt || ''}
@@ -416,13 +416,13 @@ function ProjectsBlock({ block, data, lang, spec }: { block: CustomTemplateBlock
   );
 }
 
-function CertificationsBlock({ block, data, spec }: { block: CustomTemplateBlock; data: CVData; spec: CustomTemplateSpec }) {
+function CertificationsBlock({ block, data, lang, spec }: { block: CustomTemplateBlock; data: CVData; lang: 'pt' | 'en'; spec: CustomTemplateSpec }) {
   if (!data.certifications.length) return null;
   return (
     <div>
       {block.props?.showTitle && (
         <div style={sectionTitleStyle(spec, block)}>
-          {block.props?.title || 'Certificações'}
+          {block.props?.title || (lang === 'pt' ? 'Certificações' : 'Certifications')}
         </div>
       )}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>

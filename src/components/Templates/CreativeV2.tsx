@@ -45,7 +45,7 @@ export default function CreativeV2({ data, lang }: TemplateProps) {
           <section style={{ marginBottom: '40px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
               <Zap size={20} color={accentColor} />
-              <h3 style={{ fontSize: '18px', fontWeight: 800, textTransform: 'uppercase' }}>O meu Perfil</h3>
+              <h3 style={{ fontSize: '18px', fontWeight: 800, textTransform: 'uppercase' }}>My Profile</h3>
             </div>
             <p style={{ fontSize: '15px', lineHeight: '1.8', color: '#475569' }}>{data.summary[lang]}</p>
           </section>
@@ -53,7 +53,7 @@ export default function CreativeV2({ data, lang }: TemplateProps) {
           <section>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '25px' }}>
               <Star size={20} color={accentColor} />
-              <h3 style={{ fontSize: '18px', fontWeight: 800, textTransform: 'uppercase' }}>Experiência</h3>
+              <h3 style={{ fontSize: '18px', fontWeight: 800, textTransform: 'uppercase' }}>Experience</h3>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
               {data.experience.map((exp) => (
@@ -73,7 +73,7 @@ export default function CreativeV2({ data, lang }: TemplateProps) {
         {/* Right Col */}
         <div>
           <section style={{ marginBottom: '40px' }}>
-            <h3 style={{ fontSize: '14px', fontWeight: 800, textTransform: 'uppercase', marginBottom: '20px', borderBottom: `3px solid ${accentColor}`, display: 'inline-block' }}>Contacto</h3>
+            <h3 style={{ fontSize: '14px', fontWeight: 800, textTransform: 'uppercase', marginBottom: '20px', borderBottom: `3px solid ${accentColor}`, display: 'inline-block' }}>Contact</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '13px' }}>
               <div>{data.personalInfo.email}</div>
               <div>{data.personalInfo.phone}</div>
@@ -91,7 +91,7 @@ export default function CreativeV2({ data, lang }: TemplateProps) {
           </section>
 
           <section>
-            <h3 style={{ fontSize: '14px', fontWeight: 800, textTransform: 'uppercase', marginBottom: '20px', borderBottom: `3px solid ${accentColor}`, display: 'inline-block' }}>Formação</h3>
+            <h3 style={{ fontSize: '14px', fontWeight: 800, textTransform: 'uppercase', marginBottom: '20px', borderBottom: `3px solid ${accentColor}`, display: 'inline-block' }}>Education</h3>
             {data.education.map((edu) => (
               <div key={edu.id} style={{ marginBottom: '15px' }}>
                 <div style={{ fontSize: '13px', fontWeight: 700 }}>{edu.degree[lang]}</div>

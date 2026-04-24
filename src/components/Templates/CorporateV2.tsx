@@ -32,7 +32,7 @@ export default function CorporateV2({ data, lang }: TemplateProps) {
             <div style={{ width: '32px', height: '32px', background: accentColor, borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
               <Briefcase size={18} />
             </div>
-            <h3 style={{ fontSize: '16px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Experiência Profissional</h3>
+            <h3 style={{ fontSize: '16px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Professional Experience</h3>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
             {data.experience.map((exp) => (
@@ -53,7 +53,7 @@ export default function CorporateV2({ data, lang }: TemplateProps) {
             <div style={{ width: '32px', height: '32px', background: accentColor, borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
               <GraduationCap size={18} />
             </div>
-            <h3 style={{ fontSize: '16px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Educação</h3>
+            <h3 style={{ fontSize: '16px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>Education</h3>
           </div>
           {data.education.map((edu) => (
             <div key={edu.id} style={{ marginBottom: '15px' }}>
@@ -67,7 +67,7 @@ export default function CorporateV2({ data, lang }: TemplateProps) {
       {/* Sidebar (Right) */}
       <div style={{ background: '#f8fafc', padding: '60px 30px' }}>
         <section style={{ marginBottom: '40px' }}>
-          <h3 style={{ fontSize: '14px', fontWeight: 800, textTransform: 'uppercase', marginBottom: '20px', color: '#0f172a' }}>Contacto</h3>
+          <h3 style={{ fontSize: '14px', fontWeight: 800, textTransform: 'uppercase', marginBottom: '20px', color: '#0f172a' }}>Contact</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', fontSize: '11px', color: '#475569' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><Mail size={16} color={accentColor} /> {data.personalInfo.email}</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><Phone size={16} color={accentColor} /> {data.personalInfo.phone}</div>
@@ -78,12 +78,12 @@ export default function CorporateV2({ data, lang }: TemplateProps) {
         </section>
 
         <section style={{ marginBottom: '40px' }}>
-          <h3 style={{ fontSize: '14px', fontWeight: 800, textTransform: 'uppercase', marginBottom: '20px', color: '#0f172a' }}>Perfil</h3>
+          <h3 style={{ fontSize: '14px', fontWeight: 800, textTransform: 'uppercase', marginBottom: '20px', color: '#0f172a' }}>Profile</h3>
           <p style={{ fontSize: '12px', lineHeight: '1.6', color: '#475569' }}>{data.summary[lang]}</p>
         </section>
 
         <section>
-          <h3 style={{ fontSize: '14px', fontWeight: 800, textTransform: 'uppercase', marginBottom: '20px', color: '#0f172a' }}>Competências</h3>
+          <h3 style={{ fontSize: '14px', fontWeight: 800, textTransform: 'uppercase', marginBottom: '20px', color: '#0f172a' }}>Skills</h3>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
             {data.skills.map((skill, i) => (
               <span

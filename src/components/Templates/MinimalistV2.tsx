@@ -33,7 +33,7 @@ export default function MinimalistV2({ data, lang }: TemplateProps) {
 
         {/* Experience Section */}
         <section>
-          <h3 style={{ fontSize: '12px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '30px', textAlign: 'center' }}>Experiência</h3>
+          <h3 style={{ fontSize: '12px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '30px', textAlign: 'center' }}>Experience</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
             {data.experience.map((exp) => (
               <div key={exp.id} style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: '40px' }}>
@@ -53,7 +53,7 @@ export default function MinimalistV2({ data, lang }: TemplateProps) {
         {/* Two Column Bottom */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '60px', marginTop: '20px' }}>
           <section>
-            <h3 style={{ fontSize: '12px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '20px' }}>Educação</h3>
+            <h3 style={{ fontSize: '12px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '20px' }}>Education</h3>
             {data.education.map((edu) => (
               <div key={edu.id} style={{ marginBottom: '15px' }}>
                 <div style={{ fontSize: '13px', fontWeight: 700 }}>{edu.institution}</div>
