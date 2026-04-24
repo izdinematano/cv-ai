@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Award,
@@ -15,14 +15,26 @@ import {
   GraduationCap,
   Import,
   Languages,
+  LayoutTemplate,
   Link as LinkIcon,
   Palette,
   Plus,
   Sparkles,
   Trash2,
+  Upload,
   User,
+  UserCheck,
   type LucideIcon,
 } from 'lucide-react';
+import {
+  ACCEPTED_FILE_TYPES,
+  extractTextFromDocument,
+} from '@/lib/documentExtractor';
+import {
+  LANGUAGE_PROFICIENCY_LABELS,
+  type LanguageProficiency,
+  isLoadingLevel,
+} from '@/store/useCVStore';
 import TemplateGallery from '@/components/Preview/TemplateGallery';
 import {
   extractCVDataFromRawCV,
@@ -101,6 +113,15 @@ export default function Editor() {
     addCertification,
     updateCertification,
     removeCertification,
+    addReference,
+    updateReference,
+    removeReference,
+    addCustomSection,
+    updateCustomSection,
+    removeCustomSection,
+    addCustomSectionItem,
+    updateCustomSectionItem,
+    removeCustomSectionItem,
     addSkill,
     removeSkill,
     addLanguage,
@@ -123,6 +144,31 @@ export default function Editor() {
   ]);
   const [rawCVInput, setRawCVInput] = useState('');
   const [importStatus, setImportStatus] = useState('');
+  const [importFileName, setImportFileName] = useState('');
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setConverting(true);
+    setImportStatus(`A ler ${file.name}...`);
+    try {
+      const result = await extractTextFromDocument(file);
+      if (!result.text) {
+        setImportStatus(
+          `Nao foi possivel ler ${file.name}. Tenta um PDF, DOCX ou cola o texto manualmente.`
+        );
+        return;
+      }
+      setRawCVInput(result.text);
+      setImportFileName(file.name);
+      setImportStatus(`${file.name} carregado. Clica em "Importar com IA" para organizar o conteudo.`);
+    } finally {
+      setConverting(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
 
   const toggleSection = (id: string) => {
     setOpenSections((current) =>
@@ -415,13 +461,43 @@ export default function Editor() {
                         </p>
                       </div>
 
+                      <div
+                        style={{
+                          display: 'flex',
+                          gap: '10px',
+                          flexWrap: 'wrap',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept={ACCEPTED_FILE_TYPES}
+                          onChange={handleFileSelect}
+                          style={{ display: 'none' }}
+                        />
+                        <button
+                          className="btn-outline"
+                          onClick={() => fileInputRef.current?.click()}
+                          disabled={isConverting}
+                          style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                        >
+                          <Upload size={14} /> Carregar PDF / DOCX / TXT
+                        </button>
+                        {importFileName && (
+                          <span style={{ fontSize: '12px', color: '#94a3b8' }}>
+                            {importFileName}
+                          </span>
+                        )}
+                      </div>
+
                       <div className="form-group">
-                        <label>Texto do CV</label>
+                        <label>Texto do CV (colar ou extraido do ficheiro)</label>
                         <textarea
                           rows={8}
                           value={rawCVInput}
                           onChange={(event) => setRawCVInput(event.target.value)}
-                          placeholder="Cole aqui o conteudo completo do CV para a IA estruturar e melhorar..."
+                          placeholder="Cole aqui o conteudo completo do CV ou carrega um ficheiro acima."
                           style={{ resize: 'vertical', minHeight: '180px' }}
                         />
                       </div>
@@ -437,10 +513,13 @@ export default function Editor() {
                         </button>
                         <button
                           className="btn-outline"
-                          onClick={() => setRawCVInput('')}
-                          disabled={isConverting || !rawCVInput}
+                          onClick={() => {
+                            setRawCVInput('');
+                            setImportFileName('');
+                          }}
+                          disabled={isConverting || (!rawCVInput && !importFileName)}
                         >
-                          Limpar texto
+                          Limpar
                         </button>
                       </div>
 
@@ -1020,59 +1099,75 @@ export default function Editor() {
                     style={{ overflow: 'hidden' }}
                   >
                     <div style={{ padding: '20px' }}>
-                      {data.languages.map((lang, index) => (
-                        <div
-                          key={`${lang.name}-${index}`}
-                          style={{
-                            display: 'grid',
-                            gridTemplateColumns: '1fr 1fr auto',
-                            gap: '8px',
-                            marginBottom: '8px',
-                            alignItems: 'center',
-                          }}
-                        >
-                          <input
-                            value={lang.name}
-                            onChange={(event) =>
-                              updateLanguage(index, { name: event.target.value })
-                            }
-                            placeholder="Lingua"
-                          />
-                          <select
-                            value={lang.level[activeLanguage]}
-                            onChange={(event) =>
-                              updateLanguage(index, {
-                                level: {
-                                  ...lang.level,
-                                  [activeLanguage]: event.target.value,
-                                },
-                              })
-                            }
+                      {data.languages.map((lang, index) => {
+                        const currentProficiency: LanguageProficiency =
+                          lang.proficiency ||
+                          (Object.entries(LANGUAGE_PROFICIENCY_LABELS).find(
+                            ([, field]) =>
+                              field.pt === lang.level.pt || field.en === lang.level.en
+                          )?.[0] as LanguageProficiency | undefined) ||
+                          'intermediate';
+
+                        const displayedLevel = isLoadingLevel(lang.level[activeLanguage])
+                          ? LANGUAGE_PROFICIENCY_LABELS[currentProficiency][activeLanguage]
+                          : lang.level[activeLanguage];
+
+                        return (
+                          <div
+                            key={`lang-${index}`}
                             style={{
-                              background: 'rgba(255,255,255,0.05)',
-                              border: '1px solid var(--card-border)',
-                              color: 'white',
-                              borderRadius: '8px',
-                              padding: '10px',
+                              display: 'grid',
+                              gridTemplateColumns: '1fr 1.1fr auto',
+                              gap: '8px',
+                              marginBottom: '10px',
+                              alignItems: 'center',
                             }}
                           >
-                            {(activeLanguage === 'pt'
-                              ? ['Nativo', 'Fluente', 'Avancado', 'Intermedio', 'Basico']
-                              : ['Native', 'Fluent', 'Advanced', 'Intermediate', 'Basic']
-                            ).map((level) => (
-                              <option key={level} value={level}>
-                                {level}
-                              </option>
-                            ))}
-                          </select>
-                          <button
-                            onClick={() => removeLanguage(index)}
-                            style={{ background: 'transparent', color: 'var(--error)' }}
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      ))}
+                            <input
+                              value={lang.name}
+                              onChange={(event) =>
+                                updateLanguage(index, { name: event.target.value })
+                              }
+                              placeholder={activeLanguage === 'pt' ? 'Lingua' : 'Language'}
+                            />
+                            <select
+                              value={currentProficiency}
+                              onChange={(event) => {
+                                const next = event.target.value as LanguageProficiency;
+                                updateLanguage(index, {
+                                  proficiency: next,
+                                  level: LANGUAGE_PROFICIENCY_LABELS[next],
+                                });
+                              }}
+                              style={{
+                                background: 'rgba(255,255,255,0.05)',
+                                border: '1px solid var(--card-border)',
+                                color: 'white',
+                                borderRadius: '8px',
+                                padding: '10px',
+                              }}
+                              title={displayedLevel}
+                            >
+                              {(
+                                Object.entries(LANGUAGE_PROFICIENCY_LABELS) as Array<
+                                  [LanguageProficiency, { pt: string; en: string }]
+                                >
+                              ).map(([key, label]) => (
+                                <option key={key} value={key}>
+                                  {label[activeLanguage]}
+                                </option>
+                              ))}
+                            </select>
+                            <button
+                              onClick={() => removeLanguage(index)}
+                              style={{ background: 'transparent', color: 'var(--error)' }}
+                              aria-label="Remover idioma"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        );
+                      })}
                       <button
                         className="btn-outline"
                         onClick={addLanguage}
@@ -1377,6 +1472,347 @@ export default function Editor() {
                         }}
                       >
                         <Plus size={16} /> Adicionar Certificacao
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* References */}
+            <div className="glass-card" style={{ padding: 0, overflow: 'hidden' }}>
+              <SectionHeader
+                id="references"
+                icon={UserCheck}
+                title="Referencias"
+                count={data.references.length}
+                isOpen={openSections.includes('references')}
+                onToggle={toggleSection}
+              />
+              <AnimatePresence initial={false}>
+                {openSections.includes('references') && (
+                  <motion.div
+                    initial={{ height: 0 }}
+                    animate={{ height: 'auto' }}
+                    exit={{ height: 0 }}
+                    style={{ overflow: 'hidden' }}
+                  >
+                    <div style={{ padding: '20px' }}>
+                      {data.references.map((ref) => (
+                        <div
+                          key={ref.id}
+                          style={{
+                            marginBottom: '16px',
+                            padding: '12px',
+                            background: 'rgba(255,255,255,0.02)',
+                            borderRadius: '8px',
+                            border: '1px solid var(--card-border)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '10px',
+                          }}
+                        >
+                          <div className="form-group">
+                            <label>Nome</label>
+                            <input
+                              value={ref.name}
+                              onChange={(event) =>
+                                updateReference(ref.id, { name: event.target.value })
+                              }
+                              placeholder="Nome completo"
+                            />
+                          </div>
+                          <div
+                            style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}
+                          >
+                            <div className="form-group">
+                              <label>Cargo</label>
+                              <input
+                                value={ref.role}
+                                onChange={(event) =>
+                                  updateReference(ref.id, { role: event.target.value })
+                                }
+                                placeholder="Ex: Diretor de Operacoes"
+                              />
+                            </div>
+                            <div className="form-group">
+                              <label>Empresa</label>
+                              <input
+                                value={ref.company}
+                                onChange={(event) =>
+                                  updateReference(ref.id, { company: event.target.value })
+                                }
+                                placeholder="Empresa / Organizacao"
+                              />
+                            </div>
+                          </div>
+                          <div className="form-group">
+                            <label>Contacto (email ou telefone)</label>
+                            <input
+                              value={ref.contact}
+                              onChange={(event) =>
+                                updateReference(ref.id, { contact: event.target.value })
+                              }
+                              placeholder="email@exemplo.com | +258 84 000 0000"
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label>Relacao ({activeLanguage.toUpperCase()})</label>
+                            <input
+                              value={ref.relationship[activeLanguage]}
+                              onChange={(event) =>
+                                updateReference(ref.id, {
+                                  relationship: {
+                                    ...ref.relationship,
+                                    [activeLanguage]: event.target.value,
+                                  },
+                                })
+                              }
+                              placeholder={
+                                activeLanguage === 'pt'
+                                  ? 'Ex: Antigo chefe direto'
+                                  : 'e.g. Former direct manager'
+                              }
+                            />
+                          </div>
+                          <button
+                            onClick={() => removeReference(ref.id)}
+                            style={{
+                              color: 'var(--error)',
+                              fontSize: '11px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                              background: 'transparent',
+                            }}
+                          >
+                            <Trash2 size={12} /> Remover
+                          </button>
+                        </div>
+                      ))}
+                      <button
+                        className="btn-outline"
+                        onClick={addReference}
+                        style={{
+                          width: '100%',
+                          marginTop: '10px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '8px',
+                        }}
+                      >
+                        <Plus size={16} /> Adicionar Referencia
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Custom sections */}
+            <div className="glass-card" style={{ padding: 0, overflow: 'hidden' }}>
+              <SectionHeader
+                id="custom"
+                icon={LayoutTemplate}
+                title="Seccoes Personalizadas"
+                count={data.customSections.length}
+                isOpen={openSections.includes('custom')}
+                onToggle={toggleSection}
+              />
+              <AnimatePresence initial={false}>
+                {openSections.includes('custom') && (
+                  <motion.div
+                    initial={{ height: 0 }}
+                    animate={{ height: 'auto' }}
+                    exit={{ height: 0 }}
+                    style={{ overflow: 'hidden' }}
+                  >
+                    <div style={{ padding: '20px' }}>
+                      <p
+                        style={{
+                          fontSize: '12px',
+                          color: '#94a3b8',
+                          lineHeight: 1.55,
+                          marginBottom: '12px',
+                        }}
+                      >
+                        Adiciona seccoes personalizadas (ex: Voluntariado, Prémios, Publicacoes,
+                        Hobbies). Cada seccao pode ter varios items.
+                      </p>
+                      {data.customSections.map((section) => (
+                        <div
+                          key={section.id}
+                          style={{
+                            marginBottom: '18px',
+                            padding: '14px',
+                            background: 'rgba(255,255,255,0.03)',
+                            borderRadius: '10px',
+                            border: '1px solid var(--card-border)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '12px',
+                          }}
+                        >
+                          <div className="form-group">
+                            <label>Titulo da seccao ({activeLanguage.toUpperCase()})</label>
+                            <input
+                              value={section.label[activeLanguage]}
+                              onChange={(event) =>
+                                updateCustomSection(section.id, {
+                                  label: {
+                                    ...section.label,
+                                    [activeLanguage]: event.target.value,
+                                  },
+                                })
+                              }
+                              placeholder={
+                                activeLanguage === 'pt' ? 'Ex: Voluntariado' : 'e.g. Volunteering'
+                              }
+                            />
+                          </div>
+
+                          {section.items.map((item) => (
+                            <div
+                              key={item.id}
+                              style={{
+                                padding: '10px',
+                                background: 'rgba(255,255,255,0.02)',
+                                borderRadius: '8px',
+                                border: '1px solid var(--card-border)',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '8px',
+                              }}
+                            >
+                              <div
+                                style={{
+                                  display: 'grid',
+                                  gridTemplateColumns: '1fr 140px',
+                                  gap: '8px',
+                                }}
+                              >
+                                <input
+                                  value={item.title[activeLanguage]}
+                                  onChange={(event) =>
+                                    updateCustomSectionItem(section.id, item.id, {
+                                      title: {
+                                        ...item.title,
+                                        [activeLanguage]: event.target.value,
+                                      },
+                                    })
+                                  }
+                                  placeholder={
+                                    activeLanguage === 'pt' ? 'Titulo' : 'Title'
+                                  }
+                                />
+                                <input
+                                  value={item.period}
+                                  onChange={(event) =>
+                                    updateCustomSectionItem(section.id, item.id, {
+                                      period: event.target.value,
+                                    })
+                                  }
+                                  placeholder={
+                                    activeLanguage === 'pt' ? 'Periodo' : 'Period'
+                                  }
+                                />
+                              </div>
+                              <input
+                                value={item.subtitle[activeLanguage]}
+                                onChange={(event) =>
+                                  updateCustomSectionItem(section.id, item.id, {
+                                    subtitle: {
+                                      ...item.subtitle,
+                                      [activeLanguage]: event.target.value,
+                                    },
+                                  })
+                                }
+                                placeholder={
+                                  activeLanguage === 'pt'
+                                    ? 'Subtitulo (ex: organizacao)'
+                                    : 'Subtitle (e.g. organization)'
+                                }
+                              />
+                              <textarea
+                                rows={3}
+                                value={item.description[activeLanguage]}
+                                onChange={(event) =>
+                                  updateCustomSectionItem(section.id, item.id, {
+                                    description: {
+                                      ...item.description,
+                                      [activeLanguage]: event.target.value,
+                                    },
+                                  })
+                                }
+                                placeholder={
+                                  activeLanguage === 'pt' ? 'Descricao' : 'Description'
+                                }
+                                style={{ resize: 'vertical', minHeight: '70px' }}
+                              />
+                              <button
+                                onClick={() =>
+                                  removeCustomSectionItem(section.id, item.id)
+                                }
+                                style={{
+                                  color: 'var(--error)',
+                                  fontSize: '11px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  background: 'transparent',
+                                  alignSelf: 'flex-start',
+                                }}
+                              >
+                                <Trash2 size={12} /> Remover item
+                              </button>
+                            </div>
+                          ))}
+
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button
+                              className="btn-outline"
+                              onClick={() => addCustomSectionItem(section.id)}
+                              style={{
+                                flex: 1,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '6px',
+                              }}
+                            >
+                              <Plus size={14} /> Adicionar item
+                            </button>
+                            <button
+                              onClick={() => removeCustomSection(section.id)}
+                              style={{
+                                color: 'var(--error)',
+                                fontSize: '11px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                background: 'transparent',
+                                padding: '8px 12px',
+                              }}
+                            >
+                              <Trash2 size={14} /> Remover seccao
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                      <button
+                        className="btn-outline"
+                        onClick={addCustomSection}
+                        style={{
+                          width: '100%',
+                          marginTop: '10px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '8px',
+                        }}
+                      >
+                        <Plus size={16} /> Adicionar Seccao
                       </button>
                     </div>
                   </motion.div>

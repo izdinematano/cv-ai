@@ -163,10 +163,33 @@ async function callOpenRouterText(task: OpenRouterTask, prompt: string): Promise
     if (!response.ok) return '';
 
     const payload = await response.json();
-    return String(payload?.choices?.[0]?.message?.content || '').trim();
+    const content = String(payload?.choices?.[0]?.message?.content || '').trim();
+
+    // OpenRouter sometimes returns HTTP 200 with an error message embedded as the
+    // assistant content (e.g. "Unknown: all API providers are over their global
+    // rate limit for trial users"). Treat those as silent failures.
+    if (looksLikeProviderError(content) || looksLikeProviderError(payload?.error?.message)) {
+      return '';
+    }
+
+    return content;
   } catch {
     return '';
   }
+}
+
+function looksLikeProviderError(value: unknown): boolean {
+  if (typeof value !== 'string' || !value) return false;
+  const v = value.toLowerCase();
+  return (
+    v.startsWith('unknown:') ||
+    v.includes('rate limit') ||
+    v.includes('api providers') ||
+    v.includes('third-party model provider') ||
+    v.includes('currently not available') ||
+    v.includes('no endpoints found') ||
+    v.includes('trial users')
+  );
 }
 
 async function callOpenRouterJSON<T>(task: OpenRouterTask, prompt: string): Promise<T | null> {
