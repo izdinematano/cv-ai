@@ -36,12 +36,23 @@ export default function TemplateExtras({
   wrapperStyle,
   titleColor,
   titleTransform = 'upper',
-  sectionGap = 22,
-  twoColumns = false,
+  sectionGap = 18,
+  twoColumns,
 }: TemplateExtrasProps) {
   const { languages, projects, certifications } = data;
 
   if (!languages.length && !projects.length && !certifications.length) return null;
+
+  // When the caller doesn't force a layout, auto-use 2 columns if at least two
+  // of these sections are present AND none of them has long content. This
+  // stops the appendix from stretching the page when the CV is short.
+  const sectionsCount = [languages.length, projects.length, certifications.length].filter(
+    (n) => n > 0
+  ).length;
+  const hasLongProject = projects.some(
+    (p) => (p.description[lang] || p.description.pt || '').length > 120
+  );
+  const useTwoCols = twoColumns ?? (sectionsCount >= 2 && !hasLongProject);
 
   const isDark = variant === 'dark';
   const isBold = variant === 'bold';
@@ -89,12 +100,12 @@ export default function TemplateExtras({
   return (
     <div
       style={{
-        marginTop: 22,
-        paddingTop: 18,
+        marginTop: 16,
+        paddingTop: 14,
         borderTop: cardBorder,
-        display: twoColumns ? 'grid' : 'flex',
-        flexDirection: twoColumns ? undefined : 'column',
-        gridTemplateColumns: twoColumns ? '1fr 1fr' : undefined,
+        display: useTwoCols ? 'grid' : 'flex',
+        flexDirection: useTwoCols ? undefined : 'column',
+        gridTemplateColumns: useTwoCols ? '1fr 1fr' : undefined,
         gap: sectionGap,
         ...wrapperStyle,
       }}

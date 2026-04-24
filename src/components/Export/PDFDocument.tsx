@@ -1,21 +1,13 @@
 'use client';
 
-import { Document, Font, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import { CVData } from '@/store/useCVStore';
 
-Font.register({
-  family: 'Inter',
-  fonts: [
-    {
-      src: 'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2',
-      fontWeight: 400,
-    },
-    {
-      src: 'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuGKYAZ9hiA.woff2',
-      fontWeight: 700,
-    },
-  ],
-});
+/* Deliberately using react-pdf's built-in Helvetica instead of Font.register
+ * with an external Google Font URL. External fonts frequently fail to load
+ * due to CORS and leave the PDF generator stuck in `loading` forever, which
+ * is the most common reason users see "nothing happens" when clicking the
+ * download button. */
 
 interface PDFDocumentProps {
   data: CVData;
@@ -30,7 +22,7 @@ export const CVDocument = ({ data, lang }: PDFDocumentProps) => {
       paddingTop: 42,
       paddingBottom: 42,
       paddingHorizontal: 40,
-      fontFamily: 'Inter',
+      fontFamily: 'Helvetica',
       color: '#1e293b',
       fontSize: 10.5,
     },

@@ -1,7 +1,7 @@
 'use client';
 
-import type { ReactElement } from 'react';
-import { PDFDownloadLink, type DocumentProps } from '@react-pdf/renderer';
+import { useState, type ReactElement } from 'react';
+import { pdf, type DocumentProps } from '@react-pdf/renderer';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Sparkles, ArrowRight, Download, Loader2 } from 'lucide-react';
 
@@ -115,43 +115,72 @@ export default function SaveModal({
                 Criar Conta <ArrowRight size={16} />
               </button>
 
-              {/* Nesting a <button> inside PDFDownloadLink cancels the
-                  download in some browsers. Style the anchor directly. */}
-              <PDFDownloadLink
+              <DownloadButton
                 document={document}
                 fileName={fileName}
-                className="btn-outline"
-                onClick={() => {
+                onAfterDownload={() => {
                   onContinueWithoutSave();
                   onClose();
                 }}
-                style={{
-                  width: '100%',
-                  padding: '14px 18px',
-                  fontSize: '15px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  textDecoration: 'none',
-                  cursor: 'pointer',
-                }}
-              >
-                {({ loading }) => (
-                  <>
-                    {loading ? (
-                      <Loader2 size={16} className="animate-spin" />
-                    ) : (
-                      <Download size={16} />
-                    )}
-                    {loading ? 'A gerar PDF...' : 'Continuar sem guardar'}
-                  </>
-                )}
-              </PDFDownloadLink>
+              />
             </div>
           </motion.div>
         </motion.div>
       )}
     </AnimatePresence>
+  );
+}
+
+function DownloadButton({
+  document: doc,
+  fileName,
+  onAfterDownload,
+}: {
+  document: ReactElement<DocumentProps>;
+  fileName: string;
+  onAfterDownload: () => void;
+}) {
+  const [loading, setLoading] = useState(false);
+
+  const handleClick = async () => {
+    if (loading) return;
+    setLoading(true);
+    try {
+      const blob = await pdf(doc).toBlob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      onAfterDownload();
+    } catch (err) {
+      console.error('[PDF export] failed', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      className="btn-outline"
+      onClick={handleClick}
+      disabled={loading}
+      style={{
+        width: '100%',
+        padding: '14px 18px',
+        fontSize: '15px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '8px',
+      }}
+    >
+      {loading ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+      {loading ? 'A gerar PDF...' : 'Continuar sem guardar'}
+    </button>
   );
 }

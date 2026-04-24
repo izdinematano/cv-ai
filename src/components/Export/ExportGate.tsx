@@ -2,11 +2,13 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { PDFDownloadLink } from '@react-pdf/renderer';
+import { pdf } from '@react-pdf/renderer';
 import {
+  AlertCircle,
   CheckCircle2,
   CreditCard,
   Download,
+  Loader2,
   Lock,
   MessageCircle,
   Send,
@@ -218,6 +220,39 @@ function ReadyToDownload({
   lang: 'pt' | 'en';
   onDownload: () => void;
 }) {
+  const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle');
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const handleDownload = async () => {
+    if (status === 'loading') return;
+    setStatus('loading');
+    setErrorMsg(null);
+    try {
+      // Build + blob the PDF imperatively so we can reliably trigger the
+      // download with a programmatic anchor click. This avoids the anchor /
+      // nested-button issue with <PDFDownloadLink>.
+      const blob = await pdf(<CVDocument data={data} lang={lang} />).toBlob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      // Clean up the object URL after a short delay so the browser has time
+      // to pick it up before we revoke it.
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+      // Only record the export after the PDF is actually generated.
+      onDownload();
+      setStatus('idle');
+    } catch (err) {
+      console.error('[PDF export] failed', err);
+      setErrorMsg((err as Error)?.message || 'Falha ao gerar o PDF.');
+      setStatus('error');
+    }
+  };
+
   return (
     <>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -254,42 +289,56 @@ function ReadyToDownload({
       >
         Ao descarregar, este CV será guardado como <b>{cvName}</b> no teu dashboard e consumirá <b>1 exportação</b>.
       </div>
-      {/* IMPORTANT: never nest <button> inside PDFDownloadLink — it renders as
-          <a download="..."> and a nested button cancels the default download.
-          Handle state + record export via the anchor's own onClick. */}
-      <PDFDownloadLink
-        document={<CVDocument data={data} lang={lang} />}
-        fileName={fileName}
+
+      {status === 'error' && errorMsg && (
+        <div
+          style={{
+            display: 'flex',
+            gap: 8,
+            alignItems: 'flex-start',
+            background: 'rgba(239,68,68,0.1)',
+            border: '1px solid rgba(239,68,68,0.3)',
+            borderRadius: 10,
+            padding: 12,
+            fontSize: 12,
+            color: '#fecaca',
+          }}
+        >
+          <AlertCircle size={16} style={{ flexShrink: 0, marginTop: 1 }} />
+          <div>
+            <b>Não foi possível gerar o PDF.</b>
+            <div style={{ marginTop: 4, opacity: 0.85 }}>{errorMsg}</div>
+          </div>
+        </div>
+      )}
+
+      <button
+        type="button"
         className="btn-primary"
-        onClick={onDownload}
+        onClick={handleDownload}
+        disabled={status === 'loading'}
         style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           gap: 10,
-          textDecoration: 'none',
-          cursor: 'pointer',
+          cursor: status === 'loading' ? 'wait' : 'pointer',
         }}
       >
-        {({ loading, error }) =>
-          error ? (
-            <>
-              <Download size={16} />
-              Tentar novamente
-            </>
-          ) : loading ? (
-            <>
-              <Download size={16} />
-              A gerar PDF...
-            </>
-          ) : (
-            <>
-              <Download size={16} />
-              Descarregar PDF
-            </>
-          )
-        }
-      </PDFDownloadLink>
+        {status === 'loading' ? (
+          <>
+            <Loader2 size={16} className="animate-spin" /> A gerar PDF...
+          </>
+        ) : status === 'error' ? (
+          <>
+            <Download size={16} /> Tentar novamente
+          </>
+        ) : (
+          <>
+            <Download size={16} /> Descarregar PDF
+          </>
+        )}
+      </button>
     </>
   );
 }
