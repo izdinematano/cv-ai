@@ -182,9 +182,23 @@ interface CVState {
   addLanguage: () => void;
   updateLanguage: (index: number, lang: Partial<LanguageEntry>) => void;
   removeLanguage: (index: number) => void;
+  /** Move an entry by relative offset inside its section (1 = down, -1 = up). */
+  moveExperience: (id: string, dir: 1 | -1) => void;
+  moveEducation: (id: string, dir: 1 | -1) => void;
+  moveProject: (id: string, dir: 1 | -1) => void;
   setConverting: (val: boolean) => void;
   setData: (data: CVData) => void;
 }
+
+const moveBy = <T extends { id: string }>(list: T[], id: string, dir: 1 | -1): T[] => {
+  const idx = list.findIndex((x) => x.id === id);
+  if (idx < 0) return list;
+  const target = idx + dir;
+  if (target < 0 || target >= list.length) return list;
+  const next = [...list];
+  [next[idx], next[target]] = [next[target], next[idx]];
+  return next;
+};
 
 const createId = () => Math.random().toString(36).slice(2, 11);
 
@@ -613,6 +627,21 @@ export const useCVStore = create<CVState>()(
                 : section
             ),
           },
+        })),
+
+      moveExperience: (id, dir) =>
+        set((state) => ({
+          data: { ...state.data, experience: moveBy(state.data.experience, id, dir) },
+        })),
+
+      moveEducation: (id, dir) =>
+        set((state) => ({
+          data: { ...state.data, education: moveBy(state.data.education, id, dir) },
+        })),
+
+      moveProject: (id, dir) =>
+        set((state) => ({
+          data: { ...state.data, projects: moveBy(state.data.projects, id, dir) },
         })),
 
       setConverting: (val) => set({ isConverting: val }),

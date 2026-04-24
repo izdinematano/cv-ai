@@ -3,6 +3,8 @@
 import { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
+  ArrowDown,
+  ArrowUp,
   Award,
   Briefcase,
   Camera,
@@ -26,6 +28,15 @@ import {
   UserCheck,
   type LucideIcon,
 } from 'lucide-react';
+
+const reorderBtnStyle: React.CSSProperties = {
+  padding: '4px 8px',
+  fontSize: 10,
+  minWidth: 0,
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 4,
+};
 import {
   ACCEPTED_FILE_TYPES,
   extractTextFromDocument,
@@ -45,6 +56,10 @@ import {
 import { getTemplateRecommendation } from '@/lib/recommendations';
 import { getTemplateDefinition } from '@/lib/templateCatalog';
 import { useCVStore } from '@/store/useCVStore';
+import BulletEditor from './BulletEditor';
+import WritingHints from './WritingHints';
+import AtsPanel from './AtsPanel';
+import { analyzeParagraph } from '@/lib/writingQuality';
 
 function SectionHeader({
   id,
@@ -119,12 +134,15 @@ export default function Editor() {
     addExperience,
     updateExperience,
     removeExperience,
+    moveExperience,
     addEducation,
     updateEducation,
     removeEducation,
+    moveEducation,
     addProject,
     updateProject,
     removeProject,
+    moveProject,
     addCertification,
     updateCertification,
     removeCertification,
@@ -272,6 +290,22 @@ export default function Editor() {
           ? `CV importado com sucesso. Modelo sugerido: ${suggestion.badge} - ${suggestion.reason}`
           : 'CV importado com sucesso.'
       );
+    } finally {
+      setConverting(false);
+    }
+  };
+
+  /** Run AI polish on a single bullet and return the improved string so the
+   *  BulletEditor can replace it in-place. Never throws; returns empty string
+   *  on failure so the caller keeps the original. */
+  const improveBullet = async (text: string): Promise<string> => {
+    if (!text.trim()) return '';
+    setConverting(true);
+    try {
+      const result = await improveCVField(text, activeLanguage);
+      return typeof result === 'string' ? result : '';
+    } catch {
+      return '';
     } finally {
       setConverting(false);
     }
@@ -437,6 +471,8 @@ export default function Editor() {
 
         {activeTab === 'content' ? (
           <>
+            <AtsPanel data={data} lang={activeLanguage} />
+
             <div className="glass-card" style={{ padding: 0, overflow: 'hidden' }}>
               <SectionHeader
                 id="import"
@@ -833,6 +869,10 @@ export default function Editor() {
                           }
                           placeholder="Escreva um resumo profissional impactante..."
                           style={{ resize: 'vertical', minHeight: '100px' }}
+                          spellCheck
+                        />
+                        <WritingHints
+                          report={analyzeParagraph(data.summary[activeLanguage] || '', activeLanguage, { min: 40, max: 90 })}
                         />
                       </div>
                       <button
@@ -875,7 +915,7 @@ export default function Editor() {
                     style={{ overflow: 'hidden' }}
                   >
                     <div style={{ padding: '20px' }}>
-                      {data.experience.map((exp) => (
+                      {data.experience.map((exp, expIdx) => (
                         <div
                           key={exp.id}
                           style={{
@@ -889,6 +929,28 @@ export default function Editor() {
                             gap: '10px',
                           }}
                         >
+                          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 6 }}>
+                            <button
+                              type="button"
+                              onClick={() => moveExperience(exp.id, -1)}
+                              disabled={expIdx === 0}
+                              aria-label="Mover experiência para cima"
+                              className="btn-outline"
+                              style={reorderBtnStyle}
+                            >
+                              <ArrowUp size={12} aria-hidden="true" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveExperience(exp.id, 1)}
+                              disabled={expIdx === data.experience.length - 1}
+                              aria-label="Mover experiência para baixo"
+                              className="btn-outline"
+                              style={reorderBtnStyle}
+                            >
+                              <ArrowDown size={12} aria-hidden="true" />
+                            </button>
+                          </div>
                           <div className="form-group">
                             <label>Empresa</label>
                             <input
@@ -928,43 +990,24 @@ export default function Editor() {
                           </div>
 
                           <div className="form-group">
-                            <label>Descricao ({activeLanguage.toUpperCase()})</label>
-                            <textarea
-                              rows={3}
+                            <label>
+                              Responsabilidades e conquistas ({activeLanguage.toUpperCase()})
+                            </label>
+                            <BulletEditor
                               value={exp.description[activeLanguage]}
-                              onChange={(event) =>
+                              onChange={(next) =>
                                 updateExperience(exp.id, {
                                   description: {
                                     ...exp.description,
-                                    [activeLanguage]: event.target.value,
+                                    [activeLanguage]: next,
                                   },
                                 })
                               }
-                              placeholder="Descreva as suas responsabilidades e conquistas..."
-                              style={{ resize: 'vertical', minHeight: '80px' }}
+                              lang={activeLanguage}
+                              placeholder="Começa com verbo de acção + métrica. Ex.: 'Liderei migração para microserviços, reduzindo latência 40%.'"
+                              onImprove={improveBullet}
+                              disabled={isConverting}
                             />
-                            <button
-                              className="btn-outline"
-                              style={{
-                                marginTop: '6px',
-                                fontSize: '11px',
-                                padding: '4px 10px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '6px',
-                                alignSelf: 'flex-start',
-                              }}
-                              onClick={() =>
-                                handleAIImprove(
-                                  exp.description[activeLanguage],
-                                  'experience',
-                                  exp.id
-                                )
-                              }
-                              disabled={isConverting || !exp.description[activeLanguage]}
-                            >
-                              <Sparkles size={12} /> Melhorar com IA
-                            </button>
                           </div>
 
                           <button
@@ -1022,7 +1065,7 @@ export default function Editor() {
                     style={{ overflow: 'hidden' }}
                   >
                     <div style={{ padding: '20px' }}>
-                      {data.education.map((edu) => (
+                      {data.education.map((edu, eduIdx) => (
                         <div
                           key={edu.id}
                           style={{
@@ -1036,6 +1079,28 @@ export default function Editor() {
                             gap: '10px',
                           }}
                         >
+                          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 6 }}>
+                            <button
+                              type="button"
+                              onClick={() => moveEducation(edu.id, -1)}
+                              disabled={eduIdx === 0}
+                              aria-label="Mover educação para cima"
+                              className="btn-outline"
+                              style={reorderBtnStyle}
+                            >
+                              <ArrowUp size={12} aria-hidden="true" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveEducation(edu.id, 1)}
+                              disabled={eduIdx === data.education.length - 1}
+                              aria-label="Mover educação para baixo"
+                              className="btn-outline"
+                              style={reorderBtnStyle}
+                            >
+                              <ArrowDown size={12} aria-hidden="true" />
+                            </button>
+                          </div>
                           <div className="form-group">
                             <label>Instituicao</label>
                             <input
@@ -1299,7 +1364,7 @@ export default function Editor() {
                     style={{ overflow: 'hidden' }}
                   >
                     <div style={{ padding: '20px' }}>
-                      {data.projects.map((project) => (
+                      {data.projects.map((project, prjIdx) => (
                         <div
                           key={project.id}
                           style={{
@@ -1313,6 +1378,28 @@ export default function Editor() {
                             gap: '10px',
                           }}
                         >
+                          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 6 }}>
+                            <button
+                              type="button"
+                              onClick={() => moveProject(project.id, -1)}
+                              disabled={prjIdx === 0}
+                              aria-label="Mover projecto para cima"
+                              className="btn-outline"
+                              style={reorderBtnStyle}
+                            >
+                              <ArrowUp size={12} aria-hidden="true" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveProject(project.id, 1)}
+                              disabled={prjIdx === data.projects.length - 1}
+                              aria-label="Mover projecto para baixo"
+                              className="btn-outline"
+                              style={reorderBtnStyle}
+                            >
+                              <ArrowDown size={12} aria-hidden="true" />
+                            </button>
+                          </div>
                           <div className="form-group">
                             <label>Nome</label>
                             <input
@@ -1334,43 +1421,22 @@ export default function Editor() {
                             />
                           </div>
                           <div className="form-group">
-                            <label>Descricao ({activeLanguage.toUpperCase()})</label>
-                            <textarea
-                              rows={3}
+                            <label>Destaques ({activeLanguage.toUpperCase()})</label>
+                            <BulletEditor
                               value={project.description[activeLanguage]}
-                              onChange={(event) =>
+                              onChange={(next) =>
                                 updateProject(project.id, {
                                   description: {
                                     ...project.description,
-                                    [activeLanguage]: event.target.value,
+                                    [activeLanguage]: next,
                                   },
                                 })
                               }
-                              placeholder="Descreva o projecto..."
-                              style={{ resize: 'vertical', minHeight: '80px' }}
+                              lang={activeLanguage}
+                              placeholder="Ex.: 'Implementei pipeline CI/CD que acelerou deploys 3x.'"
+                              onImprove={improveBullet}
+                              disabled={isConverting}
                             />
-                            <button
-                              className="btn-outline"
-                              style={{
-                                marginTop: '6px',
-                                fontSize: '11px',
-                                padding: '4px 10px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '6px',
-                                alignSelf: 'flex-start',
-                              }}
-                              onClick={() =>
-                                handleAIImprove(
-                                  project.description[activeLanguage],
-                                  'project',
-                                  project.id
-                                )
-                              }
-                              disabled={isConverting || !project.description[activeLanguage]}
-                            >
-                              <Sparkles size={12} /> Melhorar com IA
-                            </button>
                           </div>
                           <button
                             onClick={() => removeProject(project.id)}
