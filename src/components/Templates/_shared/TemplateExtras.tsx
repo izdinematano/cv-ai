@@ -21,6 +21,9 @@ interface TemplateExtrasProps {
   sectionGap?: number;
   /** Optional grid layout override */
   twoColumns?: boolean;
+  /** Sections the host template already renders natively and therefore should
+   *  NOT appear in the shared appendix (prevents duplicates). */
+  skip?: Array<'languages' | 'projects' | 'certifications'>;
 }
 
 /**
@@ -38,8 +41,12 @@ export default function TemplateExtras({
   titleTransform = 'upper',
   sectionGap = 18,
   twoColumns,
+  skip = [],
 }: TemplateExtrasProps) {
-  const { languages, projects, certifications } = data;
+  const skipSet = new Set(skip);
+  const languages = skipSet.has('languages') ? [] : data.languages;
+  const projects = skipSet.has('projects') ? [] : data.projects;
+  const certifications = skipSet.has('certifications') ? [] : data.certifications;
 
   if (!languages.length && !projects.length && !certifications.length) return null;
 

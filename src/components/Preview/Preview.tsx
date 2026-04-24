@@ -39,6 +39,19 @@ const NATIVE_EXTRAS_TEMPLATES = new Set([
   'cv7',
 ]);
 
+/**
+ * Templates that render SOME of Languages/Projects/Certifications natively
+ * but still need the shared appendix for the others. Listing the native
+ * sections here prevents double-rendering.
+ */
+const PARTIAL_NATIVE_EXTRAS: Record<
+  string,
+  Array<'languages' | 'projects' | 'certifications'>
+> = {
+  atlas: ['languages', 'projects'],
+  bold: ['projects', 'certifications'],
+};
+
 const DARK_BACKGROUND_TEMPLATES = new Set([
   'bold',
   'executive-v2',
@@ -109,16 +122,17 @@ export const renderTemplateById = (
   lang: 'pt' | 'en'
 ) => {
   const inner = renderTemplateInner(template, data, lang);
-  const templateRendersSections = NATIVE_EXTRAS_TEMPLATES.has(template);
+  const templateRendersAllSections = NATIVE_EXTRAS_TEMPLATES.has(template);
+  const partialNative = PARTIAL_NATIVE_EXTRAS[template] ?? [];
   const isDark = DARK_BACKGROUND_TEMPLATES.has(template);
 
   const hasReferences = data.references.length > 0;
   const hasCustomSections = data.customSections.some((s) => s.items.length > 0);
   const hasBaseExtras =
-    !templateRendersSections &&
-    (data.languages.length > 0 ||
-      data.projects.length > 0 ||
-      data.certifications.length > 0);
+    !templateRendersAllSections &&
+    ((!partialNative.includes('languages') && data.languages.length > 0) ||
+      (!partialNative.includes('projects') && data.projects.length > 0) ||
+      (!partialNative.includes('certifications') && data.certifications.length > 0));
 
   if (!hasReferences && !hasCustomSections && !hasBaseExtras) return inner;
 
@@ -146,7 +160,7 @@ export const renderTemplateById = (
             lang={lang}
             accentColor={accent}
             variant={isDark ? 'dark' : 'muted'}
-            twoColumns
+            skip={partialNative}
           />
         )}
 

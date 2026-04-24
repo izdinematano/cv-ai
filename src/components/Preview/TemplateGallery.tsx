@@ -7,7 +7,7 @@ import {
   createShowcaseCVData,
   featuredTemplateIds,
   getTemplateDefinition,
-  templateCatalog,
+  visibleTemplates,
 } from '@/lib/templateCatalog';
 
 interface TemplateGalleryProps {
@@ -24,8 +24,8 @@ export default function TemplateGallery({
   compact = false,
 }: TemplateGalleryProps) {
   const templates = featuredOnly
-    ? templateCatalog.filter((template) => featuredTemplateIds.includes(template.id))
-    : templateCatalog;
+    ? visibleTemplates.filter((template) => featuredTemplateIds.includes(template.id))
+    : visibleTemplates;
 
   return (
     <div

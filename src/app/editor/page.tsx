@@ -345,6 +345,7 @@ export default function EditorPage() {
           </div>
 
           <motion.div
+            id="cv-export-target"
             animate={{ scale: zoom }}
             style={{
               width: '210mm',

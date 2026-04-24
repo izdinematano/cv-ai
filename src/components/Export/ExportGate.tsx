@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { pdf } from '@react-pdf/renderer';
 import {
   AlertCircle,
   CheckCircle2,
@@ -17,7 +16,7 @@ import {
 } from 'lucide-react';
 import type { CVData } from '@/store/useCVStore';
 import { useAppStore } from '@/store/useAppStore';
-import { CVDocument } from './PDFDocument';
+import { exportPreviewToPdf } from '@/lib/exportPreviewToPdf';
 
 interface ExportGateProps {
   isOpen: boolean;
@@ -228,22 +227,10 @@ function ReadyToDownload({
     setStatus('loading');
     setErrorMsg(null);
     try {
-      // Build + blob the PDF imperatively so we can reliably trigger the
-      // download with a programmatic anchor click. This avoids the anchor /
-      // nested-button issue with <PDFDownloadLink>.
-      const blob = await pdf(<CVDocument data={data} lang={lang} />).toBlob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = fileName;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      // Clean up the object URL after a short delay so the browser has time
-      // to pick it up before we revoke it.
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-
-      // Only record the export after the PDF is actually generated.
+      // We snapshot the live preview DOM (see CV_EXPORT_TARGET_ID in
+      // exportPreviewToPdf.ts) so the PDF always matches the exact template
+      // and styling the user sees on screen.
+      await exportPreviewToPdf({ fileName });
       onDownload();
       setStatus('idle');
     } catch (err) {

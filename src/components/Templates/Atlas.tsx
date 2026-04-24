@@ -61,6 +61,28 @@ export default function Atlas({ data, lang }: TemplateProps) {
             </div>
           </section>
 
+          {/* Education is intentionally in the left column, before Skills, per
+              the product spec: education grounds the profile before showing
+              skills on a dark sidebar. */}
+          {data.education.length > 0 && (
+            <section style={{ marginBottom: '28px' }}>
+              <h3 style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.18em', color: '#94a3b8', marginBottom: '16px' }}>
+                {lang === 'pt' ? 'Formação' : 'Education'}
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '12px' }}>
+                {data.education.map((edu) => (
+                  <div key={edu.id}>
+                    <div style={{ fontWeight: 700 }}>{edu.degree[lang]}</div>
+                    <div style={{ color: '#cbd5e1', marginTop: '2px' }}>{edu.institution}</div>
+                    {edu.year && (
+                      <div style={{ color: '#94a3b8', fontSize: '11px', marginTop: '2px' }}>{edu.year}</div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
           <section style={{ marginBottom: '28px' }}>
             <h3 style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.18em', color: '#94a3b8', marginBottom: '16px' }}>
               Skills
@@ -85,19 +107,21 @@ export default function Atlas({ data, lang }: TemplateProps) {
             </div>
           </section>
 
-          <section>
-            <h3 style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.18em', color: '#94a3b8', marginBottom: '16px' }}>
-              Languages
-            </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '12px' }}>
-              {data.languages.map((language, index) => (
-                <div key={`${language.name}-${index}`}>
-                  <strong>{language.name}</strong>
-                  <div style={{ color: '#cbd5e1', marginTop: '2px' }}>{language.level[lang]}</div>
-                </div>
-              ))}
-            </div>
-          </section>
+          {data.languages.length > 0 && (
+            <section>
+              <h3 style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.18em', color: '#94a3b8', marginBottom: '16px' }}>
+                {lang === 'pt' ? 'Idiomas' : 'Languages'}
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '12px' }}>
+                {data.languages.map((language, index) => (
+                  <div key={`${language.name}-${index}`}>
+                    <strong>{language.name}</strong>
+                    <div style={{ color: '#cbd5e1', marginTop: '2px' }}>{language.level[lang]}</div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
         </aside>
 
         <main style={{ padding: '52px 48px' }}>
@@ -128,33 +152,26 @@ export default function Atlas({ data, lang }: TemplateProps) {
             </div>
           </section>
 
-          <section style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '28px' }}>
-            <div style={{ background: '#f8fafc', borderRadius: '26px', padding: '26px' }}>
-              <h3 style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: '18px' }}>
-                Education
-              </h3>
-              {data.education.map((edu) => (
-                <div key={edu.id} style={{ marginBottom: '16px' }}>
-                  <div style={{ fontWeight: 800 }}>{edu.degree[lang]}</div>
-                  <div style={{ color: '#475569', marginTop: '4px' }}>{edu.institution}</div>
-                  <div style={{ color: '#94a3b8', fontSize: '12px', marginTop: '4px' }}>{edu.year}</div>
+          {data.projects.length > 0 && (
+            <section>
+              <div style={{ background: '#f8fafc', borderRadius: '26px', padding: '26px' }}>
+                <h3 style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: '18px' }}>
+                  {lang === 'pt' ? 'Projectos' : 'Projects'}
+                </h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '18px' }}>
+                  {data.projects.map((project) => (
+                    <div key={project.id}>
+                      <div style={{ fontWeight: 800 }}>{project.name}</div>
+                      {project.link && (
+                        <div style={{ color: accentColor, fontSize: '12px', marginTop: '4px' }}>{project.link}</div>
+                      )}
+                      <div style={{ color: '#475569', lineHeight: 1.7, marginTop: '8px' }}>{project.description[lang]}</div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-
-            <div style={{ background: '#f8fafc', borderRadius: '26px', padding: '26px' }}>
-              <h3 style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: '18px' }}>
-                Projects
-              </h3>
-              {data.projects.map((project) => (
-                <div key={project.id} style={{ marginBottom: '16px' }}>
-                  <div style={{ fontWeight: 800 }}>{project.name}</div>
-                  <div style={{ color: accentColor, fontSize: '12px', marginTop: '4px' }}>{project.link}</div>
-                  <div style={{ color: '#475569', lineHeight: 1.7, marginTop: '8px' }}>{project.description[lang]}</div>
-                </div>
-              ))}
-            </div>
-          </section>
+              </div>
+            </section>
+          )}
         </main>
       </div>
     </div>

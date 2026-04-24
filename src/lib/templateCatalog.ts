@@ -9,6 +9,9 @@ export interface TemplateDefinition {
   description: string;
   accentColor: string;
   featured?: boolean;
+  /** Hidden templates still render correctly if a user already picked them,
+   *  but they are filtered out of the gallery and featured lists. */
+  hidden?: boolean;
 }
 
 const createAvatarDataUri = (name: string, accentColor: string) => {
@@ -241,7 +244,7 @@ export const templateCatalog: TemplateDefinition[] = [
     tone: 'Polido e arejado',
     description: 'Blocos elegantes, foto e destaques com um look que lembra construtores premium modernos.',
     accentColor: '#0f766e',
-    featured: true,
+    hidden: true, // temporarily hidden: layout under review
   },
   {
     id: 'atlas',
@@ -266,8 +269,10 @@ export const templateCatalog: TemplateDefinition[] = [
 ];
 
 export const featuredTemplateIds = templateCatalog
-  .filter((template) => template.featured)
+  .filter((template) => template.featured && !template.hidden)
   .map((template) => template.id);
+
+export const visibleTemplates = templateCatalog.filter((t) => !t.hidden);
 
 export const getTemplateDefinition = (templateId: string) =>
   templateCatalog.find((template) => template.id === templateId) || templateCatalog[0];

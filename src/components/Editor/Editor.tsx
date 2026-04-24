@@ -30,6 +30,7 @@ import {
   ACCEPTED_FILE_TYPES,
   extractTextFromDocument,
 } from '@/lib/documentExtractor';
+import { compressImage } from '@/lib/imageUtils';
 import {
   LANGUAGE_PROFICIENCY_LABELS,
   type LanguageProficiency,
@@ -619,14 +620,23 @@ export default function Editor() {
                           <input
                             type="file"
                             accept="image/*"
-                            onChange={(event) => {
+                            onChange={async (event) => {
                               const file = event.target.files?.[0];
                               if (!file) return;
-
-                              const reader = new FileReader();
-                              reader.onloadend = () =>
-                                updatePersonalInfo({ photo: reader.result as string });
-                              reader.readAsDataURL(file);
+                              try {
+                                // Compress before storing so the whole CV data
+                                // fits comfortably inside localStorage's quota
+                                // (~5MB per origin). Without this, a single
+                                // 4MB camera photo can exceed the quota.
+                                const compressed = await compressImage(file, {
+                                  maxSide: 500,
+                                  quality: 0.78,
+                                });
+                                updatePersonalInfo({ photo: compressed });
+                              } catch (err) {
+                                console.error('[photo upload] failed', err);
+                                alert('Não foi possível processar a imagem.');
+                              }
                             }}
                             style={{ fontSize: '11px' }}
                           />
