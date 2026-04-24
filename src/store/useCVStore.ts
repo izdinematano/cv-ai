@@ -37,10 +37,73 @@ export interface Certification {
   year: string;
 }
 
+export type LanguageProficiency =
+  | 'beginner'
+  | 'elementary'
+  | 'intermediate'
+  | 'upper-intermediate'
+  | 'advanced'
+  | 'native';
+
 export interface LanguageEntry {
   name: string;
   level: MultilingualField;
+  proficiency?: LanguageProficiency;
 }
+
+export interface Reference {
+  id: string;
+  name: string;
+  role: string;
+  company: string;
+  contact: string;
+  relationship: MultilingualField;
+}
+
+export interface CustomSectionItem {
+  id: string;
+  title: MultilingualField;
+  subtitle: MultilingualField;
+  period: string;
+  description: MultilingualField;
+}
+
+export interface CustomSection {
+  id: string;
+  label: MultilingualField;
+  items: CustomSectionItem[];
+}
+
+export const LANGUAGE_PROFICIENCY_LABELS: Record<
+  LanguageProficiency,
+  MultilingualField
+> = {
+  beginner: { pt: 'Iniciante (A1)', en: 'Beginner (A1)' },
+  elementary: { pt: 'Elementar (A2)', en: 'Elementary (A2)' },
+  intermediate: { pt: 'Intermédio (B1)', en: 'Intermediate (B1)' },
+  'upper-intermediate': {
+    pt: 'Intermédio alto (B2)',
+    en: 'Upper-Intermediate (B2)',
+  },
+  advanced: { pt: 'Avançado (C1)', en: 'Advanced (C1)' },
+  native: { pt: 'Nativo (C2)', en: 'Native (C2)' },
+};
+
+/** Detect a placeholder/loading value so we can auto-promote it later. */
+export const isLoadingLevel = (value: string | undefined | null) => {
+  if (!value) return true;
+  const v = value.trim().toLowerCase();
+  if (!v) return true;
+  return (
+    v === '(loading)' ||
+    v === 'loading' ||
+    v === '(carregando)' ||
+    v === 'carregando' ||
+    v === '(a carregar)' ||
+    v === 'a carregar' ||
+    v.startsWith('(') && v.endsWith(')')
+  );
+};
 
 export interface CVData {
   personalInfo: {
@@ -60,6 +123,8 @@ export interface CVData {
   languages: LanguageEntry[];
   projects: Project[];
   certifications: Certification[];
+  references: Reference[];
+  customSections: CustomSection[];
   settings: {
     template: string;
     accentColor: string;
@@ -95,6 +160,19 @@ interface CVState {
   addCertification: () => void;
   updateCertification: (id: string, cert: Partial<Certification>) => void;
   removeCertification: (id: string) => void;
+  addReference: () => void;
+  updateReference: (id: string, ref: Partial<Reference>) => void;
+  removeReference: (id: string) => void;
+  addCustomSection: () => void;
+  updateCustomSection: (id: string, section: Partial<CustomSection>) => void;
+  removeCustomSection: (id: string) => void;
+  addCustomSectionItem: (sectionId: string) => void;
+  updateCustomSectionItem: (
+    sectionId: string,
+    itemId: string,
+    item: Partial<CustomSectionItem>
+  ) => void;
+  removeCustomSectionItem: (sectionId: string, itemId: string) => void;
   addSkill: (skill: string, lang: 'pt' | 'en') => void;
   removeSkill: (index: number) => void;
   addLanguage: () => void;
@@ -123,6 +201,8 @@ const initialData: CVData = {
   languages: [],
   projects: [],
   certifications: [],
+  references: [],
+  customSections: [],
   settings: {
     template: 'minimalist',
     accentColor: '#3b82f6',
@@ -152,6 +232,8 @@ const ensureDataShape = (value?: Partial<CVData>): CVData => ({
   languages: value?.languages || [],
   projects: value?.projects || [],
   certifications: value?.certifications || [],
+  references: value?.references || [],
+  customSections: value?.customSections || [],
   settings: {
     ...initialData.settings,
     ...(value?.settings || {}),
@@ -373,7 +455,11 @@ export const useCVStore = create<CVState>()(
             ...state.data,
             languages: [
               ...state.data.languages,
-              { name: '', level: { pt: 'Nativo', en: 'Native' } },
+              {
+                name: '',
+                level: LANGUAGE_PROFICIENCY_LABELS.intermediate,
+                proficiency: 'intermediate',
+              },
             ],
           },
         })),
@@ -393,6 +479,133 @@ export const useCVStore = create<CVState>()(
           data: {
             ...state.data,
             languages: state.data.languages.filter((_, itemIndex) => itemIndex !== index),
+          },
+        })),
+
+      addReference: () =>
+        set((state) => ({
+          data: {
+            ...state.data,
+            references: [
+              ...state.data.references,
+              {
+                id: createId(),
+                name: '',
+                role: '',
+                company: '',
+                contact: '',
+                relationship: { pt: '', en: '' },
+              },
+            ],
+          },
+        })),
+
+      updateReference: (id, ref) =>
+        set((state) => ({
+          data: {
+            ...state.data,
+            references: state.data.references.map((item) =>
+              item.id === id ? { ...item, ...ref } : item
+            ),
+          },
+        })),
+
+      removeReference: (id) =>
+        set((state) => ({
+          data: {
+            ...state.data,
+            references: state.data.references.filter((item) => item.id !== id),
+          },
+        })),
+
+      addCustomSection: () =>
+        set((state) => ({
+          data: {
+            ...state.data,
+            customSections: [
+              ...state.data.customSections,
+              {
+                id: createId(),
+                label: { pt: 'Nova secção', en: 'New section' },
+                items: [],
+              },
+            ],
+          },
+        })),
+
+      updateCustomSection: (id, section) =>
+        set((state) => ({
+          data: {
+            ...state.data,
+            customSections: state.data.customSections.map((item) =>
+              item.id === id ? { ...item, ...section } : item
+            ),
+          },
+        })),
+
+      removeCustomSection: (id) =>
+        set((state) => ({
+          data: {
+            ...state.data,
+            customSections: state.data.customSections.filter(
+              (item) => item.id !== id
+            ),
+          },
+        })),
+
+      addCustomSectionItem: (sectionId) =>
+        set((state) => ({
+          data: {
+            ...state.data,
+            customSections: state.data.customSections.map((section) =>
+              section.id === sectionId
+                ? {
+                    ...section,
+                    items: [
+                      ...section.items,
+                      {
+                        id: createId(),
+                        title: { pt: '', en: '' },
+                        subtitle: { pt: '', en: '' },
+                        period: '',
+                        description: { pt: '', en: '' },
+                      },
+                    ],
+                  }
+                : section
+            ),
+          },
+        })),
+
+      updateCustomSectionItem: (sectionId, itemId, item) =>
+        set((state) => ({
+          data: {
+            ...state.data,
+            customSections: state.data.customSections.map((section) =>
+              section.id === sectionId
+                ? {
+                    ...section,
+                    items: section.items.map((current) =>
+                      current.id === itemId ? { ...current, ...item } : current
+                    ),
+                  }
+                : section
+            ),
+          },
+        })),
+
+      removeCustomSectionItem: (sectionId, itemId) =>
+        set((state) => ({
+          data: {
+            ...state.data,
+            customSections: state.data.customSections.map((section) =>
+              section.id === sectionId
+                ? {
+                    ...section,
+                    items: section.items.filter((item) => item.id !== itemId),
+                  }
+                : section
+            ),
           },
         })),
 

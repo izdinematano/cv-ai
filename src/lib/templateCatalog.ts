@@ -418,6 +418,8 @@ export const createShowcaseCVData = (templateId: string): CVData => {
         year: '2022',
       },
     ],
+    references: [],
+    customSections: [],
     settings: {
       template: template.id,
       accentColor: template.accentColor,
