@@ -7,11 +7,15 @@
  */
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Eye, Globe, Redo2, Save, Undo2, X, ZoomIn, ZoomOut } from 'lucide-react';
+import { FilePlus2, Globe, Redo2, Save, Undo2, X, ZoomIn, ZoomOut } from 'lucide-react';
 import { useAppStore } from '@/store/useAppStore';
 import type { CustomTemplateBlock, CustomTemplateSpec } from '@/lib/customTemplate';
 import BuilderCanvas from './BuilderCanvas';
 import BuilderSidebar from './BuilderSidebar';
+
+/** Module-scope clipboard so copy-paste survives template switches and can
+ *  move blocks between different custom templates in the same session. */
+let clipboardBlock: CustomTemplateBlock | null = null;
 
 interface Props {
   templateId: string;
@@ -104,11 +108,17 @@ export default function TemplateBuilder({ templateId, onClose }: Props) {
     return () => window.removeEventListener('beforeunload', beforeUnload);
   }, [dirty]);
 
-  // Keyboard shortcuts (undo / redo / save).
+  // Keyboard shortcuts (undo / redo / save / copy / paste).
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const meta = e.ctrlKey || e.metaKey;
       if (!meta) return;
+      // Skip when focus is inside a text field: let native copy/paste work.
+      const active = document.activeElement;
+      const isEditable =
+        active instanceof HTMLInputElement ||
+        active instanceof HTMLTextAreaElement ||
+        (active as HTMLElement | null)?.isContentEditable;
       if (e.key === 'z' && !e.shiftKey) {
         e.preventDefault();
         undo();
@@ -118,12 +128,32 @@ export default function TemplateBuilder({ templateId, onClose }: Props) {
       } else if (e.key === 's') {
         e.preventDefault();
         save();
+      } else if (e.key === 'c' && !isEditable && spec && selectedId) {
+        const block = spec.blocks.find((b) => b.id === selectedId);
+        if (block) {
+          // Deep clone so future edits don't mutate the clipboard payload.
+          clipboardBlock = JSON.parse(JSON.stringify(block));
+          e.preventDefault();
+        }
+      } else if (e.key === 'v' && !isEditable && spec && clipboardBlock) {
+        e.preventDefault();
+        const nextId = Math.random().toString(36).slice(2, 11);
+        const pasted: CustomTemplateBlock = {
+          ...clipboardBlock,
+          id: nextId,
+          // Offset slightly so the paste is clearly visible even on top of
+          // the original when pasting within the same template.
+          x: Math.min(clipboardBlock.x + 16, 700),
+          y: clipboardBlock.y + 16,
+        };
+        commit({ ...spec, blocks: [...spec.blocks, pasted] });
+        setSelectedId(nextId);
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [spec]);
+  }, [spec, selectedId]);
 
   const handleClose = () => {
     if (dirty && !confirm('Tens alterações por guardar. Queres sair mesmo assim?')) return;
@@ -186,6 +216,15 @@ export default function TemplateBuilder({ templateId, onClose }: Props) {
           <ZoomIn size={14} aria-hidden="true" />
         </button>
 
+        <button
+          type="button"
+          onClick={() => commit({ ...spec, pages: Math.min(6, (spec.pages || 1) + 1) })}
+          className="btn-outline"
+          style={{ ...tbBtn, minWidth: 90 }}
+          aria-label="Adicionar página"
+        >
+          <FilePlus2 size={14} aria-hidden="true" /> + Página
+        </button>
         <button type="button" onClick={togglePublish} className="btn-outline" style={{ ...tbBtn, minWidth: 110 }}>
           <Globe size={14} aria-hidden="true" /> {spec.published ? 'Despublicar' : 'Publicar'}
         </button>

@@ -70,6 +70,9 @@ export interface CustomTemplateSpec {
   blocks: CustomTemplateBlock[];
   createdAt: string;
   updatedAt: string;
+  /** Number of A4 pages. Defaults to 1. Blocks can be placed anywhere inside
+   *  [0, pages * A4_HEIGHT]; the PDF exporter already breaks on A4 bounds. */
+  pages?: number;
   /** Drafts are only visible in the admin panel. Published templates appear
    *  in the global gallery for every user. */
   published: boolean;
@@ -152,6 +155,7 @@ export const createDefaultTemplate = (name = 'Novo template'): CustomTemplateSpe
     textColor: '#0f172a',
     mutedColor: '#475569',
     published: false,
+    pages: 1,
     createdAt: now,
     updatedAt: now,
     blocks: [

@@ -7,6 +7,7 @@
  *  - Tema: theme-wide colors and fonts.
  */
 
+import { useRef } from 'react';
 import { Copy, GripVertical, Plus, Trash2 } from 'lucide-react';
 import {
   BLOCK_LIBRARY,
@@ -258,15 +259,10 @@ function PropsTab({
       )}
 
       {selected.type === 'text' && (
-        <div>
-          <label style={labelStyle}>Conteúdo</label>
-          <textarea
-            rows={4}
-            value={p.content ?? ''}
-            onChange={(e) => patchBlock({ props: { content: e.target.value } })}
-            style={inputStyle}
-          />
-        </div>
+        <RichTextField
+          value={p.content ?? ''}
+          onChange={(v) => patchBlock({ props: { content: v } })}
+        />
       )}
 
       {selected.type !== 'shape' && selected.type !== 'divider' && selected.type !== 'photo' && (
@@ -340,6 +336,11 @@ function ThemeTab({ spec, onSpecChange }: { spec: CustomTemplateSpec; onSpecChan
         value={spec.fontFamily}
         options={DEFAULT_FONTS.map((f) => [f, f])}
         onChange={(v) => onSpecChange({ fontFamily: v })}
+      />
+      <NumberField
+        label="Páginas (A4)"
+        value={spec.pages ?? 1}
+        onChange={(v) => onSpecChange({ pages: Math.max(1, Math.min(6, Math.round(v))) })}
       />
       <ColorField label="Cor de acento" value={spec.accentColor} onChange={(v) => onSpecChange({ accentColor: v })} />
       <ColorField label="Fundo" value={spec.bgColor} onChange={(v) => onSpecChange({ bgColor: v })} />
@@ -417,6 +418,90 @@ function SelectField({
         ))}
       </select>
     </div>
+  );
+}
+
+function RichTextField({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const ref = useRef<HTMLTextAreaElement | null>(null);
+  const wrap = (open: string, close: string) => {
+    const el = ref.current;
+    if (!el) return;
+    const start = el.selectionStart;
+    const end = el.selectionEnd;
+    const before = value.slice(0, start);
+    const selected = value.slice(start, end) || 'texto';
+    const after = value.slice(end);
+    const next = `${before}${open}${selected}${close}${after}`;
+    onChange(next);
+    // Restore caret after the wrapped text on next tick.
+    requestAnimationFrame(() => {
+      el.focus();
+      el.selectionStart = start + open.length;
+      el.selectionEnd = start + open.length + selected.length;
+    });
+  };
+  return (
+    <div>
+      <label style={labelStyle}>Conteúdo (HTML simples)</label>
+      <div style={{ display: 'flex', gap: 4, marginBottom: 6 }}>
+        <ToolbarBtn onClick={() => wrap('<strong>', '</strong>')} label="Negrito" emphasis="bold">
+          B
+        </ToolbarBtn>
+        <ToolbarBtn onClick={() => wrap('<em>', '</em>')} label="Itálico" emphasis="italic">
+          I
+        </ToolbarBtn>
+        <ToolbarBtn onClick={() => wrap('<u>', '</u>')} label="Sublinhado" emphasis="underline">
+          U
+        </ToolbarBtn>
+        <ToolbarBtn onClick={() => wrap('<br/>', '')} label="Quebra de linha">
+          ↵
+        </ToolbarBtn>
+      </div>
+      <textarea
+        ref={ref}
+        rows={5}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        style={{ ...inputStyle, fontFamily: 'ui-monospace, SFMono-Regular, monospace', fontSize: 12 }}
+      />
+      <div style={{ fontSize: 10, color: 'var(--foreground-muted)', marginTop: 4 }}>
+        Tags permitidas: &lt;b&gt;, &lt;strong&gt;, &lt;i&gt;, &lt;em&gt;, &lt;u&gt;, &lt;br/&gt;, &lt;span&gt;.
+      </div>
+    </div>
+  );
+}
+
+function ToolbarBtn({
+  onClick,
+  label,
+  emphasis,
+  children,
+}: {
+  onClick: () => void;
+  label: string;
+  emphasis?: 'bold' | 'italic' | 'underline';
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={label}
+      style={{
+        width: 28,
+        height: 28,
+        fontSize: 13,
+        fontWeight: emphasis === 'bold' ? 800 : 600,
+        fontStyle: emphasis === 'italic' ? 'italic' : 'normal',
+        textDecoration: emphasis === 'underline' ? 'underline' : 'none',
+        border: '1px solid var(--card-border)',
+        borderRadius: 6,
+        background: 'var(--background)',
+        cursor: 'pointer',
+      }}
+    >
+      {children}
+    </button>
   );
 }
 

@@ -34,12 +34,15 @@ interface Props {
 
 export default function CustomTemplate({ spec, data, lang, showOverflow }: Props) {
   const sorted = [...spec.blocks].sort((a, b) => (a.z ?? 1) - (b.z ?? 1));
+  const pages = Math.max(1, spec.pages || 1);
+  const totalHeight = A4_HEIGHT * pages;
   return (
     <div
       className="custom-template-root"
       style={{
         width: A4_WIDTH,
-        minHeight: A4_HEIGHT,
+        minHeight: totalHeight,
+        height: totalHeight,
         background: spec.bgColor,
         color: spec.textColor,
         fontFamily: spec.fontFamily,
@@ -47,6 +50,26 @@ export default function CustomTemplate({ spec, data, lang, showOverflow }: Props
         overflow: 'hidden',
       }}
     >
+      {/* Page-break markers. Visible in the builder (dashed line); invisible
+          at export time since the PDF exporter already paginates on A4 bounds. */}
+      {pages > 1 &&
+        Array.from({ length: pages - 1 }).map((_, i) => (
+          <div
+            key={`break-${i}`}
+            className="custom-template-pagebreak"
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              top: (i + 1) * A4_HEIGHT,
+              height: 0,
+              borderTop: '1px dashed rgba(148,163,184,0.5)',
+              pointerEvents: 'none',
+              zIndex: 999,
+            }}
+          />
+        ))}
       {sorted.map((block) => (
         <BlockFrame key={block.id} block={block} showOverflow={showOverflow}>
           <BlockContent block={block} spec={spec} data={data} lang={lang} />
@@ -151,11 +174,31 @@ const subtleText = (spec: CustomTemplateSpec): CSSProperties => ({
   fontSize: 11.5,
 });
 
+/** Allow a tight subset of inline HTML so admins can bold/italic/underline.
+ *  Anything else is escaped. */
+const SAFE_TAGS = /<\/?(?:b|strong|i|em|u|br|span)(?:\s[^>]*)?>/gi;
+const escapeHtml = (s: string) =>
+  s.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]!);
+
+const sanitizeRichText = (raw: string) => {
+  const placeholders: string[] = [];
+  // Extract safe tags into placeholders, escape the rest, then restore.
+  const withPlaceholders = raw.replace(SAFE_TAGS, (match) => {
+    placeholders.push(match);
+    return `\u0000${placeholders.length - 1}\u0000`;
+  });
+  const escaped = escapeHtml(withPlaceholders);
+  return escaped.replace(/\u0000(\d+)\u0000/g, (_, i) => placeholders[Number(i)]);
+};
+
 function TextBlock({ block }: { block: CustomTemplateBlock }) {
+  const raw = block.props?.content || '';
+  const html = sanitizeRichText(raw).replace(/\n/g, '<br/>');
   return (
-    <div style={{ whiteSpace: 'pre-wrap', fontSize: block.props?.fontSize ?? 13 }}>
-      {block.props?.content || ''}
-    </div>
+    <div
+      style={{ fontSize: block.props?.fontSize ?? 13, lineHeight: block.props?.lineHeight ?? 1.5 }}
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
   );
 }
 

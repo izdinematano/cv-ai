@@ -50,10 +50,26 @@ type DragState =
 
 type Handle = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw';
 
+/** Threshold in unscaled px for snapping to another block's edge. */
+const GUIDE_THRESHOLD = 5;
+
+interface Guide {
+  kind: 'v' | 'h';
+  /** Coordinate (x for vertical guide, y for horizontal guide). */
+  at: number;
+  /** Start + end along the perpendicular axis so the guide appears only
+   *  between the relevant blocks, not edge-to-edge of the canvas. */
+  from: number;
+  to: number;
+}
+
 export default function BuilderCanvas({ spec, selectedId, onSelect, onChange, zoom }: Props) {
   const [drag, setDrag] = useState<DragState>(null);
+  const [guides, setGuides] = useState<Guide[]>([]);
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const showcase = useRef(createShowcaseCVData(spec.id.replace(/^custom-/, 'creative'))).current;
+  const pages = Math.max(1, spec.pages || 1);
+  const canvasHeight = A4_HEIGHT * pages;
 
   // ----- keyboard -------------------------------------------------------
   useEffect(() => {
@@ -142,16 +158,71 @@ export default function BuilderCanvas({ spec, selectedId, onSelect, onChange, zo
       const dx = (e.clientX - drag.startX) / zoom;
       const dy = (e.clientY - drag.startY) / zoom;
 
+      // Collect snap targets: x-edges and y-edges from every *other* block,
+      // plus the canvas centre and margins (48px padding guide).
+      const others = spec.blocks.filter((b) => b.id !== drag.id);
+      const xEdges = new Set<number>([0, A4_WIDTH / 2, A4_WIDTH, 48, A4_WIDTH - 48]);
+      const yEdges = new Set<number>([0, canvasHeight, 48, canvasHeight - 48]);
+      for (const o of others) {
+        xEdges.add(o.x);
+        xEdges.add(o.x + o.w / 2);
+        xEdges.add(o.x + o.w);
+        yEdges.add(o.y);
+        yEdges.add(o.y + o.h / 2);
+        yEdges.add(o.y + o.h);
+      }
+
+      const snapTo = (value: number, edges: Set<number>): { v: number; hit: number | null } => {
+        let hit: number | null = null;
+        let best = GUIDE_THRESHOLD + 1;
+        for (const e of edges) {
+          const d = Math.abs(e - value);
+          if (d < best && d <= GUIDE_THRESHOLD) {
+            best = d;
+            hit = e;
+          }
+        }
+        return { v: hit ?? value, hit };
+      };
+
+      const activeGuides: Guide[] = [];
+
       const next = spec.blocks.map((b) => {
         if (b.id !== drag.id) return b;
         if (drag.kind === 'move') {
+          // Start from the grid-snapped value and then refine with edge snap.
+          const gx = snapToGrid(drag.origX + dx);
+          const gy = snapToGrid(drag.origY + dy);
+          // Try snapping left / centre-x / right to any other edge.
+          const leftS = snapTo(gx, xEdges);
+          const rightS = snapTo(gx + b.w, xEdges);
+          const midXS = snapTo(gx + b.w / 2, xEdges);
+          let x = leftS.v;
+          if (leftS.hit === null && rightS.hit !== null) x = rightS.v - b.w;
+          if (leftS.hit === null && rightS.hit === null && midXS.hit !== null) x = midXS.v - b.w / 2;
+
+          const topS = snapTo(gy, yEdges);
+          const botS = snapTo(gy + b.h, yEdges);
+          const midYS = snapTo(gy + b.h / 2, yEdges);
+          let y = topS.v;
+          if (topS.hit === null && botS.hit !== null) y = botS.v - b.h;
+          if (topS.hit === null && botS.hit === null && midYS.hit !== null) y = midYS.v - b.h / 2;
+
+          // Emit guide lines for the snaps that landed.
+          if (leftS.hit !== null) activeGuides.push({ kind: 'v', at: leftS.hit, from: 0, to: canvasHeight });
+          if (rightS.hit !== null) activeGuides.push({ kind: 'v', at: rightS.hit, from: 0, to: canvasHeight });
+          if (midXS.hit !== null) activeGuides.push({ kind: 'v', at: midXS.hit, from: 0, to: canvasHeight });
+          if (topS.hit !== null) activeGuides.push({ kind: 'h', at: topS.hit, from: 0, to: A4_WIDTH });
+          if (botS.hit !== null) activeGuides.push({ kind: 'h', at: botS.hit, from: 0, to: A4_WIDTH });
+          if (midYS.hit !== null) activeGuides.push({ kind: 'h', at: midYS.hit, from: 0, to: A4_WIDTH });
+
           return {
             ...b,
-            x: Math.max(0, Math.min(A4_WIDTH - b.w, snapToGrid(drag.origX + dx))),
-            y: Math.max(0, snapToGrid(drag.origY + dy)),
+            x: Math.max(0, Math.min(A4_WIDTH - b.w, x)),
+            y: Math.max(0, y),
           };
         }
-        // resize
+        // resize (no smart guide, grid only)
         let { origX, origY, origW, origH } = drag;
         let x = origX;
         let y = origY;
@@ -179,16 +250,20 @@ export default function BuilderCanvas({ spec, selectedId, onSelect, onChange, zo
         }
         return { ...b, x, y, w, h };
       });
+      setGuides(activeGuides);
       onChange(next);
     };
-    const onUp = () => setDrag(null);
+    const onUp = () => {
+      setDrag(null);
+      setGuides([]);
+    };
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', onUp);
     return () => {
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
     };
-  }, [drag, spec.blocks, onChange, zoom]);
+  }, [drag, spec.blocks, onChange, zoom, canvasHeight]);
 
   return (
     <div
@@ -203,7 +278,7 @@ export default function BuilderCanvas({ spec, selectedId, onSelect, onChange, zo
       <div
         style={{
           width: A4_WIDTH * zoom,
-          height: A4_HEIGHT * zoom,
+          height: canvasHeight * zoom,
           margin: '0 auto',
           position: 'relative',
         }}
@@ -215,7 +290,7 @@ export default function BuilderCanvas({ spec, selectedId, onSelect, onChange, zo
           }}
           style={{
             width: A4_WIDTH,
-            height: A4_HEIGHT,
+            height: canvasHeight,
             transform: `scale(${zoom})`,
             transformOrigin: 'top left',
             position: 'relative',
@@ -226,6 +301,59 @@ export default function BuilderCanvas({ spec, selectedId, onSelect, onChange, zo
             backgroundSize: `${GRID}px ${GRID}px`,
           }}
         >
+          {/* Page break indicators inside the canvas (distinct from export-time
+              page breaks which the PDF exporter adds automatically). */}
+          {pages > 1 &&
+            Array.from({ length: pages - 1 }).map((_, i) => (
+              <div
+                key={`break-${i}`}
+                aria-hidden="true"
+                style={{
+                  position: 'absolute',
+                  left: 0,
+                  right: 0,
+                  top: (i + 1) * A4_HEIGHT,
+                  height: 0,
+                  borderTop: '2px dashed rgba(79,70,229,0.45)',
+                  pointerEvents: 'none',
+                  zIndex: 100,
+                }}
+              >
+                <span
+                  style={{
+                    position: 'absolute',
+                    right: 8,
+                    top: 4,
+                    fontSize: 10,
+                    fontWeight: 800,
+                    color: '#4f46e5',
+                    background: '#eef2ff',
+                    padding: '2px 8px',
+                    borderRadius: 6,
+                    letterSpacing: 0.6,
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  Página {i + 2}
+                </span>
+              </div>
+            ))}
+          {/* Smart guides overlay */}
+          {guides.map((g, i) => (
+            <div
+              key={i}
+              aria-hidden="true"
+              style={{
+                position: 'absolute',
+                background: '#ef4444',
+                pointerEvents: 'none',
+                zIndex: 400,
+                ...(g.kind === 'v'
+                  ? { left: g.at, top: g.from, width: 1, height: g.to - g.from }
+                  : { left: g.from, top: g.at, width: g.to - g.from, height: 1 }),
+              }}
+            />
+          ))}
           {/* Live template render underneath so admin sees real content */}
           <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
             <CustomTemplate spec={spec} data={showcase} lang="pt" showOverflow />
