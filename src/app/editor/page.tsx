@@ -7,6 +7,7 @@ import {
   LayoutTemplate,
   Sparkles,
   SplitSquareVertical,
+  X,
   ZoomIn,
   ZoomOut,
 } from 'lucide-react';
@@ -28,6 +29,7 @@ export default function EditorPage() {
 
   const [zoom, setZoom] = useState(0.8);
   const [previewMode, setPreviewMode] = useState<'split' | 'preview'>('split');
+  const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
   const selectedTemplate = useMemo(
     () => getTemplateDefinition(data.settings.template),
     [data.settings.template]
@@ -178,7 +180,10 @@ export default function EditorPage() {
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+        <div
+          className="editor-desktop-only"
+          style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}
+        >
           <button
             onClick={() => setPreviewMode('split')}
             className={previewMode === 'split' ? 'btn-primary' : 'btn-outline'}
@@ -196,6 +201,14 @@ export default function EditorPage() {
             Ver so o CV
           </button>
         </div>
+
+        <button
+          className="btn-primary editor-mobile-only"
+          onClick={() => setMobilePreviewOpen(true)}
+          style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px' }}
+        >
+          <Eye size={16} /> Ver CV
+        </button>
       </div>
 
       <div className="editor-shell">
@@ -302,6 +315,31 @@ export default function EditorPage() {
           </div>
         </section>
       </div>
+
+      {mobilePreviewOpen && (
+        <div className="mobile-preview-modal" role="dialog" aria-modal="true">
+          <div className="mobile-preview-modal-header">
+            <div>
+              <div style={{ fontSize: '13px', fontWeight: 800 }}>{selectedTemplate.name}</div>
+              <div style={{ fontSize: '11px', color: 'var(--foreground-muted)' }}>
+                Pre-visualizacao
+              </div>
+            </div>
+            <button
+              className="btn-outline"
+              onClick={() => setMobilePreviewOpen(false)}
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px' }}
+            >
+              <X size={14} /> Fechar
+            </button>
+          </div>
+          <div className="mobile-preview-modal-body">
+            <div className="cv-export-target">
+              <Preview />
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

@@ -378,9 +378,6 @@ button {
   .editor-zoom-dock { display: none; }
 }
 
-/* Make the A4 export target auto-fit mobile width without changing its
- * *actual* size (transform only). The PDF export forces 210mm anyway, so the
- * exported file stays identical to desktop. */
 .cv-export-target {
   width: 210mm;
   min-height: 297mm;
@@ -390,10 +387,76 @@ button {
   border-radius: 4px;
 }
 
+/* ---------- Mobile editor ergonomics ----------
+ * Below 900px we abandon the split layout: the preview pane is hidden and the
+ * user opens a fullscreen preview modal on demand. The form stretches to the
+ * full viewport and all tap targets meet the 44px minimum. */
 @media (max-width: 900px) {
-  .cv-export-target {
-    /* Fit 210mm (~794px) into small viewports; keeps WYSIWYG identical */
-    transform: scale(var(--preview-fit, 0.45));
-    margin-bottom: calc(-297mm * (1 - var(--preview-fit, 0.45)));
+  .editor-preview-pane { display: none !important; }
+  .editor-aside {
+    max-height: none;
+    height: auto;
+    min-height: calc(100vh - 120px);
   }
+}
+
+@media (max-width: 640px) {
+  /* Collapse every inline 2-col grid inside the editor form to a single
+   * column. React emits `style="grid-template-columns: ..."` so this
+   * attribute substring selector is stable. */
+  .editor-aside [style*="grid-template-columns"] {
+    grid-template-columns: 1fr !important;
+  }
+  .editor-aside input,
+  .editor-aside textarea,
+  .editor-aside select {
+    min-height: 44px;
+    font-size: 16px; /* prevents iOS Safari zoom-on-focus */
+  }
+  .editor-aside button {
+    min-height: 40px;
+  }
+}
+
+/* Desktop-only / mobile-only toggles for the editor topbar buttons */
+@media (max-width: 900px) {
+  .editor-desktop-only { display: none !important; }
+}
+@media (min-width: 901px) {
+  .editor-mobile-only { display: none !important; }
+}
+
+/* Fullscreen mobile preview modal */
+.mobile-preview-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: var(--background-muted);
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-preview-modal-header {
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--background);
+  border-bottom: 1px solid var(--card-border);
+  gap: 12px;
+}
+
+.mobile-preview-modal-body {
+  flex: 1;
+  overflow: auto;
+  padding: 16px 8px 80px;
+  display: flex;
+  justify-content: center;
+}
+
+.mobile-preview-modal-body .cv-export-target {
+  /* Scale down 210mm (~794px) so it fits a 360-420px viewport */
+  transform: scale(0.46);
+  transform-origin: top center;
+  margin-bottom: calc(-297mm * 0.54);
 }

@@ -53,10 +53,17 @@ export async function exportPreviewToPdf({ fileName }: ExportOptions): Promise<v
       cloned.style.width = '210mm';
       cloned.style.minWidth = '210mm';
       cloned.style.maxWidth = '210mm';
+      // The preview pane is `display:none` on mobile (the user sees a modal
+      // instead). Force every ancestor back to a rendered state in the clone
+      // so the snapshot actually paints content.
+      cloned.style.setProperty('display', 'block', 'important');
+      cloned.style.setProperty('visibility', 'visible', 'important');
       let parent: HTMLElement | null = cloned.parentElement;
-      while (parent) {
+      while (parent && parent !== clonedDoc.body) {
         parent.style.transform = 'none';
         parent.style.overflow = 'visible';
+        parent.style.setProperty('display', 'block', 'important');
+        parent.style.setProperty('visibility', 'visible', 'important');
         parent = parent.parentElement;
       }
     },
