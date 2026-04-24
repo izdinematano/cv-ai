@@ -992,8 +992,14 @@ function Footer() {
             CV-Gen <span style={{ color: 'var(--accent)' }}>AI</span>
           </span>
         </div>
-        <div style={{ fontSize: 13, color: 'var(--muted-foreground)' }}>
-          © {new Date().getFullYear()} CV-Gen AI. Todos os direitos reservados.
+        <div style={{ fontSize: 13, color: 'var(--muted-foreground)', display: 'flex', alignItems: 'center', gap: 20 }}>
+          <Link href="/terms" style={{ color: 'var(--muted-foreground)', textDecoration: 'none' }}>
+            Termos
+          </Link>
+          <Link href="/privacy" style={{ color: 'var(--muted-foreground)', textDecoration: 'none' }}>
+            Privacidade
+          </Link>
+          <span>© {new Date().getFullYear()} CV-Gen AI</span>
         </div>
       </div>
     </footer>
