@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -9,6 +9,7 @@ import {
   ExternalLink,
   LogOut,
   MessageCircle,
+  Search,
   Settings,
   ShieldCheck,
   Users,
@@ -33,6 +34,8 @@ function AdminView({ adminEmail }: { adminEmail: string }) {
     upgradeToAdmin,
     logout,
     exports,
+    cvs,
+    extraCredits,
   } = useAppStore();
 
   const [mpesaNumber, setMpesaNumber] = useState(adminSettings.mpesaNumber);
@@ -45,6 +48,34 @@ function AdminView({ adminEmail }: { adminEmail: string }) {
 
   const pending = payments.filter((p) => p.status === 'pending');
   const history = payments.filter((p) => p.status !== 'pending').slice(0, 10);
+
+  const [userQuery, setUserQuery] = useState('');
+  const [roleFilter, setRoleFilter] = useState<'all' | 'user' | 'admin'>('all');
+
+  /** Per-user aggregates computed once for the table. Shape is { userId: {cvs, exports, credits} }. */
+  const userStats = useMemo(() => {
+    const map: Record<string, { cvs: number; exports: number; credits: number }> = {};
+    for (const u of users) {
+      map[u.id] = {
+        cvs: cvs[u.id]?.length ?? 0,
+        exports: exports.filter((e) => e.userId === u.id).length,
+        credits: extraCredits[u.id] || 0,
+      };
+    }
+    return map;
+  }, [users, cvs, exports, extraCredits]);
+
+  const filteredUsers = useMemo(() => {
+    const q = userQuery.trim().toLowerCase();
+    return users.filter((u) => {
+      if (roleFilter !== 'all' && u.role !== roleFilter) return false;
+      if (!q) return true;
+      return (
+        u.fullName.toLowerCase().includes(q) ||
+        u.email.toLowerCase().includes(q)
+      );
+    });
+  }, [users, userQuery, roleFilter]);
 
   const saveSettings = () => {
     updateAdminSettings({
@@ -224,60 +255,159 @@ function AdminView({ adminEmail }: { adminEmail: string }) {
 
         {/* USERS */}
         <section>
-          <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 12 }}>Utilizadores</h2>
-          <div className="glass-card" style={{ padding: 0, overflow: 'hidden' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
-              <thead>
-                <tr style={{ background: 'var(--muted)' }}>
-                  <th style={{ textAlign: 'left', padding: 12 }}>Nome</th>
-                  <th style={{ textAlign: 'left', padding: 12 }}>Email</th>
-                  <th style={{ textAlign: 'left', padding: 12 }}>Papel</th>
-                  <th style={{ textAlign: 'left', padding: 12 }}>Registado</th>
-                  <th style={{ textAlign: 'right', padding: 12 }}>Acoes</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((u) => (
-                  <tr key={u.id} style={{ borderTop: '1px solid var(--card-border)' }}>
-                    <td style={{ padding: 12, fontWeight: 600 }}>{u.fullName}</td>
-                    <td style={{ padding: 12, color: 'var(--foreground-muted)' }}>{u.email}</td>
-                    <td style={{ padding: 12 }}>
-                      <span
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: 12,
+              gap: 12,
+              flexWrap: 'wrap',
+            }}
+          >
+            <h2 style={{ fontSize: 18, fontWeight: 700 }}>
+              Utilizadores{' '}
+              <span style={{ color: 'var(--muted-foreground)', fontWeight: 500, fontSize: 14 }}>
+                ({filteredUsers.length} / {users.length})
+              </span>
+            </h2>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <div style={{ position: 'relative' }}>
+                <Search
+                  size={13}
+                  style={{
+                    position: 'absolute',
+                    left: 10,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    color: 'var(--muted-foreground)',
+                    pointerEvents: 'none',
+                  }}
+                />
+                <input
+                  value={userQuery}
+                  onChange={(e) => setUserQuery(e.target.value)}
+                  placeholder="Pesquisar nome ou email..."
+                  style={{
+                    padding: '8px 10px 8px 30px',
+                    fontSize: 13,
+                    border: '1px solid var(--card-border)',
+                    borderRadius: 'var(--radius-md)',
+                    background: 'var(--background)',
+                    color: 'var(--foreground)',
+                    minWidth: 220,
+                  }}
+                />
+              </div>
+              <select
+                value={roleFilter}
+                onChange={(e) => setRoleFilter(e.target.value as typeof roleFilter)}
+                style={{
+                  padding: '8px 10px',
+                  fontSize: 13,
+                  border: '1px solid var(--card-border)',
+                  borderRadius: 'var(--radius-md)',
+                  background: 'var(--background)',
+                  color: 'var(--foreground)',
+                }}
+              >
+                <option value="all">Todos</option>
+                <option value="user">Utilizadores</option>
+                <option value="admin">Administradores</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="glass-card admin-users-wrap" style={{ padding: 0, overflow: 'hidden' }}>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', minWidth: 720, borderCollapse: 'collapse', fontSize: 12 }}>
+                <thead>
+                  <tr style={{ background: 'var(--muted)' }}>
+                    <th style={{ textAlign: 'left', padding: 12 }}>Nome</th>
+                    <th style={{ textAlign: 'left', padding: 12 }}>Email</th>
+                    <th style={{ textAlign: 'left', padding: 12 }}>Papel</th>
+                    <th style={{ textAlign: 'center', padding: 12 }}>CVs</th>
+                    <th style={{ textAlign: 'center', padding: 12 }}>Exports</th>
+                    <th style={{ textAlign: 'center', padding: 12 }}>Créditos</th>
+                    <th style={{ textAlign: 'left', padding: 12 }}>Registado</th>
+                    <th style={{ textAlign: 'right', padding: 12 }}>Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredUsers.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={8}
                         style={{
-                          fontSize: 10,
-                          padding: '2px 8px',
-                          borderRadius: 999,
-                          background: u.role === 'admin' ? '#fef3c7' : 'var(--muted)',
-                          color: u.role === 'admin' ? '#92400e' : 'var(--foreground-muted)',
-                          border: '1px solid transparent',
-                          textTransform: 'uppercase',
-                          fontWeight: 700,
-                          letterSpacing: '0.04em',
+                          padding: 24,
+                          textAlign: 'center',
+                          color: 'var(--muted-foreground)',
                         }}
                       >
-                        {u.role}
-                      </span>
-                    </td>
-                    <td style={{ padding: 12, color: 'var(--foreground-muted)' }}>{new Date(u.createdAt).toLocaleDateString('pt-PT')}</td>
-                    <td style={{ padding: 12, textAlign: 'right' }}>
-                      {u.role === 'user' && (
-                        <button
-                          className="btn-outline"
-                          style={{ fontSize: 11, padding: '6px 10px' }}
-                          onClick={() => {
-                            if (confirm(`Tornar ${u.email} administrador?`)) {
-                              upgradeToAdmin(u.id);
-                            }
-                          }}
-                        >
-                          Promover a admin
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                        Nenhum utilizador corresponde ao filtro.
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredUsers.map((u) => {
+                      const stats = userStats[u.id];
+                      return (
+                        <tr key={u.id} style={{ borderTop: '1px solid var(--card-border)' }}>
+                          <td style={{ padding: 12, fontWeight: 600 }}>{u.fullName}</td>
+                          <td style={{ padding: 12, color: 'var(--foreground-muted)' }}>{u.email}</td>
+                          <td style={{ padding: 12 }}>
+                            <span
+                              style={{
+                                fontSize: 10,
+                                padding: '2px 8px',
+                                borderRadius: 999,
+                                background: u.role === 'admin' ? '#fef3c7' : 'var(--muted)',
+                                color: u.role === 'admin' ? '#92400e' : 'var(--foreground-muted)',
+                                border: '1px solid transparent',
+                                textTransform: 'uppercase',
+                                fontWeight: 700,
+                                letterSpacing: '0.04em',
+                              }}
+                            >
+                              {u.role}
+                            </span>
+                          </td>
+                          <td style={{ padding: 12, textAlign: 'center', fontWeight: 700 }}>{stats?.cvs ?? 0}</td>
+                          <td style={{ padding: 12, textAlign: 'center', fontWeight: 700 }}>{stats?.exports ?? 0}</td>
+                          <td
+                            style={{
+                              padding: 12,
+                              textAlign: 'center',
+                              fontWeight: 700,
+                              color: (stats?.credits ?? 0) > 0 ? 'var(--accent)' : 'var(--muted-foreground)',
+                            }}
+                          >
+                            {stats?.credits ?? 0}
+                          </td>
+                          <td style={{ padding: 12, color: 'var(--foreground-muted)' }}>
+                            {new Date(u.createdAt).toLocaleDateString('pt-PT')}
+                          </td>
+                          <td style={{ padding: 12, textAlign: 'right' }}>
+                            {u.role === 'user' && (
+                              <button
+                                className="btn-outline"
+                                style={{ fontSize: 11, padding: '6px 10px' }}
+                                onClick={() => {
+                                  if (confirm(`Tornar ${u.email} administrador?`)) {
+                                    upgradeToAdmin(u.id);
+                                  }
+                                }}
+                              >
+                                Promover a admin
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </section>
       </div>

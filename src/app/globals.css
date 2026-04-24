@@ -508,6 +508,65 @@ button {
   min-height: 46px;
 }
 
+/* ---------- Dashboard CV cards ---------- */
+.dashboard-cv-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  box-shadow: var(--card-shadow);
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-cv-card:hover {
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+  border-color: var(--accent-soft-border, rgba(79, 70, 229, 0.35));
+}
+
+.dashboard-cv-thumb {
+  position: relative;
+  height: 220px;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--background-muted) 0%, var(--muted) 100%);
+  border-bottom: 1px solid var(--card-border);
+}
+
+.dashboard-cv-thumb-scale {
+  position: absolute;
+  inset: 0;
+  transform: scale(0.32);
+  transform-origin: top left;
+  width: 313%;
+  height: 313%;
+  pointer-events: none;
+}
+
+.dashboard-cv-thumb-fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 60px;
+  background: linear-gradient(180deg, transparent, var(--card));
+  pointer-events: none;
+}
+
+.dashboard-cv-thumb-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.18);
+}
+
 /* ---------- Template picker hero (step 1) ---------- */
 .template-picker-section {
   padding: 42px 32px 56px;

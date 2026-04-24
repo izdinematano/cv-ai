@@ -28,7 +28,9 @@ import {
   Sparkles,
   Trash2,
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import AuthGate from '@/components/Auth/AuthGate';
+import Preview from '@/components/Preview/Preview';
 import { useAppStore } from '@/store/useAppStore';
 import { type CVData, useCVStore } from '@/store/useCVStore';
 import { getTemplateDefinition } from '@/lib/templateCatalog';
@@ -359,31 +361,33 @@ function DashboardView({ userId, role }: { userId: string; role: 'user' | 'admin
                 '—';
 
               return (
-                <div
+                <motion.div
                   key={cv.id}
-                  className="glass-card"
-                  style={{
-                    padding: 18,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 12,
-                  }}
+                  whileHover={{ y: -4 }}
+                  transition={{ duration: 0.2 }}
+                  className="dashboard-cv-card"
+                  onClick={() => handleOpen(cv.id)}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div
-                      style={{
-                        width: 38,
-                        height: 38,
-                        borderRadius: 10,
-                        background: 'var(--accent-soft)',
-                        display: 'grid',
-                        placeItems: 'center',
-                        color: 'var(--accent)',
-                      }}
-                    >
-                      <FileText size={18} />
+                  {/* Live miniature of the actual saved CV */}
+                  <div className="dashboard-cv-thumb">
+                    <div className="dashboard-cv-thumb-scale">
+                      <Preview
+                        dataOverride={cv.data}
+                        templateOverride={cv.data.settings.template}
+                        langOverride="pt"
+                      />
                     </div>
-                    <div style={{ minWidth: 0, flex: 1 }}>
+                    <div className="dashboard-cv-thumb-fade" />
+                    <div
+                      className="dashboard-cv-thumb-badge"
+                      style={{ background: def.accentColor || 'var(--accent)' }}
+                    >
+                      {def.name}
+                    </div>
+                  </div>
+
+                  <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <div style={{ minWidth: 0 }}>
                       <div
                         style={{
                           fontSize: 14.5,
@@ -408,25 +412,6 @@ function DashboardView({ userId, role }: { userId: string; role: 'user' | 'admin
                         {jobTitle}
                       </div>
                     </div>
-                  </div>
-
-                  <div
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 6,
-                      alignSelf: 'flex-start',
-                      fontSize: 11,
-                      fontWeight: 700,
-                      padding: '4px 8px',
-                      borderRadius: 999,
-                      background: 'var(--muted)',
-                      color: 'var(--foreground-muted)',
-                    }}
-                  >
-                    <LayoutTemplate size={11} />
-                    {def.name}
-                  </div>
 
                   <div>
                     <div
@@ -489,7 +474,10 @@ function DashboardView({ userId, role }: { userId: string; role: 'user' | 'admin
 
                   <div style={{ display: 'flex', gap: 8, marginTop: 2 }}>
                     <button
-                      onClick={() => handleOpen(cv.id)}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        handleOpen(cv.id);
+                      }}
                       className="btn-primary"
                       style={{
                         flex: 1,
@@ -502,7 +490,10 @@ function DashboardView({ userId, role }: { userId: string; role: 'user' | 'admin
                       <Pencil size={14} /> Abrir
                     </button>
                     <button
-                      onClick={() => handleDuplicate(cv.id)}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        handleDuplicate(cv.id);
+                      }}
                       className="btn-outline"
                       title="Duplicar"
                       aria-label="Duplicar CV"
@@ -511,7 +502,10 @@ function DashboardView({ userId, role }: { userId: string; role: 'user' | 'admin
                       <Copy size={14} />
                     </button>
                     <button
-                      onClick={() => handleDelete(cv.id)}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        handleDelete(cv.id);
+                      }}
                       className="btn-outline"
                       title="Apagar"
                       aria-label="Apagar CV"
@@ -520,7 +514,8 @@ function DashboardView({ userId, role }: { userId: string; role: 'user' | 'admin
                       <Trash2 size={14} />
                     </button>
                   </div>
-                </div>
+                  </div>
+                </motion.div>
               );
             })}
           </div>
