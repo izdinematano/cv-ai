@@ -1,27 +1,45 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { type CVData, useCVStore } from '@/store/useCVStore';
-import Minimalist from '../Templates/Minimalist';
-import MinimalistV2 from '../Templates/MinimalistV2';
-import Corporate from '../Templates/Corporate';
-import CorporateV2 from '../Templates/CorporateV2';
-import Creative from '../Templates/Creative';
-import CreativeV2 from '../Templates/CreativeV2';
-import Executive from '../Templates/Executive';
-import ExecutiveV2 from '../Templates/ExecutiveV2';
-import Tech from '../Templates/Tech';
-import Modern from '../Templates/Modern';
-import Student from '../Templates/Student';
-import Studio from '../Templates/Studio';
-import Atlas from '../Templates/Atlas';
-import Bold from '../Templates/Bold';
-import Resume1 from '../Templates/Resume1/Resume1';
-import Resume2 from '../Templates/Resume2/Resume2';
-import Resume3 from '../Templates/Resume3/Resume3';
-import CV5 from '../Templates/CV5/CV5';
-import CV6 from '../Templates/CV6/CV6';
-import CV7 from '../Templates/CV7/CV7';
 import TemplateExtras from '../Templates/_shared/TemplateExtras';
+
+// Lazy-loaded template chunks. Each template is code-split so only the one the
+// user selects (and its hover previews) is downloaded. `ssr: false` keeps the
+// initial HTML identical to the client render and avoids hydration mismatches
+// caused by per-template inline styles.
+const loadingFallback = () => (
+  <div
+    aria-hidden="true"
+    style={{
+      width: '100%',
+      minHeight: 320,
+      background: 'linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 50%, #f1f5f9 100%)',
+      backgroundSize: '200% 100%',
+      animation: 'cv-skeleton 1.4s linear infinite',
+    }}
+  />
+);
+const Minimalist = dynamic(() => import('../Templates/Minimalist'), { ssr: false, loading: loadingFallback });
+const MinimalistV2 = dynamic(() => import('../Templates/MinimalistV2'), { ssr: false, loading: loadingFallback });
+const Corporate = dynamic(() => import('../Templates/Corporate'), { ssr: false, loading: loadingFallback });
+const CorporateV2 = dynamic(() => import('../Templates/CorporateV2'), { ssr: false, loading: loadingFallback });
+const Creative = dynamic(() => import('../Templates/Creative'), { ssr: false, loading: loadingFallback });
+const CreativeV2 = dynamic(() => import('../Templates/CreativeV2'), { ssr: false, loading: loadingFallback });
+const Executive = dynamic(() => import('../Templates/Executive'), { ssr: false, loading: loadingFallback });
+const ExecutiveV2 = dynamic(() => import('../Templates/ExecutiveV2'), { ssr: false, loading: loadingFallback });
+const Tech = dynamic(() => import('../Templates/Tech'), { ssr: false, loading: loadingFallback });
+const Modern = dynamic(() => import('../Templates/Modern'), { ssr: false, loading: loadingFallback });
+const Student = dynamic(() => import('../Templates/Student'), { ssr: false, loading: loadingFallback });
+const Studio = dynamic(() => import('../Templates/Studio'), { ssr: false, loading: loadingFallback });
+const Atlas = dynamic(() => import('../Templates/Atlas'), { ssr: false, loading: loadingFallback });
+const Bold = dynamic(() => import('../Templates/Bold'), { ssr: false, loading: loadingFallback });
+const Resume1 = dynamic(() => import('../Templates/Resume1/Resume1'), { ssr: false, loading: loadingFallback });
+const Resume2 = dynamic(() => import('../Templates/Resume2/Resume2'), { ssr: false, loading: loadingFallback });
+const Resume3 = dynamic(() => import('../Templates/Resume3/Resume3'), { ssr: false, loading: loadingFallback });
+const CV5 = dynamic(() => import('../Templates/CV5/CV5'), { ssr: false, loading: loadingFallback });
+const CV6 = dynamic(() => import('../Templates/CV6/CV6'), { ssr: false, loading: loadingFallback });
+const CV7 = dynamic(() => import('../Templates/CV7/CV7'), { ssr: false, loading: loadingFallback });
 
 /**
  * Templates in this list already render Languages/Projects/Certifications natively.

@@ -20,13 +20,24 @@ export interface AppUser {
   createdAt: string;
 }
 
+export interface CVVersion {
+  id: string;
+  createdAt: string;
+  data: CVData;
+}
+
 export interface SavedCV {
   id: string;
   name: string;
   data: CVData;
   updatedAt: string;
   createdAt: string;
+  /** Last N snapshots of this CV, newest first. Capped at MAX_VERSIONS. */
+  versions?: CVVersion[];
 }
+
+/** Maximum number of historical snapshots kept per CV. */
+export const MAX_VERSIONS = 5;
 
 export interface PaymentRequest {
   id: string;
@@ -94,9 +105,10 @@ interface AppState {
   getUserCVs: (userId: string) => SavedCV[];
   upsertCV: (
     userId: string,
-    cv: { id?: string; name: string; data: CVData }
+    cv: { id?: string; name: string; data: CVData; snapshot?: boolean }
   ) => SavedCV;
   deleteCV: (userId: string, cvId: string) => void;
+  restoreCVVersion: (userId: string, cvId: string, versionId: string) => SavedCV | null;
 
   /* quota + payments */
   getMonthlyExports: (userId: string) => number;
@@ -199,14 +211,40 @@ export const useAppStore = create<AppState>()(
         const existing = incoming.id ? list.find((cv) => cv.id === incoming.id) : undefined;
         const now = nowIso();
 
+        // Build a trimmed version history. We only snapshot when the caller
+        // asks for it (snapshot: true) AND the existing data actually differs
+        // from the incoming one, so autosaves triggered by trivial re-renders
+        // don't pollute the history.
+        let versions: CVVersion[] | undefined = existing?.versions;
+        if (existing && incoming.snapshot !== false) {
+          const sameData =
+            JSON.stringify(existing.data) === JSON.stringify(incoming.data);
+          if (!sameData) {
+            const snapshot: CVVersion = {
+              id: createId(),
+              createdAt: existing.updatedAt,
+              data: existing.data,
+            };
+            versions = [snapshot, ...(existing.versions || [])].slice(0, MAX_VERSIONS);
+          }
+        }
+
         const next: SavedCV = existing
-          ? { ...existing, ...incoming, id: existing.id, updatedAt: now }
+          ? {
+              ...existing,
+              name: incoming.name,
+              data: incoming.data,
+              id: existing.id,
+              updatedAt: now,
+              versions,
+            }
           : {
               id: incoming.id || createId(),
               name: incoming.name,
               data: incoming.data,
               createdAt: now,
               updatedAt: now,
+              versions: [],
             };
 
         set((state) => ({
@@ -218,6 +256,37 @@ export const useAppStore = create<AppState>()(
           },
         }));
 
+        return next;
+      },
+
+      restoreCVVersion: (userId, cvId, versionId) => {
+        const list = get().cvs[userId] || [];
+        const target = list.find((cv) => cv.id === cvId);
+        if (!target) return null;
+        const version = (target.versions || []).find((v) => v.id === versionId);
+        if (!version) return null;
+        const now = nowIso();
+        // Push the current state as the newest version before restoring, so
+        // the restore itself is reversible.
+        const currentSnapshot: CVVersion = {
+          id: createId(),
+          createdAt: target.updatedAt,
+          data: target.data,
+        };
+        const remaining = (target.versions || []).filter((v) => v.id !== versionId);
+        const nextVersions = [currentSnapshot, ...remaining].slice(0, MAX_VERSIONS);
+        const next: SavedCV = {
+          ...target,
+          data: version.data,
+          updatedAt: now,
+          versions: nextVersions,
+        };
+        set((state) => ({
+          cvs: {
+            ...state.cvs,
+            [userId]: list.map((cv) => (cv.id === cvId ? next : cv)),
+          },
+        }));
         return next;
       },
 

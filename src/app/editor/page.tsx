@@ -12,6 +12,8 @@ import {
   ZoomOut,
 } from 'lucide-react';
 import Editor from '@/components/Editor/Editor';
+import AutosaveIndicator from '@/components/Editor/AutosaveIndicator';
+import VersionHistoryModal from '@/components/Editor/VersionHistoryModal';
 import Header from '@/components/Header';
 import Preview from '@/components/Preview/Preview';
 import TemplateGallery from '@/components/Preview/TemplateGallery';
@@ -30,6 +32,7 @@ export default function EditorPage() {
   const [zoom, setZoom] = useState(0.8);
   const [previewMode, setPreviewMode] = useState<'split' | 'preview'>('split');
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const selectedTemplate = useMemo(
     () => getTemplateDefinition(data.settings.template),
     [data.settings.template]
@@ -178,6 +181,7 @@ export default function EditorPage() {
               {selectedTemplate.badge} - {selectedTemplate.tone}
             </div>
           </div>
+          <AutosaveIndicator onOpenHistory={() => setHistoryOpen(true)} />
         </div>
 
         <div
@@ -340,6 +344,8 @@ export default function EditorPage() {
           </div>
         </div>
       )}
+
+      <VersionHistoryModal open={historyOpen} onClose={() => setHistoryOpen(false)} />
     </main>
   );
 }

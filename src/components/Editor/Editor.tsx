@@ -62,23 +62,33 @@ function SectionHeader({
   onToggle: (id: string) => void;
 }) {
   return (
-    <div
+    <button
+      type="button"
       onClick={() => onToggle(id)}
+      aria-expanded={isOpen}
+      aria-controls={`section-panel-${id}`}
+      id={`section-header-${id}`}
       style={{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
+        width: '100%',
         padding: '16px 20px',
         cursor: 'pointer',
         background: 'var(--background-muted)',
         borderBottom: '1px solid var(--card-border)',
+        border: 'none',
+        textAlign: 'left',
+        color: 'var(--foreground)',
+        font: 'inherit',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <Icon size={18} color="var(--accent)" />
+      <span style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <Icon size={18} color="var(--accent)" aria-hidden="true" />
         <span style={{ fontWeight: 700, fontSize: '15px' }}>{title}</span>
         {count !== undefined && (
           <span
+            aria-label={`${count} ${count === 1 ? 'entrada' : 'entradas'}`}
             style={{
               fontSize: '11px',
               background: 'var(--accent)',
@@ -90,9 +100,13 @@ function SectionHeader({
             {count}
           </span>
         )}
-      </div>
-      {isOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-    </div>
+      </span>
+      {isOpen ? (
+        <ChevronUp size={18} aria-hidden="true" />
+      ) : (
+        <ChevronDown size={18} aria-hidden="true" />
+      )}
+    </button>
   );
 }
 
@@ -137,12 +151,14 @@ export default function Editor() {
   } = useCVStore();
 
   const [activeTab, setActiveTab] = useState<'content' | 'design'>('content');
-  const [openSections, setOpenSections] = useState<string[]>([
-    'import',
-    'personal',
-    'summary',
-    'experience',
-  ]);
+  const [openSections, setOpenSections] = useState<string[]>(() => {
+    // On mobile, only open the first section to avoid a very long scroll on
+    // first render. Desktop keeps the common sections expanded.
+    if (typeof window !== 'undefined' && window.matchMedia('(max-width: 900px)').matches) {
+      return ['personal'];
+    }
+    return ['import', 'personal', 'summary', 'experience'];
+  });
   const [rawCVInput, setRawCVInput] = useState('');
   const [importStatus, setImportStatus] = useState('');
   const [importFileName, setImportFileName] = useState('');

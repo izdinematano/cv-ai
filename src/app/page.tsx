@@ -765,29 +765,36 @@ function FeatureGrid() {
 /* -------------------------------------------------------------------------- */
 
 function Testimonials() {
-  const items = [
+  const items: Array<{ name: string; role: string; gradient: string; quote: string }> = [
     {
       name: 'Ana M.',
       role: 'Engenheira de Software, Maputo',
-      avatar: 'https://i.pravatar.cc/120?img=47',
+      gradient: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
       quote:
         'Fiz o CV em 20 minutos, a tradução PT/EN poupou-me horas. Consegui a entrevista na semana seguinte.',
     },
     {
       name: 'João P.',
       role: 'Consultor Financeiro',
-      avatar: 'https://i.pravatar.cc/120?img=12',
+      gradient: 'linear-gradient(135deg, #0ea5e9 0%, #22d3ee 100%)',
       quote:
         'O PDF sai exactamente igual ao preview. Nunca mais perdi tempo a formatar em Word.',
     },
     {
       name: 'Sara V.',
       role: 'Designer de Produto',
-      avatar: 'https://i.pravatar.cc/120?img=32',
+      gradient: 'linear-gradient(135deg, #f43f5e 0%, #f59e0b 100%)',
       quote:
         'Templates são lindos e a IA ajuda mesmo a melhorar os textos. Muito acima do que esperava.',
     },
   ];
+  const initials = (name: string) =>
+    name
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((w) => w.replace(/[^\p{L}]/gu, '').charAt(0).toUpperCase())
+      .slice(0, 2)
+      .join('');
   return (
     <section
       style={{
@@ -852,18 +859,25 @@ function Testimonials() {
                 “{t.quote}”
               </p>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={t.avatar}
-                  alt={t.name}
-                  width={40}
-                  height={40}
+                <div
+                  aria-hidden="true"
                   style={{
+                    width: 40,
+                    height: 40,
                     borderRadius: '50%',
-                    objectFit: 'cover',
-                    border: '2px solid var(--accent-soft)',
+                    background: t.gradient,
+                    color: '#fff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 800,
+                    fontSize: 14,
+                    letterSpacing: 0.4,
+                    boxShadow: '0 6px 16px rgba(15, 23, 42, 0.18)',
                   }}
-                />
+                >
+                  {initials(t.name)}
+                </div>
                 <div>
                   <div style={{ fontSize: 14, fontWeight: 700 }}>{t.name}</div>
                   <div style={{ fontSize: 12, color: 'var(--muted-foreground)' }}>{t.role}</div>
