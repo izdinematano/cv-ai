@@ -9,8 +9,6 @@ import type {
   Project,
 } from '@/store/useCVStore';
 
-export const GEMINI_API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY || '';
-
 export type TranslationModel = 'advanced' | 'light';
 type GeminiTask = 'translate' | 'improve' | 'import' | 'recommend';
 
@@ -143,27 +141,17 @@ const normalizeLanguages = (
  * deciding what to do with an empty response (use fallback / keep original text).
  */
 async function callGeminiText(task: GeminiTask, prompt: string): Promise<string> {
-  if (!GEMINI_API_KEY) return '';
-
   try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/openai/chat/completions?key=${GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: TASK_MODELS[task],
-          messages: [{ role: 'user', content: prompt }],
-        }),
-      }
-    );
+    const response = await fetch('/api/ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ task, prompt }),
+    });
 
     if (!response.ok) return '';
 
     const payload = await response.json();
-    const content = String(payload?.choices?.[0]?.message?.content || '').trim();
+    const content = String(payload?.content || '').trim();
 
     // Treat provider/rate-limit error messages returned as assistant content as silent failures.
     if (looksLikeProviderError(content) || looksLikeProviderError(payload?.error?.message)) {
