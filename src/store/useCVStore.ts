@@ -1,7 +1,8 @@
 'use client';
 
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { createIdbStorage } from '@/lib/idbStorage';
 
 export interface MultilingualField {
   pt: string;
@@ -619,6 +620,9 @@ export const useCVStore = create<CVState>()(
     }),
     {
       name: 'cv-storage-pro',
+      // Same reasoning as in useAppStore: use IndexedDB so the working CV can
+      // hold a photo without ever hitting localStorage's quota.
+      storage: createJSONStorage(() => createIdbStorage()),
       merge: (persistedState, currentState) => {
         const persisted = persistedState as Partial<CVState> | undefined;
         const mergedData = ensureDataShape(persisted?.data);

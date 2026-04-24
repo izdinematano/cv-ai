@@ -1,8 +1,9 @@
 'use client';
 
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import type { CVData } from './useCVStore';
+import { createIdbStorage } from '@/lib/idbStorage';
 
 /* =============================================================================
  * Types
@@ -330,6 +331,10 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: 'cv-app-store',
+      // Store accounts/saved CVs/export history in IndexedDB rather than
+      // localStorage, so the ~5MB-per-origin quota is not the bottleneck as
+      // soon as a user saves a CV with a photo. See @/lib/idbStorage.
+      storage: createJSONStorage(() => createIdbStorage()),
     }
   )
 );
