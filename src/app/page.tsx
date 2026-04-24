@@ -3,13 +3,16 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { ArrowRight, Globe, Shield, Sparkles, Zap } from 'lucide-react';
+import { ArrowRight, Globe, LayoutDashboard, LogIn, Shield, Sparkles, Zap } from 'lucide-react';
 import TemplateGallery from '@/components/Preview/TemplateGallery';
+import { useAppStore } from '@/store/useAppStore';
 import { useCVStore } from '@/store/useCVStore';
 
 export default function LandingPage() {
   const router = useRouter();
   const { setTemplate, completeTemplateSelection } = useCVStore();
+  const { currentUserId, users } = useAppStore();
+  const currentUser = currentUserId ? users.find((u) => u.id === currentUserId) : null;
   const steps = [
     {
       step: '01',
@@ -61,15 +64,47 @@ export default function LandingPage() {
           </span>
         </div>
 
-        <div style={{ display: 'flex', gap: '40px', alignItems: 'center' }}>
-          <a href="#features" style={{ fontSize: '14px', fontWeight: 500, color: 'var(--muted-foreground)' }}>
+        <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
+          <a
+            href="#features"
+            className="desktop-only"
+            style={{ fontSize: '14px', fontWeight: 500, color: 'var(--muted-foreground)' }}
+          >
             Funcionalidades
           </a>
-          <a href="#templates" style={{ fontSize: '14px', fontWeight: 500, color: 'var(--muted-foreground)' }}>
+          <a
+            href="#templates"
+            className="desktop-only"
+            style={{ fontSize: '14px', fontWeight: 500, color: 'var(--muted-foreground)' }}
+          >
             Templates
           </a>
-          <Link href="/editor" className="btn-primary" style={{ padding: '10px 24px' }}>
-            Criar CV Gratis
+          <a
+            href="#pricing"
+            className="desktop-only"
+            style={{ fontSize: '14px', fontWeight: 500, color: 'var(--muted-foreground)' }}
+          >
+            Preços
+          </a>
+          {currentUser ? (
+            <Link
+              href={currentUser.role === 'admin' ? '/admin' : '/dashboard'}
+              className="btn-outline"
+              style={{ padding: '8px 16px', display: 'flex', alignItems: 'center', gap: 8 }}
+            >
+              <LayoutDashboard size={16} /> {currentUser.fullName.split(' ')[0]}
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              className="btn-outline"
+              style={{ padding: '8px 16px', display: 'flex', alignItems: 'center', gap: 8 }}
+            >
+              <LogIn size={16} /> Entrar
+            </Link>
+          )}
+          <Link href="/editor" className="btn-primary" style={{ padding: '10px 20px' }}>
+            Criar CV
           </Link>
         </div>
       </nav>
@@ -257,6 +292,120 @@ export default function LandingPage() {
                 <p style={{ color: 'var(--muted-foreground)', fontSize: '14px', lineHeight: 1.6 }}>{item.desc}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="pricing"
+        style={{
+          padding: '100px 32px',
+          borderTop: '1px solid var(--card-border)',
+        }}
+      >
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 44 }}>
+            <h2 style={{ fontSize: 40, marginBottom: 12 }}>
+              Preços <span style={{ color: 'var(--accent)' }}>simples e justos</span>
+            </h2>
+            <p style={{ color: 'var(--muted-foreground)', fontSize: 16, maxWidth: 560, margin: '0 auto' }}>
+              Cria, edita e adapta CVs à vontade. Pagas apenas quando descarregas o PDF final.
+            </p>
+          </div>
+
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+              gap: 18,
+            }}
+          >
+            <div className="glass-card" style={{ padding: 28, display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ fontSize: 12, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#94a3b8', fontWeight: 800 }}>
+                Free
+              </div>
+              <div style={{ fontSize: 36, fontWeight: 800 }}>
+                0 <span style={{ fontSize: 14, color: '#94a3b8', fontWeight: 500 }}>MZN</span>
+              </div>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8, fontSize: 14, color: '#cbd5e1' }}>
+                <li>✓ Editor completo bilingue PT/EN</li>
+                <li>✓ Importação de PDF, DOCX ou texto</li>
+                <li>✓ 20+ templates profissionais</li>
+                <li>✓ Adaptar CV a descrição de vaga</li>
+                <li>✓ 5 exportações PDF por mês</li>
+              </ul>
+              <Link href="/register" className="btn-outline" style={{ textAlign: 'center', marginTop: 6 }}>
+                Criar conta grátis
+              </Link>
+            </div>
+
+            <div
+              className="glass-card"
+              style={{
+                padding: 28,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 12,
+                background: 'linear-gradient(135deg, rgba(59,130,246,0.2), rgba(99,102,241,0.1))',
+                border: '1px solid rgba(59,130,246,0.35)',
+                position: 'relative',
+              }}
+            >
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 14,
+                  right: 14,
+                  background: '#3b82f6',
+                  color: 'white',
+                  fontSize: 10,
+                  fontWeight: 800,
+                  padding: '4px 10px',
+                  borderRadius: 999,
+                  letterSpacing: '0.06em',
+                }}
+              >
+                POPULAR
+              </div>
+              <div style={{ fontSize: 12, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#93c5fd', fontWeight: 800 }}>
+                Pack de Créditos
+              </div>
+              <div style={{ fontSize: 36, fontWeight: 800 }}>
+                100 <span style={{ fontSize: 14, color: '#94a3b8', fontWeight: 500 }}>MZN</span>
+              </div>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8, fontSize: 14, color: '#cbd5e1' }}>
+                <li>✓ Tudo no plano Free</li>
+                <li>✓ <b>+5 exportações</b> adicionais (nunca expiram)</li>
+                <li>✓ Pagamento via <b>Mpesa</b></li>
+                <li>✓ Confirmação rápida por WhatsApp</li>
+                <li>✓ Podes comprar quantos packs quiseres</li>
+              </ul>
+              <Link href="/register" className="btn-primary" style={{ textAlign: 'center', marginTop: 6 }}>
+                Começar agora
+              </Link>
+            </div>
+
+            <div className="glass-card" style={{ padding: 28, display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ fontSize: 12, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#94a3b8', fontWeight: 800 }}>
+                Empresas
+              </div>
+              <div style={{ fontSize: 36, fontWeight: 800 }}>
+                Sob consulta
+              </div>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8, fontSize: 14, color: '#cbd5e1' }}>
+                <li>✓ Contas para toda a equipa</li>
+                <li>✓ Templates com branding próprio</li>
+                <li>✓ Exportações ilimitadas</li>
+                <li>✓ Suporte dedicado</li>
+              </ul>
+              <a
+                href="https://wa.me/258000000000"
+                className="btn-outline"
+                style={{ textAlign: 'center', marginTop: 6 }}
+              >
+                Falar connosco
+              </a>
+            </div>
           </div>
         </div>
       </section>
