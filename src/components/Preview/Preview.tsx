@@ -2,6 +2,8 @@
 
 import dynamic from 'next/dynamic';
 import { type CVData, useCVStore } from '@/store/useCVStore';
+import { useAppStore } from '@/store/useAppStore';
+import CustomTemplate from '../Templates/CustomTemplate';
 import TemplateExtras from '../Templates/_shared/TemplateExtras';
 
 // Lazy-loaded template chunks. Each template is code-split so only the one the
@@ -313,9 +315,23 @@ export default function Preview({
   templateOverride,
 }: PreviewProps) {
   const store = useCVStore();
+  const customTemplates = useAppStore((s) => s.customTemplates);
   const data = dataOverride || store.data;
   const activeLanguage = langOverride || store.activeLanguage;
   const template = templateOverride || data?.settings?.template || 'minimalist';
+
+  // Custom admin-built templates are handled by a single dynamic renderer.
+  if (template.startsWith('custom-')) {
+    const spec = customTemplates.find((t) => t.id === template);
+    if (spec) {
+      return (
+        <div style={{ transformOrigin: 'top center' }}>
+          <CustomTemplate spec={spec} data={data} lang={activeLanguage} />
+        </div>
+      );
+    }
+    // Fallthrough to default if the spec was deleted.
+  }
 
   return (
     <div style={{ transformOrigin: 'top center' }}>

@@ -5,18 +5,27 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   Check,
+  Copy,
   CreditCard,
   ExternalLink,
+  Eye,
+  LayoutTemplate,
   LogOut,
   MessageCircle,
+  Pencil,
+  Plus,
   Search,
   Settings,
   ShieldCheck,
+  Trash2,
   Users,
   X,
 } from 'lucide-react';
 import AuthGate from '@/components/Auth/AuthGate';
 import { useAppStore } from '@/store/useAppStore';
+import TemplateBuilder from '@/components/Admin/TemplateBuilder/TemplateBuilder';
+import Preview from '@/components/Preview/Preview';
+import { createShowcaseCVData } from '@/lib/templateCatalog';
 
 export default function AdminPage() {
   return <AuthGate requireAdmin>{(user) => <AdminView adminEmail={user.email} />}</AuthGate>;
@@ -36,7 +45,14 @@ function AdminView({ adminEmail }: { adminEmail: string }) {
     exports,
     cvs,
     extraCredits,
+    customTemplates,
+    createCustomTemplate,
+    deleteCustomTemplate,
+    duplicateCustomTemplate,
+    publishCustomTemplate,
   } = useAppStore();
+
+  const [builderId, setBuilderId] = useState<string | null>(null);
 
   const [mpesaNumber, setMpesaNumber] = useState(adminSettings.mpesaNumber);
   const [whatsappNumber, setWhatsappNumber] = useState(adminSettings.whatsappNumber);
@@ -203,6 +219,139 @@ function AdminView({ adminEmail }: { adminEmail: string }) {
             </div>
           </section>
         )}
+
+        {/* TEMPLATES */}
+        <section style={{ marginBottom: 32 }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: 12,
+              gap: 12,
+              flexWrap: 'wrap',
+            }}
+          >
+            <h2 style={{ fontSize: 18, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <LayoutTemplate size={18} /> Templates customizados{' '}
+              <span style={{ fontSize: 12, color: 'var(--foreground-muted)', fontWeight: 500 }}>
+                ({customTemplates.length})
+              </span>
+            </h2>
+            <button
+              className="btn-primary"
+              onClick={() => {
+                const created = createCustomTemplate();
+                setBuilderId(created.id);
+              }}
+              style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+            >
+              <Plus size={14} aria-hidden="true" /> Novo template
+            </button>
+          </div>
+
+          {customTemplates.length === 0 ? (
+            <div className="glass-card" style={{ padding: 24, color: 'var(--foreground-muted)', fontSize: 13 }}>
+              Ainda não criaste nenhum template. Clica em <strong>Novo template</strong> para
+              abrir o construtor visual e desenhar um CV de raíz.
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 14 }}>
+              {customTemplates.map((t) => (
+                <div
+                  key={t.id}
+                  className="glass-card"
+                  style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
+                >
+                  <div
+                    style={{
+                      height: 160,
+                      overflow: 'hidden',
+                      background: 'var(--background-muted)',
+                      borderBottom: '1px solid var(--card-border)',
+                      position: 'relative',
+                    }}
+                  >
+                    <div
+                      style={{
+                        transform: 'scale(0.2)',
+                        transformOrigin: 'top left',
+                        width: '500%',
+                        pointerEvents: 'none',
+                      }}
+                    >
+                      <Preview
+                        templateOverride={t.id}
+                        dataOverride={createShowcaseCVData('creative')}
+                      />
+                    </div>
+                  </div>
+                  <div style={{ padding: 14, display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                      <strong style={{ fontSize: 14 }}>{t.name}</strong>
+                      <span
+                        style={{
+                          fontSize: 10,
+                          fontWeight: 700,
+                          padding: '2px 8px',
+                          borderRadius: 999,
+                          background: t.published ? 'rgba(5,150,105,0.12)' : 'rgba(148,163,184,0.18)',
+                          color: t.published ? 'var(--success)' : 'var(--foreground-muted)',
+                          textTransform: 'uppercase',
+                          letterSpacing: 0.4,
+                        }}
+                      >
+                        {t.published ? 'Publicado' : 'Rascunho'}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: 11, color: 'var(--foreground-muted)' }}>
+                      {t.blocks.length} blocos · Atualizado {new Date(t.updatedAt).toLocaleDateString('pt-PT')}
+                    </div>
+                    <div style={{ display: 'flex', gap: 6, marginTop: 4, flexWrap: 'wrap' }}>
+                      <button
+                        className="btn-primary"
+                        style={{ flex: 1, fontSize: 12, padding: '6px 10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+                        onClick={() => setBuilderId(t.id)}
+                        aria-label={`Editar template ${t.name}`}
+                      >
+                        <Pencil size={12} aria-hidden="true" /> Editar
+                      </button>
+                      <button
+                        className="btn-outline"
+                        style={{ fontSize: 12, padding: '6px 10px' }}
+                        onClick={() => publishCustomTemplate(t.id, !t.published)}
+                        aria-label={t.published ? 'Despublicar' : 'Publicar'}
+                      >
+                        <Eye size={12} aria-hidden="true" />
+                      </button>
+                      <button
+                        className="btn-outline"
+                        style={{ fontSize: 12, padding: '6px 10px' }}
+                        onClick={() => {
+                          const copy = duplicateCustomTemplate(t.id);
+                          if (copy) setBuilderId(copy.id);
+                        }}
+                        aria-label="Duplicar"
+                      >
+                        <Copy size={12} aria-hidden="true" />
+                      </button>
+                      <button
+                        className="btn-outline"
+                        style={{ fontSize: 12, padding: '6px 10px', color: 'var(--error)', borderColor: 'var(--error)' }}
+                        onClick={() => {
+                          if (confirm(`Apagar template "${t.name}"?`)) deleteCustomTemplate(t.id);
+                        }}
+                        aria-label="Apagar"
+                      >
+                        <Trash2 size={12} aria-hidden="true" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
 
         {/* SETTINGS */}
         <section style={{ marginBottom: 32 }}>
@@ -411,6 +560,10 @@ function AdminView({ adminEmail }: { adminEmail: string }) {
           </div>
         </section>
       </div>
+
+      {builderId && (
+        <TemplateBuilder templateId={builderId} onClose={() => setBuilderId(null)} />
+      )}
     </div>
   );
 }

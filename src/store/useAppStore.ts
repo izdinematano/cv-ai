@@ -4,6 +4,10 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { CVData } from './useCVStore';
 import { createIdbStorage } from '@/lib/idbStorage';
+import {
+  createDefaultTemplate,
+  type CustomTemplateSpec,
+} from '@/lib/customTemplate';
 
 /* =============================================================================
  * Types
@@ -129,6 +133,14 @@ interface AppState {
   /* admin */
   updateAdminSettings: (settings: Partial<AdminSettings>) => void;
   upgradeToAdmin: (userId: string) => void;
+
+  /* custom templates (built inside /admin) */
+  customTemplates: CustomTemplateSpec[];
+  createCustomTemplate: (name?: string) => CustomTemplateSpec;
+  updateCustomTemplate: (id: string, patch: Partial<CustomTemplateSpec>) => void;
+  deleteCustomTemplate: (id: string) => void;
+  duplicateCustomTemplate: (id: string) => CustomTemplateSpec | null;
+  publishCustomTemplate: (id: string, published: boolean) => void;
 }
 
 /* =============================================================================
@@ -163,6 +175,7 @@ export const useAppStore = create<AppState>()(
       exports: [],
       extraCredits: {},
       adminSettings: DEFAULT_ADMIN_SETTINGS,
+      customTemplates: [],
 
       register: ({ email, password, fullName }) => {
         email = email.trim().toLowerCase();
@@ -399,6 +412,47 @@ export const useAppStore = create<AppState>()(
       upgradeToAdmin: (userId) =>
         set((state) => ({
           users: state.users.map((u) => (u.id === userId ? { ...u, role: 'admin' } : u)),
+        })),
+
+      createCustomTemplate: (name) => {
+        const spec = createDefaultTemplate(name || `Template ${new Date().toLocaleDateString('pt-PT')}`);
+        set((state) => ({ customTemplates: [...state.customTemplates, spec] }));
+        return spec;
+      },
+
+      updateCustomTemplate: (id, patch) =>
+        set((state) => ({
+          customTemplates: state.customTemplates.map((t) =>
+            t.id === id ? { ...t, ...patch, id: t.id, updatedAt: nowIso() } : t
+          ),
+        })),
+
+      deleteCustomTemplate: (id) =>
+        set((state) => ({
+          customTemplates: state.customTemplates.filter((t) => t.id !== id),
+        })),
+
+      duplicateCustomTemplate: (id) => {
+        const existing = get().customTemplates.find((t) => t.id === id);
+        if (!existing) return null;
+        const now = nowIso();
+        const copy: CustomTemplateSpec = {
+          ...existing,
+          id: `custom-${createId()}`,
+          name: `${existing.name} (cópia)`,
+          published: false,
+          createdAt: now,
+          updatedAt: now,
+        };
+        set((state) => ({ customTemplates: [...state.customTemplates, copy] }));
+        return copy;
+      },
+
+      publishCustomTemplate: (id, published) =>
+        set((state) => ({
+          customTemplates: state.customTemplates.map((t) =>
+            t.id === id ? { ...t, published, updatedAt: nowIso() } : t
+          ),
         })),
     }),
     {

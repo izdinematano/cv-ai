@@ -9,6 +9,8 @@ import {
   getTemplateDefinition,
   visibleTemplates,
 } from '@/lib/templateCatalog';
+import { toCatalogDefinition } from '@/lib/customTemplate';
+import { useAppStore } from '@/store/useAppStore';
 
 interface TemplateGalleryProps {
   activeTemplate?: string;
@@ -23,9 +25,17 @@ export default function TemplateGallery({
   featuredOnly = false,
   compact = false,
 }: TemplateGalleryProps) {
-  const templates = featuredOnly
+  const customTemplates = useAppStore((s) => s.customTemplates);
+  const publishedCustoms = customTemplates
+    .filter((t) => t.published)
+    .map(toCatalogDefinition);
+  const baseList = featuredOnly
     ? visibleTemplates.filter((template) => featuredTemplateIds.includes(template.id))
     : visibleTemplates;
+  // Published custom templates appear first — they're the freshest additions.
+  const templates = featuredOnly
+    ? baseList
+    : [...publishedCustoms, ...baseList];
 
   return (
     <div
