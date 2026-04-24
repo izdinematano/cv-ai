@@ -53,17 +53,17 @@ export default function EditorPage() {
         <Header />
 
         <section
+          className="template-picker-section"
           style={{
-            padding: '42px 32px 56px',
             maxWidth: '1480px',
             width: '100%',
             margin: '0 auto',
           }}
         >
           <div
+            className="template-picker-hero"
             style={{
               display: 'grid',
-              gridTemplateColumns: 'minmax(0, 1.1fr) minmax(320px, 0.9fr)',
               gap: '24px',
               alignItems: 'start',
               marginBottom: '28px',
@@ -82,8 +82,8 @@ export default function EditorPage() {
                 </div>
                 <h1
                   style={{
-                    fontSize: '46px',
-                    lineHeight: 1.05,
+                    fontSize: 'clamp(28px, 5vw, 46px)',
+                    lineHeight: 1.1,
                     maxWidth: '760px',
                     marginBottom: '14px',
                   }}

@@ -508,6 +508,30 @@ button {
   min-height: 46px;
 }
 
+/* ---------- Template picker hero (step 1) ---------- */
+.template-picker-section {
+  padding: 42px 32px 56px;
+}
+
+@media (max-width: 640px) {
+  .template-picker-section { padding: 24px 16px 40px; }
+}
+
+.template-picker-hero {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 900px) {
+  .template-picker-hero {
+    grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+  }
+}
+
+/* Tighten outer section padding on small screens */
+@media (max-width: 640px) {
+  .template-picker-hero + * { margin-top: 12px; }
+}
+
 /* ---------- Editor layout (split + mobile stack) ---------- */
 .editor-topbar {
   padding: 14px 22px;
