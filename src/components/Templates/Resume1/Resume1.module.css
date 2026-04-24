@@ -1,0 +1,404 @@
+/* Resume 1 - scoped styles (CSS Module). Root uses :root-like variables local to this block. */
+
+.root {
+  /* Colors */
+  --color-chocolate: #d57215;
+  --color-darkslategray: #30353d;
+  --color-dimgray: #5c6168;
+  --color-white: #fff;
+  --color-whitesmoke: #e8eaee;
+
+  /* Gap */
+  --gap-4: 4px;
+  --gap-6: 6px;
+  --gap-8: 8px;
+  --gap-10: 10px;
+  --gap-12: 12px;
+  --gap-14: 14px;
+  --gap-16: 16px;
+  --gap-20: 20px;
+  --gap-22: 22px;
+
+  /* Padding */
+  --padding-0: 0px;
+  --padding-4: 4px;
+  --padding-15: 15px;
+  --padding-24: 24px;
+
+  --br-50: 50%;
+  --font-inter: Inter, system-ui, sans-serif;
+  --fs-10: 10px;
+
+  --height-1: 1px;
+  --height-4: 4px;
+  --height-10: 10px;
+  --height-12: 12px;
+  --height-16: 16px;
+  --height-36: 36px;
+  --width-4: 4px;
+  --width-8: 8px;
+  --width-10: 10px;
+  --width-26: 26px;
+  --width-100: 100px;
+  --width-130: 130px;
+  --width-146: 146px;
+  --width-182: 182px;
+  --width-321: 321px;
+
+  width: 100%;
+  min-height: 1122px;
+  position: relative;
+  background-color: var(--color-white);
+  overflow: hidden;
+  display: flex;
+  align-items: stretch;
+  padding: 0 22px 0 0;
+  box-sizing: border-box;
+  font-family: var(--font-inter);
+  color: var(--color-dimgray);
+}
+
+/* Left column */
+.leftColumn {
+  background-color: var(--color-whitesmoke);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 39px 10px 90px 45px;
+  gap: var(--gap-22);
+  text-align: left;
+  font-size: 20px;
+  color: var(--color-dimgray);
+  width: 260px;
+  flex-shrink: 0;
+}
+
+.nameBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--gap-8);
+  align-self: stretch;
+}
+
+.name {
+  margin: 0;
+  width: 149px;
+  font-size: inherit;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--color-darkslategray);
+}
+
+.titleRow {
+  display: flex;
+  align-items: flex-start;
+  width: 150px;
+  gap: 7px;
+  font-size: var(--fs-10);
+}
+
+.decorationWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: var(--padding-4) 0 0;
+}
+
+.decoration {
+  width: var(--width-10);
+  height: 6px;
+  background-color: var(--color-chocolate);
+}
+
+.titleText {
+  width: 133px;
+  display: inline-block;
+  white-space: pre-line;
+  line-height: 1.2;
+}
+
+.locationRow {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--gap-8);
+  font-size: var(--fs-10);
+  width: 149px;
+}
+
+.mapIcon { height: 11px; width: var(--width-8); }
+
+.sectionBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 25px;
+  font-size: 13px;
+  width: var(--width-146);
+  flex: 1;
+}
+
+.sectionHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--gap-10);
+  width: var(--width-146);
+}
+
+.sectionTitle {
+  width: var(--width-146);
+  letter-spacing: 0.28em;
+  font-weight: 700;
+  color: var(--color-darkslategray);
+}
+
+.sectionRule {
+  width: var(--width-26);
+  height: var(--height-1);
+  background-color: var(--color-dimgray);
+}
+
+.sectionBody {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--gap-16);
+  font-size: var(--fs-10);
+}
+
+.courseBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-6);
+}
+
+.courseBox {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-4);
+}
+
+.courseTitle {
+  font-weight: 600;
+  width: var(--width-146);
+  color: var(--color-darkslategray);
+}
+
+.courseMeta {
+  width: var(--width-146);
+}
+
+.skillsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-6);
+  font-size: var(--fs-10);
+}
+
+.skillRow {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-12);
+  width: var(--width-146);
+}
+
+.skillDot {
+  width: var(--width-4);
+  height: var(--height-4);
+  border-radius: var(--br-50);
+  background-color: var(--color-dimgray);
+}
+
+/* Right column */
+.rightColumn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 39px 0 0;
+  min-width: 239px;
+  font-size: var(--fs-10);
+  color: var(--color-dimgray);
+}
+
+.contactHeader {
+  display: flex;
+  align-items: flex-end;
+  padding: 0 0 0 var(--padding-24);
+  gap: var(--gap-22);
+  align-self: stretch;
+}
+
+.photo {
+  height: 116px;
+  width: 116px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.contactInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0 0 11.6px;
+  min-width: 134px;
+  gap: var(--gap-6);
+}
+
+.contactRow {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-14);
+  width: 204px;
+}
+
+.contactIcon {
+  width: var(--width-10);
+  height: var(--height-10);
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.contactText {
+  height: var(--height-12);
+  width: var(--width-182);
+  display: inline-block;
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profileWrapper {
+  align-self: stretch;
+  display: flex;
+  justify-content: flex-end;
+  padding: 21px 23px 0 0;
+  font-size: 13px;
+}
+
+.profileContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.profileHeaderBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-14);
+}
+
+.profileHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--gap-10);
+}
+
+.profileTitle {
+  letter-spacing: 0.28em;
+  font-weight: 700;
+  color: var(--color-darkslategray);
+}
+
+.ruleLong {
+  width: var(--width-100);
+  height: var(--height-1);
+  background-color: var(--color-dimgray);
+}
+
+.profileDescription {
+  display: flex;
+  align-items: flex-start;
+  padding: 0 0 0 var(--padding-24);
+  font-size: var(--fs-10);
+  color: var(--color-darkslategray);
+}
+
+.profileText {
+  width: 320px;
+  display: inline-block;
+  line-height: 1.5;
+}
+
+.experienceBlock {
+  width: 345px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-16);
+}
+
+.experienceHeaderWrapper {
+  width: 138px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-10);
+}
+
+.experienceHeader {
+  width: 124px;
+  display: flex;
+  padding: 0 var(--padding-24);
+  box-sizing: border-box;
+}
+
+.experienceList {
+  display: flex;
+  padding: 0 0 0 var(--padding-24);
+  font-size: var(--fs-10);
+}
+
+.experienceItems {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--gap-16);
+}
+
+.experienceItem {
+  width: var(--width-321);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-6);
+}
+
+.jobHeader {
+  width: var(--width-321);
+  display: flex;
+  justify-content: space-between;
+  gap: var(--gap-20);
+}
+
+.jobTitleBlock {
+  display: inline-block;
+}
+
+.jobPosition {
+  margin: 0 0 3px 0;
+  font-weight: 600;
+  color: var(--color-darkslategray);
+}
+
+.jobCompany { margin: 0; }
+
+.jobPeriod {
+  padding: var(--padding-15) 0 0;
+  text-align: right;
+  white-space: pre-wrap;
+}
+
+.jobDescription {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-8);
+}
+
+.jobText {
+  width: var(--width-321);
+  line-height: 1.5;
+}

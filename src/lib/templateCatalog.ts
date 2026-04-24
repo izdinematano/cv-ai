@@ -173,6 +173,16 @@ export const templateCatalog: TemplateDefinition[] = [
     accentColor: '#dc2626',
     featured: true,
   },
+  {
+    id: 'resume1',
+    name: 'Resume 1',
+    badge: 'Locofy',
+    category: 'Editorial',
+    tone: 'Coluna lateral e serifa moderna',
+    description: 'Layout editorial com coluna lateral em cinza, foto redonda e tipografia espacada. Pixel-perfect Locofy.',
+    accentColor: '#d57215',
+    featured: true,
+  },
 ];
 
 export const featuredTemplateIds = templateCatalog

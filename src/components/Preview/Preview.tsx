@@ -15,6 +15,7 @@ import Student from '../Templates/Student';
 import Studio from '../Templates/Studio';
 import Atlas from '../Templates/Atlas';
 import Bold from '../Templates/Bold';
+import Resume1 from '../Templates/Resume1/Resume1';
 
 export const renderTemplateById = (
   template: string,
@@ -48,6 +49,8 @@ export const renderTemplateById = (
       return <Atlas data={data} lang={lang} />;
     case 'bold':
       return <Bold data={data} lang={lang} />;
+    case 'resume1':
+      return <Resume1 data={data} lang={lang} />;
     case 'minimalist':
     default:
       return <Minimalist data={data} lang={lang} />;
