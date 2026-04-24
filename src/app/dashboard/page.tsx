@@ -35,7 +35,7 @@ function DashboardView({ userId, role }: { userId: string; role: 'user' | 'admin
     extraCredits,
     users,
   } = useAppStore();
-  const { data, setData } = useCVStore();
+  const { data, setData, setCurrentCvId, resetTemplateSelection, completeTemplateSelection } = useCVStore();
 
   const user = users.find((u) => u.id === userId);
   const cvs = getUserCVs(userId);
@@ -51,6 +51,8 @@ function DashboardView({ userId, role }: { userId: string; role: 'user' | 'admin
       name: `CV ${new Date().toLocaleDateString('pt-PT')}`,
       data,
     });
+    setCurrentCvId(created.id);
+    resetTemplateSelection();
     router.push(`/editor?cv=${created.id}`);
   };
 
@@ -58,6 +60,8 @@ function DashboardView({ userId, role }: { userId: string; role: 'user' | 'admin
     const cv = cvs.find((item) => item.id === cvId);
     if (!cv) return;
     setData(cv.data);
+    setCurrentCvId(cv.id);
+    completeTemplateSelection();
     router.push(`/editor?cv=${cv.id}`);
   };
 

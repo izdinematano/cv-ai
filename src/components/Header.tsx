@@ -2,11 +2,11 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Download, Loader2, Sparkles } from 'lucide-react';
+import { Download, LayoutDashboard, Loader2, LogIn, Sparkles } from 'lucide-react';
 import LanguageToggle from '@/components/LanguageToggle';
-import SaveModal from '@/components/Auth/SaveModal';
-import { CVDocument } from '@/components/Export/PDFDocument';
+import ExportGate from '@/components/Export/ExportGate';
 import { translateCVField } from '@/lib/openrouter';
+import { useAppStore } from '@/store/useAppStore';
 import { useCVStore } from '@/store/useCVStore';
 
 export default function Header() {
@@ -25,6 +25,9 @@ export default function Header() {
 
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [isTranslatingAll, setIsTranslatingAll] = useState(false);
+
+  const { currentUserId, users } = useAppStore();
+  const currentUser = currentUserId ? users.find((u) => u.id === currentUserId) : null;
 
   const fileName = `cv-${(data.personalInfo.fullName || 'sem-nome').trim().replace(/\s+/g, '-').toLowerCase()}.pdf`;
 
@@ -230,30 +233,27 @@ export default function Header() {
             {isTranslatingAll ? 'A traduzir...' : 'Traduzir com IA'}
           </button>
 
+          {currentUser ? (
+            <Link
+              href={currentUser.role === 'admin' ? '/admin' : '/dashboard'}
+              className="btn-outline"
+              style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+            >
+              <LayoutDashboard size={16} />
+              {currentUser.fullName.split(' ')[0]}
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              className="btn-outline"
+              style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+            >
+              <LogIn size={16} /> Entrar
+            </Link>
+          )}
+
           <button
-            onClick={() => {
-              // ═══════════════════════════════════════════════════════
-              // TODO: PONTO DE INTEGRAÇÃO DE PAGAMENTO
-              //
-              // Quando o sistema de pagamentos estiver pronto,
-              // verificar aqui se o utilizador já pagou antes de
-              // permitir o download:
-              //
-              // const hasPaid = await checkPayment(userId);
-              // if (!hasPaid) {
-              //   openPaymentModal(); // abrir modal de pagamento
-              //   return false;       // cancelar o download
-              // }
-              //
-              // Opções de pagamento a integrar:
-              //   - Stripe (cartão internacional)
-              //   - Mpesa (utilizadores moçambicanos)
-              //   - e-Mola (utilizadores moçambicanos)
-              //
-              // Preço sugerido: MZN 50 por PDF ou pack de 5 por MZN 200
-              // ═══════════════════════════════════════════════════════
-              setIsSaveModalOpen(true);
-            }}
+            onClick={() => setIsSaveModalOpen(true)}
             className="btn-primary"
             style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
           >
@@ -263,19 +263,14 @@ export default function Header() {
         </div>
       </header>
 
-      <SaveModal
+      <ExportGate
         isOpen={isSaveModalOpen}
         onClose={() => setIsSaveModalOpen(false)}
-        onCreateAccount={() => {
-          window.alert(
-            'TODO: fluxo de autenticação. Quando a auth estiver pronta, criar conta, guardar o CV e regressar ao download.'
-          );
-        }}
-        onContinueWithoutSave={() => {
-          // TODO: quando existir auth, marcar que o utilizador optou por exportar sem guardar.
-        }}
-        document={<CVDocument data={data} lang={activeLanguage} />}
+        data={data}
+        lang={activeLanguage}
         fileName={fileName}
+        userId={currentUserId}
+        currentCvId={useCVStore.getState().currentCvId}
       />
     </>
   );

@@ -140,6 +140,9 @@ interface CVState {
   activeLanguage: 'pt' | 'en';
   isConverting: boolean;
   hasChosenTemplate: boolean;
+  /** Id of the SavedCV currently being edited (null when editing a fresh draft) */
+  currentCvId: string | null;
+  setCurrentCvId: (id: string | null) => void;
   setLanguage: (lang: 'pt' | 'en') => void;
   setTemplate: (template: string) => void;
   completeTemplateSelection: () => void;
@@ -247,6 +250,8 @@ export const useCVStore = create<CVState>()(
       activeLanguage: 'pt',
       isConverting: false,
       hasChosenTemplate: false,
+      currentCvId: null,
+      setCurrentCvId: (id) => set({ currentCvId: id }),
 
       setLanguage: (lang) => set({ activeLanguage: lang }),
 
