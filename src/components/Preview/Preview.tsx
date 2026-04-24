@@ -16,6 +16,11 @@ import Studio from '../Templates/Studio';
 import Atlas from '../Templates/Atlas';
 import Bold from '../Templates/Bold';
 import Resume1 from '../Templates/Resume1/Resume1';
+import Resume2 from '../Templates/Resume2/Resume2';
+import Resume3 from '../Templates/Resume3/Resume3';
+import CV5 from '../Templates/CV5/CV5';
+import CV6 from '../Templates/CV6/CV6';
+import CV7 from '../Templates/CV7/CV7';
 
 export const renderTemplateById = (
   template: string,
@@ -51,6 +56,18 @@ export const renderTemplateById = (
       return <Bold data={data} lang={lang} />;
     case 'resume1':
       return <Resume1 data={data} lang={lang} />;
+    case 'resume2':
+      return <Resume2 data={data} lang={lang} />;
+    case 'resume3':
+      return <Resume3 data={data} lang={lang} />;
+    case 'cv5':
+      return <CV5 data={data} lang={lang} />;
+    case 'cv6-dark':
+      return <CV6 data={data} lang={lang} variant="dark" />;
+    case 'cv6-light':
+      return <CV6 data={data} lang={lang} variant="light" />;
+    case 'cv7':
+      return <CV7 data={data} lang={lang} />;
     case 'minimalist':
     default:
       return <Minimalist data={data} lang={lang} />;

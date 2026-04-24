@@ -137,38 +137,47 @@ const normalizeLanguages = (
   });
 };
 
-async function callOpenRouterText(task: OpenRouterTask, prompt: string) {
-  if (!OPENROUTER_API_KEY) {
-    throw new Error('Missing OpenRouter API key.');
+/**
+ * Calls OpenRouter chat completion. Never throws: returns empty string on any failure
+ * (missing key, network error, HTTP error, rate limit). The caller is responsible for
+ * deciding what to do with an empty response (use fallback / keep original text).
+ */
+async function callOpenRouterText(task: OpenRouterTask, prompt: string): Promise<string> {
+  if (!OPENROUTER_API_KEY) return '';
+
+  try {
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://cv-gen-ai.local',
+        'X-Title': 'CV Gen AI',
+      },
+      body: JSON.stringify({
+        model: TASK_MODELS[task],
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    });
+
+    if (!response.ok) return '';
+
+    const payload = await response.json();
+    return String(payload?.choices?.[0]?.message?.content || '').trim();
+  } catch {
+    return '';
   }
-
-  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-      'Content-Type': 'application/json',
-      'HTTP-Referer': 'https://cv-gen-ai.local',
-      'X-Title': 'CV Gen AI',
-    },
-    body: JSON.stringify({
-      model: TASK_MODELS[task],
-      messages: [{ role: 'user', content: prompt }],
-    }),
-  });
-
-  const payload = await response.json();
-
-  if (!response.ok) {
-    throw new Error(payload?.error?.message || 'OpenRouter request failed.');
-  }
-
-  return String(payload?.choices?.[0]?.message?.content || '').trim();
 }
 
-async function callOpenRouterJSON<T>(task: OpenRouterTask, prompt: string) {
+async function callOpenRouterJSON<T>(task: OpenRouterTask, prompt: string): Promise<T | null> {
   const text = await callOpenRouterText(task, prompt);
+  if (!text) return null;
   const cleaned = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/, '');
-  return JSON.parse(cleaned) as T;
+  try {
+    return JSON.parse(cleaned) as T;
+  } catch {
+    return null;
+  }
 }
 
 export async function translateCVField(
@@ -197,12 +206,8 @@ TEXT:
 "${text}"
 `;
 
-  try {
-    return await callOpenRouterText(task, prompt);
-  } catch (error) {
-    console.error('AI Translation error:', error);
-    return text;
-  }
+  const result = await callOpenRouterText(task, prompt);
+  return result || text;
 }
 
 export async function improveCVField(
@@ -228,12 +233,8 @@ TEXT:
 "${text}"
 `;
 
-  try {
-    return await callOpenRouterText(task, prompt);
-  } catch (error) {
-    console.error('AI Improvement error:', error);
-    return text;
-  }
+  const result = await callOpenRouterText(task, prompt);
+  return result || text;
 }
 
 interface ImportedCVPayload {
@@ -315,9 +316,10 @@ ${rawCVText}
 """
 `;
 
-  try {
-    const payload = await callOpenRouterJSON<ImportedCVPayload>('import', prompt);
+  const payload = await callOpenRouterJSON<ImportedCVPayload>('import', prompt);
+  if (!payload) return null;
 
+  try {
     return {
       personalInfo: {
         fullName: typeof payload.personalInfo?.fullName === 'string' ? payload.personalInfo.fullName.trim() : '',
@@ -336,8 +338,7 @@ ${rawCVText}
       projects: normalizeProjects(payload.projects, preferredLang),
       certifications: normalizeCertifications(payload.certifications),
     };
-  } catch (error) {
-    console.error('AI CV import error:', error);
+  } catch {
     return null;
   }
 }
@@ -394,12 +395,7 @@ ${rawCVText}
 """
 `;
 
-  try {
-    const suggestion = await callOpenRouterJSON<TemplateSuggestion>('recommend', prompt);
-    if (!suggestion?.template) return fallback;
-    return suggestion;
-  } catch (error) {
-    console.error('AI template recommendation error:', error);
-    return fallback;
-  }
+  const suggestion = await callOpenRouterJSON<TemplateSuggestion>('recommend', prompt);
+  if (!suggestion?.template) return fallback;
+  return suggestion;
 }
