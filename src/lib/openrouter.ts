@@ -9,16 +9,16 @@ import type {
   Project,
 } from '@/store/useCVStore';
 
-export const OPENROUTER_API_KEY = process.env.NEXT_PUBLIC_OPENROUTER_API_KEY || '';
+export const GEMINI_API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY || '';
 
 export type TranslationModel = 'advanced' | 'light';
-type OpenRouterTask = 'translate' | 'improve' | 'import' | 'recommend';
+type GeminiTask = 'translate' | 'improve' | 'import' | 'recommend';
 
-const TASK_MODELS: Record<OpenRouterTask, string> = {
-  translate: 'google/gemini-2.0-flash-lite:free',
-  improve: 'anthropic/claude-3.5-sonnet',
-  import: 'openai/gpt-4o-mini',
-  recommend: 'google/gemini-2.0-flash-lite:free',
+const TASK_MODELS: Record<GeminiTask, string> = {
+  translate: 'gemini-1.5-flash',
+  improve: 'gemini-1.5-pro',
+  import: 'gemini-1.5-pro',
+  recommend: 'gemini-1.5-flash',
 };
 
 const createId = () => Math.random().toString(36).slice(2, 11);
@@ -138,36 +138,34 @@ const normalizeLanguages = (
 };
 
 /**
- * Calls OpenRouter chat completion. Never throws: returns empty string on any failure
+ * Calls Gemini chat completion. Never throws: returns empty string on any failure
  * (missing key, network error, HTTP error, rate limit). The caller is responsible for
  * deciding what to do with an empty response (use fallback / keep original text).
  */
-async function callOpenRouterText(task: OpenRouterTask, prompt: string): Promise<string> {
-  if (!OPENROUTER_API_KEY) return '';
+async function callGeminiText(task: GeminiTask, prompt: string): Promise<string> {
+  if (!GEMINI_API_KEY) return '';
 
   try {
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://cv-gen-ai.local',
-        'X-Title': 'CV Gen AI',
-      },
-      body: JSON.stringify({
-        model: TASK_MODELS[task],
-        messages: [{ role: 'user', content: prompt }],
-      }),
-    });
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/openai/chat/completions?key=${GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: TASK_MODELS[task],
+          messages: [{ role: 'user', content: prompt }],
+        }),
+      }
+    );
 
     if (!response.ok) return '';
 
     const payload = await response.json();
     const content = String(payload?.choices?.[0]?.message?.content || '').trim();
 
-    // OpenRouter sometimes returns HTTP 200 with an error message embedded as the
-    // assistant content (e.g. "Unknown: all API providers are over their global
-    // rate limit for trial users"). Treat those as silent failures.
+    // Treat provider/rate-limit error messages returned as assistant content as silent failures.
     if (looksLikeProviderError(content) || looksLikeProviderError(payload?.error?.message)) {
       return '';
     }
@@ -192,8 +190,8 @@ function looksLikeProviderError(value: unknown): boolean {
   );
 }
 
-async function callOpenRouterJSON<T>(task: OpenRouterTask, prompt: string): Promise<T | null> {
-  const text = await callOpenRouterText(task, prompt);
+async function callGeminiJSON<T>(task: GeminiTask, prompt: string): Promise<T | null> {
+  const text = await callGeminiText(task, prompt);
   if (!text) return null;
   const cleaned = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/, '');
   try {
@@ -211,7 +209,7 @@ export async function translateCVField(
 ) {
   if (!text) return '';
 
-  const task: OpenRouterTask = modelType === 'light' ? 'translate' : 'improve';
+  const task: GeminiTask = modelType === 'light' ? 'translate' : 'improve';
   const prompt = `
 You are a professional CV editor specializing in the international job market.
 Convert the following CV field from ${from === 'pt' ? 'Portuguese' : 'English'} to ${
@@ -229,7 +227,7 @@ TEXT:
 "${text}"
 `;
 
-  const result = await callOpenRouterText(task, prompt);
+  const result = await callGeminiText(task, prompt);
   return result || text;
 }
 
@@ -240,7 +238,7 @@ export async function improveCVField(
 ) {
   if (!text) return '';
 
-  const task: OpenRouterTask = modelType === 'light' ? 'translate' : 'improve';
+  const task: GeminiTask = modelType === 'light' ? 'translate' : 'improve';
   const prompt = `
 You are a senior CV writing agent.
 Improve the following CV text in ${lang === 'pt' ? 'Portuguese' : 'English'}.
@@ -256,7 +254,7 @@ TEXT:
 "${text}"
 `;
 
-  const result = await callOpenRouterText(task, prompt);
+  const result = await callGeminiText(task, prompt);
   return result || text;
 }
 
@@ -339,7 +337,7 @@ ${rawCVText}
 """
 `;
 
-  const payload = await callOpenRouterJSON<ImportedCVPayload>('import', prompt);
+  const payload = await callGeminiJSON<ImportedCVPayload>('import', prompt);
   if (!payload) return null;
 
   try {
@@ -418,7 +416,7 @@ ${rawCVText}
 """
 `;
 
-  const suggestion = await callOpenRouterJSON<TemplateSuggestion>('recommend', prompt);
+  const suggestion = await callGeminiJSON<TemplateSuggestion>('recommend', prompt);
   if (!suggestion?.template) return fallback;
   return suggestion;
 }
@@ -484,7 +482,7 @@ ${jobDescription}
 """
 `;
 
-  const payload = await callOpenRouterJSON<JobTailorSuggestion>('improve', prompt);
+  const payload = await callGeminiJSON<JobTailorSuggestion>('improve', prompt);
   if (!payload) return clientFallback;
 
   return {
