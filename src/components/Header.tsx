@@ -176,15 +176,16 @@ export default function Header() {
     <>
       <header
         style={{
-          height: '72px',
+          height: '68px',
           borderBottom: '1px solid var(--card-border)',
-          background: 'rgba(15, 23, 42, 0.82)',
-          backdropFilter: 'blur(18px)',
+          background: 'rgba(255, 255, 255, 0.85)',
+          backdropFilter: 'saturate(180%) blur(12px)',
+          WebkitBackdropFilter: 'saturate(180%) blur(12px)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: '0 24px',
-          gap: '20px',
+          gap: '16px',
           position: 'sticky',
           top: 0,
           zIndex: 20,
@@ -197,21 +198,21 @@ export default function Header() {
           >
             <div
               style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '12px',
-                background: 'var(--accent)',
+                width: '34px',
+                height: '34px',
+                borderRadius: '10px',
+                background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 0 20px var(--accent-glow)',
+                boxShadow: '0 6px 16px var(--accent-glow)',
               }}
             >
-              <Sparkles size={18} color="white" />
+              <Sparkles size={16} color="white" />
             </div>
             <div>
-              <div style={{ fontWeight: 800, fontSize: '16px' }}>CV-Gen AI</div>
-              <div style={{ fontSize: '12px', color: 'var(--muted-foreground)' }}>
+              <div style={{ fontWeight: 800, fontSize: '15px', letterSpacing: '-0.01em' }}>CV-Gen AI</div>
+              <div style={{ fontSize: '11.5px', color: 'var(--muted-foreground)' }}>
                 Editor bilingue com IA
               </div>
             </div>

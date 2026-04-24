@@ -65,8 +65,8 @@ function AdminView({ adminEmail }: { adminEmail: string }) {
   };
 
   return (
-    <div style={{ minHeight: '100vh', padding: '40px 24px' }}>
-      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--background)', color: 'var(--foreground)' }}>
+      <div className="container-narrow" style={{ padding: '32px 24px 60px' }}>
         {/* HEADER */}
         <header
           style={{
@@ -79,10 +79,10 @@ function AdminView({ adminEmail }: { adminEmail: string }) {
           }}
         >
           <div>
-            <h1 style={{ fontSize: 26, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 10 }}>
-              <ShieldCheck size={24} color="var(--accent)" /> Painel Admin
+            <h1 style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: 10 }}>
+              <ShieldCheck size={26} color="var(--accent)" /> Painel Admin
             </h1>
-            <p style={{ fontSize: 13, color: '#94a3b8', marginTop: 4 }}>
+            <p style={{ fontSize: 14, color: 'var(--foreground-muted)', marginTop: 4 }}>
               {adminEmail} · Faturacao, pagamentos, utilizadores e configuracao.
             </p>
           </div>
@@ -104,18 +104,44 @@ function AdminView({ adminEmail }: { adminEmail: string }) {
           </div>
         </header>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 14, marginBottom: 28 }}>
+        {/* Two rows of stats: lifetime totals on top, this-month deltas below */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14, marginBottom: 14 }}>
           <Stat label="Pagamentos pendentes" value={pending.length.toString()} icon={<CreditCard size={18} />} highlight={pending.length > 0} />
           <Stat label="Utilizadores" value={users.length.toString()} icon={<Users size={18} />} />
           <Stat label="Exports totais" value={exports.length.toString()} icon={<ExternalLink size={18} />} />
-          <Stat label="Credito vendido (MZN)" value={`${payments.filter(p => p.status === 'approved').reduce((s, p) => s + p.amountMZN, 0).toLocaleString('pt-PT')}`} icon={<CreditCard size={18} />} />
+          <Stat label="Receita total (MZN)" value={`${payments.filter(p => p.status === 'approved').reduce((s, p) => s + p.amountMZN, 0).toLocaleString('pt-PT')}`} icon={<CreditCard size={18} />} />
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14, marginBottom: 28 }}>
+          <Stat
+            label="Novos utilizadores (30d)"
+            value={users.filter((u) => Date.now() - new Date(u.createdAt).getTime() < 30 * 86400000).length.toString()}
+            icon={<Users size={18} />}
+          />
+          <Stat
+            label="Exports nos últimos 30d"
+            value={exports.filter((e) => Date.now() - new Date(e.createdAt).getTime() < 30 * 86400000).length.toString()}
+            icon={<ExternalLink size={18} />}
+          />
+          <Stat
+            label="Receita (30d) · MZN"
+            value={`${payments
+              .filter((p) => p.status === 'approved' && p.reviewedAt && Date.now() - new Date(p.reviewedAt).getTime() < 30 * 86400000)
+              .reduce((s, p) => s + p.amountMZN, 0)
+              .toLocaleString('pt-PT')}`}
+            icon={<CreditCard size={18} />}
+          />
+          <Stat
+            label="Admins activos"
+            value={users.filter((u) => u.role === 'admin').length.toString()}
+            icon={<ShieldCheck size={18} />}
+          />
         </div>
 
         {/* PENDING PAYMENTS */}
         <section style={{ marginBottom: 32 }}>
           <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 12 }}>Pagamentos pendentes</h2>
           {pending.length === 0 ? (
-            <div className="glass-card" style={{ padding: 24, color: '#94a3b8', fontSize: 13 }}>
+            <div className="glass-card" style={{ padding: 24, color: 'var(--foreground-muted)', fontSize: 13 }}>
               Nenhum pagamento pendente. Pedidos de desbloqueio aparecem aqui.
             </div>
           ) : (
@@ -188,7 +214,7 @@ function AdminView({ adminEmail }: { adminEmail: string }) {
                 Guardar alteracoes
               </button>
               {savedFlash && (
-                <span style={{ fontSize: 12, color: '#10b981' }}>
+                <span style={{ fontSize: 12, color: 'var(--success)' }}>
                   <Check size={12} style={{ display: 'inline', marginRight: 4 }} /> Guardado
                 </span>
               )}
@@ -202,7 +228,7 @@ function AdminView({ adminEmail }: { adminEmail: string }) {
           <div className="glass-card" style={{ padding: 0, overflow: 'hidden' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
               <thead>
-                <tr style={{ background: 'rgba(255,255,255,0.03)' }}>
+                <tr style={{ background: 'var(--muted)' }}>
                   <th style={{ textAlign: 'left', padding: 12 }}>Nome</th>
                   <th style={{ textAlign: 'left', padding: 12 }}>Email</th>
                   <th style={{ textAlign: 'left', padding: 12 }}>Papel</th>
@@ -214,15 +240,16 @@ function AdminView({ adminEmail }: { adminEmail: string }) {
                 {users.map((u) => (
                   <tr key={u.id} style={{ borderTop: '1px solid var(--card-border)' }}>
                     <td style={{ padding: 12, fontWeight: 600 }}>{u.fullName}</td>
-                    <td style={{ padding: 12, color: '#94a3b8' }}>{u.email}</td>
+                    <td style={{ padding: 12, color: 'var(--foreground-muted)' }}>{u.email}</td>
                     <td style={{ padding: 12 }}>
                       <span
                         style={{
                           fontSize: 10,
                           padding: '2px 8px',
                           borderRadius: 999,
-                          background: u.role === 'admin' ? 'rgba(245,158,11,0.18)' : 'rgba(148,163,184,0.15)',
-                          color: u.role === 'admin' ? '#fbbf24' : '#cbd5e1',
+                          background: u.role === 'admin' ? '#fef3c7' : 'var(--muted)',
+                          color: u.role === 'admin' ? '#92400e' : 'var(--foreground-muted)',
+                          border: '1px solid transparent',
                           textTransform: 'uppercase',
                           fontWeight: 700,
                           letterSpacing: '0.04em',
@@ -231,7 +258,7 @@ function AdminView({ adminEmail }: { adminEmail: string }) {
                         {u.role}
                       </span>
                     </td>
-                    <td style={{ padding: 12, color: '#94a3b8' }}>{new Date(u.createdAt).toLocaleDateString('pt-PT')}</td>
+                    <td style={{ padding: 12, color: 'var(--foreground-muted)' }}>{new Date(u.createdAt).toLocaleDateString('pt-PT')}</td>
                     <td style={{ padding: 12, textAlign: 'right' }}>
                       {u.role === 'user' && (
                         <button
@@ -278,14 +305,14 @@ function Stat({
         flexDirection: 'column',
         gap: 6,
         ...(highlight
-          ? { background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.35)' }
+          ? { background: '#fffbeb', border: '1px solid #fde68a' }
           : {}),
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#94a3b8', fontSize: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--muted-foreground)', fontSize: 12, fontWeight: 600 }}>
         {icon} {label}
       </div>
-      <div style={{ fontSize: 22, fontWeight: 700 }}>{value}</div>
+      <div style={{ fontSize: 24, fontWeight: 800, letterSpacing: '-0.02em' }}>{value}</div>
     </div>
   );
 }
@@ -303,10 +330,10 @@ function PaymentCard({
 }) {
   const statusColor =
     payment.status === 'approved'
-      ? '#10b981'
+      ? '#059669'
       : payment.status === 'rejected'
-      ? '#ef4444'
-      : '#f59e0b';
+      ? '#dc2626'
+      : '#d97706';
 
   return (
     <div
@@ -331,15 +358,15 @@ function PaymentCard({
             {payment.status}
           </span>
         </div>
-        <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>
+        <div style={{ fontSize: 12, color: 'var(--foreground-muted)', marginTop: 4 }}>
           <b>{payment.amountMZN} MZN</b> · {payment.credits} creditos · ref. {payment.mpesaReference || '-'} · WhatsApp {payment.whatsappNumber || '-'}
         </div>
         {payment.note && (
-          <div style={{ fontSize: 11, color: '#cbd5e1', marginTop: 6, fontStyle: 'italic' }}>
+          <div style={{ fontSize: 11, color: 'var(--foreground-muted)', marginTop: 6, fontStyle: 'italic' }}>
             “{payment.note}”
           </div>
         )}
-        <div style={{ fontSize: 11, color: '#64748b', marginTop: 6 }}>
+        <div style={{ fontSize: 11, color: 'var(--muted-foreground)', marginTop: 6 }}>
           Criado em {new Date(payment.createdAt).toLocaleString('pt-PT')}
           {payment.reviewedAt && ` · Revisto em ${new Date(payment.reviewedAt).toLocaleString('pt-PT')} por ${payment.reviewerEmail}`}
           {payment.rejectionReason && ` · Motivo: ${payment.rejectionReason}`}

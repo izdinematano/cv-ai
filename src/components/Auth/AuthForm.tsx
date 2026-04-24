@@ -69,17 +69,18 @@ export default function AuthForm({ mode }: AuthFormProps) {
               width: 40,
               height: 40,
               borderRadius: 10,
-              background: 'var(--accent)',
+              background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              boxShadow: '0 6px 16px var(--accent-glow)',
             }}
           >
             <Sparkles size={20} color="white" />
           </div>
           <div>
-            <h1 style={{ fontSize: 20, fontWeight: 700 }}>CV Gen AI</h1>
-            <div style={{ fontSize: 12, color: '#94a3b8' }}>
+            <h1 style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.01em' }}>CV-Gen AI</h1>
+            <div style={{ fontSize: 12, color: 'var(--muted-foreground)' }}>
               CVs profissionais em minutos
             </div>
           </div>
@@ -89,7 +90,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
           <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 4 }}>
             {isRegister ? 'Criar conta' : 'Entrar'}
           </h2>
-          <p style={{ fontSize: 13, color: '#94a3b8' }}>
+          <p style={{ fontSize: 13.5, color: 'var(--foreground-muted)', lineHeight: 1.55 }}>
             {isRegister
               ? 'Cria a tua conta e começa a criar CVs ilimitados. Pagas só quando exportares.'
               : 'Bem-vindo de volta. Entra para ver os teus CVs.'}
@@ -99,12 +100,12 @@ export default function AuthForm({ mode }: AuthFormProps) {
         {isFirstUser && (
           <div
             style={{
-              background: 'rgba(16,185,129,0.1)',
-              border: '1px solid rgba(16,185,129,0.3)',
+              background: '#ecfdf5',
+              border: '1px solid #a7f3d0',
               borderRadius: 10,
               padding: 12,
-              fontSize: 12,
-              color: '#a7f3d0',
+              fontSize: 12.5,
+              color: '#065f46',
             }}
           >
             És o primeiro utilizador — esta conta será criada como <b>administrador</b>.
@@ -153,12 +154,12 @@ export default function AuthForm({ mode }: AuthFormProps) {
           {error && (
             <div
               style={{
-                background: 'rgba(239,68,68,0.08)',
-                border: '1px solid rgba(239,68,68,0.3)',
+                background: '#fef2f2',
+                border: '1px solid #fecaca',
                 borderRadius: 8,
                 padding: 10,
-                fontSize: 12,
-                color: '#fecaca',
+                fontSize: 12.5,
+                color: '#991b1b',
               }}
             >
               {error}
@@ -182,7 +183,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
           </button>
         </form>
 
-        <div style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center' }}>
+        <div style={{ fontSize: 13, color: 'var(--muted-foreground)', textAlign: 'center' }}>
           {isRegister ? 'Já tens conta? ' : 'Ainda não tens conta? '}
           <Link href={isRegister ? '/login' : '/register'} style={{ color: 'var(--accent)' }}>
             {isRegister ? 'Entrar' : 'Criar conta'}
