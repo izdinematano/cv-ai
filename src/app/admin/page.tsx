@@ -25,7 +25,7 @@ import AuthGate from '@/components/Auth/AuthGate';
 import { useAppStore } from '@/store/useAppStore';
 import TemplateBuilder from '@/components/Admin/TemplateBuilder/TemplateBuilder';
 import Preview from '@/components/Preview/Preview';
-import { createShowcaseCVData } from '@/lib/templateCatalog';
+import { createShowcaseCVData, visibleTemplates } from '@/lib/templateCatalog';
 
 export default function AdminPage() {
   return <AuthGate requireAdmin>{(user) => <AdminView adminEmail={user.email} />}</AuthGate>;
@@ -47,12 +47,14 @@ function AdminView({ adminEmail }: { adminEmail: string }) {
     extraCredits,
     customTemplates,
     createCustomTemplate,
+    cloneBuiltInTemplate,
     deleteCustomTemplate,
     duplicateCustomTemplate,
     publishCustomTemplate,
   } = useAppStore();
 
   const [builderId, setBuilderId] = useState<string | null>(null);
+  const [clonePickerOpen, setClonePickerOpen] = useState(false);
 
   const [mpesaNumber, setMpesaNumber] = useState(adminSettings.mpesaNumber);
   const [whatsappNumber, setWhatsappNumber] = useState(adminSettings.whatsappNumber);
@@ -238,16 +240,25 @@ function AdminView({ adminEmail }: { adminEmail: string }) {
                 ({customTemplates.length})
               </span>
             </h2>
-            <button
-              className="btn-primary"
-              onClick={() => {
-                const created = createCustomTemplate();
-                setBuilderId(created.id);
-              }}
-              style={{ display: 'flex', alignItems: 'center', gap: 6 }}
-            >
-              <Plus size={14} aria-hidden="true" /> Novo template
-            </button>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <button
+                className="btn-outline"
+                onClick={() => setClonePickerOpen(true)}
+                style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+              >
+                <Copy size={14} aria-hidden="true" /> Clonar existente
+              </button>
+              <button
+                className="btn-primary"
+                onClick={() => {
+                  const created = createCustomTemplate();
+                  setBuilderId(created.id);
+                }}
+                style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+              >
+                <Plus size={14} aria-hidden="true" /> Novo template
+              </button>
+            </div>
           </div>
 
           {customTemplates.length === 0 ? (
@@ -564,6 +575,126 @@ function AdminView({ adminEmail }: { adminEmail: string }) {
       {builderId && (
         <TemplateBuilder templateId={builderId} onClose={() => setBuilderId(null)} />
       )}
+
+      {clonePickerOpen && (
+        <ClonePickerModal
+          onClose={() => setClonePickerOpen(false)}
+          onPick={(id, name, accent) => {
+            const cloned = cloneBuiltInTemplate(id, name, accent);
+            setClonePickerOpen(false);
+            setBuilderId(cloned.id);
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+function ClonePickerModal({
+  onClose,
+  onPick,
+}: {
+  onClose: () => void;
+  onPick: (id: string, name: string, accent: string) => void;
+}) {
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="clone-picker-title"
+      onClick={onClose}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        background: 'rgba(15,23,42,0.55)',
+        backdropFilter: 'blur(6px)',
+        zIndex: 150,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 16,
+      }}
+    >
+      <div
+        className="glass-card"
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          width: '100%',
+          maxWidth: 960,
+          maxHeight: '85vh',
+          overflow: 'auto',
+          padding: 24,
+          borderRadius: 20,
+          background: 'var(--background)',
+          boxShadow: 'var(--shadow-lg)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+          <div>
+            <h2 id="clone-picker-title" style={{ fontSize: 18, fontWeight: 800, margin: 0 }}>
+              Clonar template existente
+            </h2>
+            <p style={{ fontSize: 12, color: 'var(--foreground-muted)', marginTop: 4 }}>
+              Escolhe um dos templates built-in. Criamos uma cópia editável no builder —
+              o original fica intacto.
+            </p>
+          </div>
+          <button onClick={onClose} aria-label="Fechar" className="btn-outline" style={{ padding: '6px 10px' }}>
+            <X size={14} aria-hidden="true" />
+          </button>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12 }}>
+          {visibleTemplates.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => onPick(t.id, t.name, t.accentColor)}
+              className="glass-card"
+              style={{
+                padding: 0,
+                overflow: 'hidden',
+                textAlign: 'left',
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                background: 'var(--card)',
+                border: '1px solid var(--card-border)',
+              }}
+            >
+              <div
+                aria-hidden="true"
+                style={{
+                  height: 120,
+                  overflow: 'hidden',
+                  background: `linear-gradient(135deg, ${t.accentColor} 0%, #0f172a 100%)`,
+                  position: 'relative',
+                }}
+              >
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: 'auto 12px 12px 12px',
+                    color: '#fff',
+                    fontSize: 11,
+                    fontWeight: 800,
+                    textTransform: 'uppercase',
+                    letterSpacing: 0.4,
+                  }}
+                >
+                  {t.badge}
+                </div>
+              </div>
+              <div style={{ padding: 12 }}>
+                <div style={{ fontSize: 13, fontWeight: 800 }}>{t.name}</div>
+                <div style={{ fontSize: 11, color: 'var(--foreground-muted)', marginTop: 2 }}>
+                  {t.tone}
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

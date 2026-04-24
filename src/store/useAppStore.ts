@@ -6,6 +6,7 @@ import type { CVData } from './useCVStore';
 import { createIdbStorage } from '@/lib/idbStorage';
 import {
   createDefaultTemplate,
+  createTemplateFromBuiltIn,
   type CustomTemplateSpec,
 } from '@/lib/customTemplate';
 
@@ -137,6 +138,7 @@ interface AppState {
   /* custom templates (built inside /admin) */
   customTemplates: CustomTemplateSpec[];
   createCustomTemplate: (name?: string) => CustomTemplateSpec;
+  cloneBuiltInTemplate: (builtInId: string, builtInName: string, accentColor: string) => CustomTemplateSpec;
   updateCustomTemplate: (id: string, patch: Partial<CustomTemplateSpec>) => void;
   deleteCustomTemplate: (id: string) => void;
   duplicateCustomTemplate: (id: string) => CustomTemplateSpec | null;
@@ -416,6 +418,12 @@ export const useAppStore = create<AppState>()(
 
       createCustomTemplate: (name) => {
         const spec = createDefaultTemplate(name || `Template ${new Date().toLocaleDateString('pt-PT')}`);
+        set((state) => ({ customTemplates: [...state.customTemplates, spec] }));
+        return spec;
+      },
+
+      cloneBuiltInTemplate: (builtInId, builtInName, accentColor) => {
+        const spec = createTemplateFromBuiltIn(builtInId, builtInName, accentColor);
         set((state) => ({ customTemplates: [...state.customTemplates, spec] }));
         return spec;
       },
