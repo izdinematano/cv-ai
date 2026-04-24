@@ -280,6 +280,80 @@ button {
   .container-narrow { padding: 0 18px; }
 }
 
+/* ---------- Global app header (shared by dashboard / editor / admin) ---------- */
+.app-header {
+  height: 68px;
+  border-bottom: 1px solid var(--card-border);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: saturate(180%) blur(12px);
+  -webkit-backdrop-filter: saturate(180%) blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.app-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: nowrap;
+}
+
+@media (max-width: 900px) {
+  .app-header { padding: 0 14px; }
+  .app-header-desktop { display: none !important; }
+  .app-header-mobile { display: flex !important; }
+}
+
+/* Mobile drawer (slide from the right) */
+.app-header-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(11, 16, 32, 0.45);
+  z-index: 100;
+  display: flex;
+  justify-content: flex-end;
+  animation: fadeIn 0.18s ease-out forwards;
+}
+
+.app-header-drawer {
+  width: min(320px, 86vw);
+  height: 100%;
+  background: var(--background);
+  border-left: 1px solid var(--card-border);
+  display: flex;
+  flex-direction: column;
+  box-shadow: -20px 0 40px rgba(11, 16, 32, 0.12);
+}
+
+.app-header-drawer-head {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--card-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.app-header-drawer-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+}
+
+.app-header-drawer-body .btn-primary,
+.app-header-drawer-body .btn-outline {
+  padding: 12px 14px;
+  font-size: 14px;
+  min-height: 46px;
+}
+
 /* ---------- Editor layout (split + mobile stack) ---------- */
 .editor-topbar {
   padding: 14px 22px;

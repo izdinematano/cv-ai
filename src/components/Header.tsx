@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Download, LayoutDashboard, Loader2, LogIn, Sparkles, Target } from 'lucide-react';
+import { Download, LayoutDashboard, Loader2, LogIn, Menu, Sparkles, Target, X } from 'lucide-react';
 import LanguageToggle from '@/components/LanguageToggle';
 import ExportGate from '@/components/Export/ExportGate';
 import JobTailorModal from '@/components/JobTailor/JobTailorModal';
@@ -27,6 +27,8 @@ export default function Header() {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [isTranslatingAll, setIsTranslatingAll] = useState(false);
   const [isJobTailorOpen, setIsJobTailorOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
   const { currentUserId, users } = useAppStore();
   const currentUser = currentUserId ? users.find((u) => u.id === currentUserId) : null;
@@ -174,23 +176,7 @@ export default function Header() {
 
   return (
     <>
-      <header
-        style={{
-          height: '68px',
-          borderBottom: '1px solid var(--card-border)',
-          background: 'rgba(255, 255, 255, 0.85)',
-          backdropFilter: 'saturate(180%) blur(12px)',
-          WebkitBackdropFilter: 'saturate(180%) blur(12px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 24px',
-          gap: '16px',
-          position: 'sticky',
-          top: 0,
-          zIndex: 20,
-        }}
-      >
+      <header className="app-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
           <Link
             href="/"
@@ -219,7 +205,8 @@ export default function Header() {
           </Link>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+        {/* Desktop action cluster */}
+        <div className="app-header-actions app-header-desktop">
           <LanguageToggle />
 
           <button
@@ -273,7 +260,98 @@ export default function Header() {
             Exportar PDF
           </button>
         </div>
+
+        {/* Mobile compact cluster: PDF + hamburger */}
+        <div className="app-header-mobile" style={{ display: 'none', alignItems: 'center', gap: '8px' }}>
+          <button
+            onClick={() => setIsSaveModalOpen(true)}
+            className="btn-primary"
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', fontSize: '13px' }}
+          >
+            <Download size={14} /> PDF
+          </button>
+          <button
+            onClick={() => setIsMobileMenuOpen(true)}
+            aria-label="Abrir menu"
+            className="btn-outline"
+            style={{ padding: '8px 10px', display: 'flex', alignItems: 'center' }}
+          >
+            <Menu size={18} />
+          </button>
+        </div>
       </header>
+
+      {isMobileMenuOpen && (
+        <div className="app-header-drawer-backdrop" onClick={closeMobileMenu}>
+          <aside className="app-header-drawer" onClick={(event) => event.stopPropagation()}>
+            <div className="app-header-drawer-head">
+              <div style={{ fontWeight: 800 }}>Menu</div>
+              <button
+                className="btn-outline"
+                onClick={closeMobileMenu}
+                style={{ padding: '8px 10px', display: 'flex', alignItems: 'center' }}
+                aria-label="Fechar menu"
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <div className="app-header-drawer-body">
+              <LanguageToggle />
+              <button
+                onClick={() => {
+                  closeMobileMenu();
+                  setIsJobTailorOpen(true);
+                }}
+                className="btn-outline"
+                style={{ display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'flex-start' }}
+              >
+                <Target size={16} /> Adaptar à vaga
+              </button>
+              <button
+                onClick={() => {
+                  closeMobileMenu();
+                  handleTranslateAll();
+                }}
+                className="btn-outline"
+                disabled={isTranslatingAll}
+                style={{ display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'flex-start' }}
+              >
+                {isTranslatingAll ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                {isTranslatingAll ? 'A traduzir...' : 'Traduzir com IA'}
+              </button>
+              {currentUser ? (
+                <Link
+                  href={currentUser.role === 'admin' ? '/admin' : '/dashboard'}
+                  className="btn-outline"
+                  style={{ display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'flex-start' }}
+                  onClick={closeMobileMenu}
+                >
+                  <LayoutDashboard size={16} /> {currentUser.fullName.split(' ')[0]}
+                </Link>
+              ) : (
+                <Link
+                  href="/login"
+                  className="btn-outline"
+                  style={{ display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'flex-start' }}
+                  onClick={closeMobileMenu}
+                >
+                  <LogIn size={16} /> Entrar
+                </Link>
+              )}
+              <button
+                onClick={() => {
+                  closeMobileMenu();
+                  setIsSaveModalOpen(true);
+                }}
+                className="btn-primary"
+                style={{ display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'flex-start' }}
+              >
+                <Download size={16} /> Exportar PDF
+              </button>
+            </div>
+          </aside>
+        </div>
+      )}
 
       <ExportGate
         isOpen={isSaveModalOpen}
