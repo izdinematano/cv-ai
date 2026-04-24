@@ -422,3 +422,177 @@ ${rawCVText}
   if (!suggestion?.template) return fallback;
   return suggestion;
 }
+
+export interface JobTailorSuggestion {
+  summary: string;
+  jobTitle: string;
+  prioritizedSkills: string[];
+  missingSkills: string[];
+  highlights: string[];
+}
+
+/**
+ * Returns a CV tailoring suggestion for the given job description. Falls back
+ * to a client-side keyword analysis when the AI provider is unavailable.
+ */
+export async function tailorCVForJobDescription(
+  jobDescription: string,
+  data: CVData,
+  lang: 'pt' | 'en'
+): Promise<JobTailorSuggestion> {
+  const clientFallback = buildClientSideTailorFallback(jobDescription, data, lang);
+
+  if (!jobDescription.trim()) return clientFallback;
+
+  const currentSummary = data.summary[lang] || data.summary.pt || data.summary.en || '';
+  const currentTitle =
+    data.personalInfo.jobTitle[lang] ||
+    data.personalInfo.jobTitle.pt ||
+    data.personalInfo.jobTitle.en ||
+    '';
+  const skillList = data.skills
+    .map((s) => s[lang] || s.pt || s.en)
+    .filter(Boolean)
+    .join(', ');
+
+  const prompt = `
+You are a senior CV tailoring agent. The candidate wants to adapt their CV to the
+job description below. Respond in ${lang === 'pt' ? 'Portuguese' : 'English'}.
+
+Return JSON only with this exact shape:
+{
+  "summary": "3-4 sentence rewritten professional summary tailored to the JD",
+  "jobTitle": "suggested concise job title that matches the JD",
+  "prioritizedSkills": ["top 8 existing skills reordered by relevance to the JD"],
+  "missingSkills": ["skills the JD clearly asks for that the candidate is missing, max 6"],
+  "highlights": ["2-4 bullet suggestions for experience rewrites"]
+}
+
+Rules:
+1. Never invent skills the candidate doesn't plausibly have.
+2. Keep the summary grounded in the candidate's background.
+3. Use action-oriented, concise language.
+4. Only return valid JSON.
+
+Candidate current title: ${currentTitle || 'Unknown'}
+Candidate summary: ${currentSummary || 'N/A'}
+Candidate skills: ${skillList || 'N/A'}
+
+Job Description:
+"""
+${jobDescription}
+"""
+`;
+
+  const payload = await callOpenRouterJSON<JobTailorSuggestion>('improve', prompt);
+  if (!payload) return clientFallback;
+
+  return {
+    summary: typeof payload.summary === 'string' ? payload.summary : clientFallback.summary,
+    jobTitle: typeof payload.jobTitle === 'string' ? payload.jobTitle : clientFallback.jobTitle,
+    prioritizedSkills: Array.isArray(payload.prioritizedSkills)
+      ? payload.prioritizedSkills.filter((s): s is string => typeof s === 'string')
+      : clientFallback.prioritizedSkills,
+    missingSkills: Array.isArray(payload.missingSkills)
+      ? payload.missingSkills.filter((s): s is string => typeof s === 'string')
+      : clientFallback.missingSkills,
+    highlights: Array.isArray(payload.highlights)
+      ? payload.highlights.filter((s): s is string => typeof s === 'string')
+      : clientFallback.highlights,
+  };
+}
+
+/* -----------------------------------------------------------------------------
+ * Client-side fallback for CV tailoring (when AI is unavailable)
+ * ----------------------------------------------------------------------------*/
+
+const STOP_WORDS_EN = new Set([
+  'the', 'a', 'an', 'and', 'or', 'but', 'if', 'for', 'with', 'to', 'of', 'in', 'on', 'at',
+  'by', 'from', 'be', 'is', 'are', 'was', 'were', 'will', 'you', 'your', 'our', 'we',
+  'this', 'that', 'these', 'those', 'as', 'it', 'its', 'has', 'have', 'had', 'not', 'no',
+  'all', 'any', 'some', 'who', 'what', 'when', 'where', 'why', 'how', 'can', 'do', 'does',
+  'including', 'about', 'also', 'than', 'more', 'most', 'very', 'using', 'use',
+]);
+const STOP_WORDS_PT = new Set([
+  'de', 'a', 'o', 'que', 'e', 'do', 'da', 'em', 'um', 'para', 'com', 'nao', 'não', 'uma',
+  'os', 'no', 'se', 'na', 'por', 'mais', 'as', 'dos', 'como', 'mas', 'foi', 'ao', 'ele',
+  'das', 'à', 'seu', 'sua', 'ou', 'ser', 'quando', 'muito', 'sobre', 'isso', 'esta',
+  'nos', 'já', 'ja', 'eu', 'também', 'tambem', 'entre', 'ate', 'até', 'sao', 'são',
+]);
+
+const extractKeywords = (text: string) => {
+  const tokens = text
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\s.+#-]/gu, ' ')
+    .split(/\s+/)
+    .filter(Boolean);
+
+  const counts = new Map<string, number>();
+  for (const raw of tokens) {
+    const word = raw.replace(/^[.+#-]+|[.+#-]+$/g, '');
+    if (word.length < 3) continue;
+    if (STOP_WORDS_EN.has(word) || STOP_WORDS_PT.has(word)) continue;
+    counts.set(word, (counts.get(word) || 0) + 1);
+  }
+
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 40)
+    .map(([word]) => word);
+};
+
+const buildClientSideTailorFallback = (
+  jobDescription: string,
+  data: CVData,
+  lang: 'pt' | 'en'
+): JobTailorSuggestion => {
+  const jdKeywords = extractKeywords(jobDescription);
+  const jdKeywordSet = new Set(jdKeywords);
+
+  const skillLabels = data.skills
+    .map((s) => (s[lang] || s.pt || s.en || '').trim())
+    .filter(Boolean);
+
+  const prioritizedSkills = [...skillLabels].sort((a, b) => {
+    const aHit = jdKeywordSet.has(a.toLowerCase()) ? 1 : 0;
+    const bHit = jdKeywordSet.has(b.toLowerCase()) ? 1 : 0;
+    return bHit - aHit;
+  });
+
+  const existingSkillSet = new Set(skillLabels.map((s) => s.toLowerCase()));
+  const missingSkills = jdKeywords
+    .filter((k) => k.length > 3 && !existingSkillSet.has(k))
+    .slice(0, 8);
+
+  const currentSummary = data.summary[lang] || data.summary.pt || data.summary.en || '';
+  const currentTitle =
+    data.personalInfo.jobTitle[lang] ||
+    data.personalInfo.jobTitle.pt ||
+    data.personalInfo.jobTitle.en ||
+    '';
+
+  const keywordsPreview = jdKeywords.slice(0, 6).join(', ');
+
+  const summary = currentSummary
+    ? lang === 'pt'
+      ? `${currentSummary.trim()} Foco em ${keywordsPreview}.`
+      : `${currentSummary.trim()} Focused on ${keywordsPreview}.`
+    : lang === 'pt'
+    ? `Profissional orientado a resultados, com foco em ${keywordsPreview}.`
+    : `Results-driven professional focused on ${keywordsPreview}.`;
+
+  return {
+    summary,
+    jobTitle: currentTitle,
+    prioritizedSkills,
+    missingSkills,
+    highlights: [
+      lang === 'pt'
+        ? `Destaca experiências ligadas a: ${keywordsPreview}.`
+        : `Highlight experience tied to: ${keywordsPreview}.`,
+      lang === 'pt'
+        ? 'Usa verbos de acção e métricas concretas em cada bullet.'
+        : 'Lead each bullet with an action verb and a concrete metric.',
+    ],
+  };
+};

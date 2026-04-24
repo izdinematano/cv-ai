@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Download, LayoutDashboard, Loader2, LogIn, Sparkles } from 'lucide-react';
+import { Download, LayoutDashboard, Loader2, LogIn, Sparkles, Target } from 'lucide-react';
 import LanguageToggle from '@/components/LanguageToggle';
 import ExportGate from '@/components/Export/ExportGate';
+import JobTailorModal from '@/components/JobTailor/JobTailorModal';
 import { translateCVField } from '@/lib/openrouter';
 import { useAppStore } from '@/store/useAppStore';
 import { useCVStore } from '@/store/useCVStore';
@@ -25,6 +26,7 @@ export default function Header() {
 
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [isTranslatingAll, setIsTranslatingAll] = useState(false);
+  const [isJobTailorOpen, setIsJobTailorOpen] = useState(false);
 
   const { currentUserId, users } = useAppStore();
   const currentUser = currentUserId ? users.find((u) => u.id === currentUserId) : null;
@@ -220,6 +222,15 @@ export default function Header() {
           <LanguageToggle />
 
           <button
+            onClick={() => setIsJobTailorOpen(true)}
+            className="btn-outline"
+            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+            title="Cola uma descrição de vaga e adapta o CV"
+          >
+            <Target size={16} /> Adaptar à vaga
+          </button>
+
+          <button
             onClick={handleTranslateAll}
             className="btn-outline"
             disabled={isTranslatingAll}
@@ -271,6 +282,11 @@ export default function Header() {
         fileName={fileName}
         userId={currentUserId}
         currentCvId={useCVStore.getState().currentCvId}
+      />
+
+      <JobTailorModal
+        isOpen={isJobTailorOpen}
+        onClose={() => setIsJobTailorOpen(false)}
       />
     </>
   );
