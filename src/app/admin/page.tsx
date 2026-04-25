@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -51,7 +51,12 @@ function AdminView({ adminEmail }: { adminEmail: string }) {
     deleteCustomTemplate,
     duplicateCustomTemplate,
     publishCustomTemplate,
+    syncFromServer,
   } = useAppStore();
+
+  useEffect(() => {
+    syncFromServer();
+  }, [syncFromServer]);
 
   const [builderId, setBuilderId] = useState<string | null>(null);
   const [clonePickerOpen, setClonePickerOpen] = useState(false);
@@ -95,8 +100,8 @@ function AdminView({ adminEmail }: { adminEmail: string }) {
     });
   }, [users, userQuery, roleFilter]);
 
-  const saveSettings = () => {
-    updateAdminSettings({
+  const saveSettings = async () => {
+    await updateAdminSettings({
       mpesaNumber,
       whatsappNumber,
       pricePerPackMZN: Math.max(1, Number(pricePerPackMZN) || 1),
@@ -199,10 +204,14 @@ function AdminView({ adminEmail }: { adminEmail: string }) {
                 <PaymentCard
                   key={p.id}
                   payment={p}
-                  onApprove={() => approvePayment(p.id, adminEmail)}
-                  onReject={() => {
+                  onApprove={async () => {
+                    await approvePayment(p.id, adminEmail);
+                    await syncFromServer();
+                  }}
+                  onReject={async () => {
                     const reason = prompt('Motivo da rejeicao (opcional):') || 'Pagamento nao confirmado';
-                    rejectPayment(p.id, adminEmail, reason);
+                    await rejectPayment(p.id, adminEmail, reason);
+                    await syncFromServer();
                   }}
                 />
               ))}

@@ -24,14 +24,14 @@ export default function AuthForm({ mode }: AuthFormProps) {
   // We keep the import so the hook-order shape is stable.
   void users;
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError('');
     setLoading(true);
 
     const result = isRegister
-      ? register({ email, password, fullName })
-      : login({ email, password });
+      ? await register({ email, password, fullName })
+      : await login({ email, password });
 
     setLoading(false);
 

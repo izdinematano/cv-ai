@@ -99,11 +99,9 @@ interface AppState {
 
   /* auth */
   register: (input: { email: string; password: string; fullName: string }) =>
-    | { ok: true; user: AppUser }
-    | { ok: false; error: string };
+    Promise<{ ok: true; user: AppUser } | { ok: false; error: string }>;
   login: (input: { email: string; password: string }) =>
-    | { ok: true; user: AppUser }
-    | { ok: false; error: string };
+    Promise<{ ok: true; user: AppUser } | { ok: false; error: string }>;
   logout: () => void;
 
   /* cvs */
@@ -127,13 +125,14 @@ interface AppState {
     mpesaReference: string;
     whatsappNumber: string;
     note: string;
-  }) => PaymentRequest;
-  approvePayment: (paymentId: string, adminEmail: string) => void;
-  rejectPayment: (paymentId: string, adminEmail: string, reason: string) => void;
+  }) => Promise<PaymentRequest>;
+  approvePayment: (paymentId: string, adminEmail: string) => Promise<void>;
+  rejectPayment: (paymentId: string, adminEmail: string, reason: string) => Promise<void>;
 
   /* admin */
-  updateAdminSettings: (settings: Partial<AdminSettings>) => void;
+  updateAdminSettings: (settings: Partial<AdminSettings>) => Promise<void>;
   upgradeToAdmin: (userId: string) => void;
+  syncFromServer: () => Promise<void>;
 
   /* custom templates (built inside /admin) */
   customTemplates: CustomTemplateSpec[];
@@ -179,42 +178,74 @@ export const useAppStore = create<AppState>()(
       adminSettings: DEFAULT_ADMIN_SETTINGS,
       customTemplates: [],
 
-      register: ({ email, password, fullName }) => {
+      register: async ({ email, password, fullName }) => {
         email = email.trim().toLowerCase();
         if (!email || !password || !fullName) {
           return { ok: false, error: 'Preenche todos os campos.' };
         }
-        const existing = get().users.find((u) => u.email === email);
-        if (existing) {
-          return { ok: false, error: 'Email ja registado.' };
+        try {
+          const res = await fetch('/api/users', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password, fullName }),
+          });
+          const json = await res.json();
+          if (!json.ok) return { ok: false, error: json.error || 'Erro ao registar.' };
+          // Sync local copy so the list updates immediately.
+          set((state) => ({
+            users: [...state.users, json.user],
+            currentUserId: json.user.id,
+          }));
+          return { ok: true, user: json.user };
+        } catch {
+          // Fallback to local-only if server is unreachable.
+          const existing = get().users.find((u) => u.email === email);
+          if (existing) {
+            return { ok: false, error: 'Email ja registado.' };
+          }
+          const user: AppUser = {
+            id: createId(),
+            email,
+            fullName,
+            password,
+            role: 'user',
+            createdAt: nowIso(),
+          };
+          set((state) => ({
+            users: [...state.users, user],
+            currentUserId: user.id,
+          }));
+          return { ok: true, user };
         }
-        // Product rule: new registrations are always regular users. The
-        // original "first user becomes admin" bootstrap was useful when the
-        // app had no admin yet; now that an admin exists, promotion must be
-        // explicit (done from the admin panel via `upgradeToAdmin`).
-        const user: AppUser = {
-          id: createId(),
-          email,
-          fullName,
-          password,
-          role: 'user',
-          createdAt: nowIso(),
-        };
-        set((state) => ({
-          users: [...state.users, user],
-          currentUserId: user.id,
-        }));
-        return { ok: true, user };
       },
 
-      login: ({ email, password }) => {
+      login: async ({ email, password }) => {
         email = email.trim().toLowerCase();
-        const user = get().users.find((u) => u.email === email);
-        if (!user || user.password !== password) {
-          return { ok: false, error: 'Credenciais invalidas.' };
+        try {
+          const res = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+          });
+          const json = await res.json();
+          if (!json.ok) return { ok: false, error: json.error || 'Credenciais invalidas.' };
+          // Ensure the user exists locally (for offline fallback later).
+          set((state) => {
+            const exists = state.users.find((u) => u.id === json.user.id);
+            return {
+              users: exists ? state.users : [...state.users, json.user],
+              currentUserId: json.user.id,
+            };
+          });
+          return { ok: true, user: json.user };
+        } catch {
+          const user = get().users.find((u) => u.email === email);
+          if (!user || user.password !== password) {
+            return { ok: false, error: 'Credenciais invalidas.' };
+          }
+          set({ currentUserId: user.id });
+          return { ok: true, user };
         }
-        set({ currentUserId: user.id });
-        return { ok: true, user };
       },
 
       logout: () => set({ currentUserId: null }),
@@ -355,7 +386,7 @@ export const useAppStore = create<AppState>()(
         return record;
       },
 
-      requestPayment: ({ userId, userEmail, mpesaReference, whatsappNumber, note }) => {
+      requestPayment: async ({ userId, userEmail, mpesaReference, whatsappNumber, note }) => {
         const settings = get().adminSettings;
         const req: PaymentRequest = {
           id: createId(),
@@ -369,11 +400,29 @@ export const useAppStore = create<AppState>()(
           status: 'pending',
           createdAt: nowIso(),
         };
+        try {
+          await fetch('/api/payments', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(req),
+          });
+        } catch {
+          // ignore — local copy is enough
+        }
         set((state) => ({ payments: [req, ...state.payments] }));
         return req;
       },
 
-      approvePayment: (paymentId, adminEmail) => {
+      approvePayment: async (paymentId, adminEmail) => {
+        try {
+          await fetch('/api/payments', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paymentId, status: 'approved', reviewerEmail: adminEmail }),
+          });
+        } catch {
+          // ignore
+        }
         set((state) => {
           const payment = state.payments.find((p) => p.id === paymentId);
           if (!payment || payment.status !== 'pending') return state;
@@ -392,7 +441,16 @@ export const useAppStore = create<AppState>()(
         });
       },
 
-      rejectPayment: (paymentId, adminEmail, reason) => {
+      rejectPayment: async (paymentId, adminEmail, reason) => {
+        try {
+          await fetch('/api/payments', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paymentId, status: 'rejected', reviewerEmail: adminEmail, rejectionReason: reason }),
+          });
+        } catch {
+          // ignore
+        }
         set((state) => ({
           payments: state.payments.map((p) =>
             p.id === paymentId
@@ -408,13 +466,48 @@ export const useAppStore = create<AppState>()(
         }));
       },
 
-      updateAdminSettings: (settings) =>
-        set((state) => ({ adminSettings: { ...state.adminSettings, ...settings } })),
+      updateAdminSettings: async (settings) => {
+        try {
+          await fetch('/api/settings', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(settings),
+          });
+        } catch {
+          // ignore
+        }
+        set((state) => ({ adminSettings: { ...state.adminSettings, ...settings } }));
+      },
 
       upgradeToAdmin: (userId) =>
         set((state) => ({
           users: state.users.map((u) => (u.id === userId ? { ...u, role: 'admin' } : u)),
         })),
+
+      syncFromServer: async () => {
+        try {
+          const [usersRes, paymentsRes, settingsRes, exportsRes] = await Promise.all([
+            fetch('/api/users'),
+            fetch('/api/payments'),
+            fetch('/api/settings'),
+            fetch('/api/exports'),
+          ]);
+          const [usersJson, paymentsJson, settingsJson, exportsJson] = await Promise.all([
+            usersRes.json(),
+            paymentsRes.json(),
+            settingsRes.json(),
+            exportsRes.json(),
+          ]);
+          set((state) => ({
+            users: usersJson.users ?? state.users,
+            payments: paymentsJson.payments ?? state.payments,
+            adminSettings: settingsJson.settings ?? state.adminSettings,
+            exports: exportsJson.exports ?? state.exports,
+          }));
+        } catch {
+          // ignore — local data remains
+        }
+      },
 
       createCustomTemplate: (name) => {
         const spec = createDefaultTemplate(name || `Template ${new Date().toLocaleDateString('pt-PT')}`);

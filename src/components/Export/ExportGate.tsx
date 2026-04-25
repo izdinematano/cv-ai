@@ -78,9 +78,9 @@ export default function ExportGate({
     upsertCV(user.id, { id: currentCvId || undefined, name: cvName, data });
   };
 
-  const handleSubmitPayment = () => {
+  const handleSubmitPayment = async () => {
     if (!user) return;
-    requestPayment({
+    await requestPayment({
       userId: user.id,
       userEmail: user.email,
       mpesaReference: mpesaRef.trim(),
