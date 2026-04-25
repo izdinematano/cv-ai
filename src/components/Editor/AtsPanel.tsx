@@ -51,7 +51,11 @@ export default function AtsPanel({ data, lang }: Props) {
         }}
       >
         <span style={{ display: 'flex', alignItems: 'center', gap: 10, fontWeight: 700, fontSize: 14 }}>
-          <Target size={16} color="var(--accent)" aria-hidden="true" /> Otimização ATS
+          <Target size={16} color="var(--accent)" aria-hidden="true" />
+          <span>
+            Optimização ATS
+            {!report && <span style={{ fontSize: 11, fontWeight: 500, color: 'var(--foreground-muted)', marginLeft: 6 }}>Cola a vaga para ver o score</span>}
+          </span>
           {report && (
             <span
               style={{
@@ -81,16 +85,14 @@ export default function AtsPanel({ data, lang }: Props) {
       </button>
       {open && (
         <div style={{ padding: '0 16px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <p style={{ fontSize: 11.5, color: 'var(--foreground-muted)', margin: 0 }}>
-            Cola a descrição da vaga para a qual estás a concorrer. Extraímos as
-            palavras-chave mais relevantes e mostramos quais já aparecem no teu
-            CV — e quais ainda te faltam.
+          <p style={{ fontSize: 11.5, color: 'var(--foreground-muted)', margin: 0, lineHeight: 1.55 }}>
+            Cola a descrição da vaga. Identificamos as palavras-chave e mostramos quais já estão no teu CV e quais faltam — clica nas que faltam para as adicionar como competência.
           </p>
           <textarea
             rows={5}
             value={jd}
             onChange={(e) => setJd(e.target.value)}
-            placeholder="Cola aqui a descrição da vaga (ex.: 'We are looking for a Senior React developer with…')"
+            placeholder="Cola aqui o texto completo da oferta de emprego…"
             style={{
               width: '100%',
               padding: '10px 12px',

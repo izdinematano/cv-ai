@@ -46,9 +46,8 @@ export default function AiStatusBanner() {
           <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--success)' }}>
             IA Activa
           </span>
-          <span style={{ fontSize: 11.5, color: 'var(--foreground-muted)' }}>
-            Clica no ícone <Sparkles size={10} style={{ display: 'inline', verticalAlign: 'middle' }} /> em qualquer descrição para melhorar com IA.
-            Importa um CV ou usa o &quot;Adaptar à vaga&quot; para sugestões automáticas.
+          <span style={{ fontSize: 11.5, color: 'var(--foreground-muted)', lineHeight: 1.5 }}>
+            Usa o botão <Sparkles size={10} style={{ display: 'inline', verticalAlign: 'middle', color: 'var(--accent)' }} /> em qualquer campo para melhorar o texto. Importa um CV existente na secção &ldquo;Importar CV Existente&rdquo;.
           </span>
         </div>
       </div>
@@ -82,10 +81,3 @@ function containerStyle(bg: string, border: string): React.CSSProperties {
   };
 }
 
-const codeStyle: React.CSSProperties = {
-  fontFamily: 'monospace',
-  fontSize: 11,
-  background: 'rgba(0,0,0,0.05)',
-  padding: '1px 5px',
-  borderRadius: 4,
-};

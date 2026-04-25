@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
+  Download,
   Eye,
   LayoutTemplate,
   Sparkles,
@@ -19,6 +20,11 @@ import Preview from '@/components/Preview/Preview';
 import TemplateGallery from '@/components/Preview/TemplateGallery';
 import { getTemplateDefinition } from '@/lib/templateCatalog';
 import { useCVStore } from '@/store/useCVStore';
+
+function exportPDF() {
+  if (typeof window === 'undefined') return;
+  window.print();
+}
 
 export default function EditorPage() {
   const {
@@ -186,33 +192,53 @@ export default function EditorPage() {
 
         <div
           className="editor-desktop-only"
-          style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}
+          style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}
         >
           <button
             onClick={() => setPreviewMode('split')}
             className={previewMode === 'split' ? 'btn-primary' : 'btn-outline'}
-            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 13px', fontSize: '13px' }}
+            title="Editor em modo dividido"
           >
-            <SplitSquareVertical size={16} />
-            Editor + preview
+            <SplitSquareVertical size={15} />
+            Dividido
           </button>
           <button
             onClick={() => setPreviewMode('preview')}
             className={previewMode === 'preview' ? 'btn-primary' : 'btn-outline'}
-            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 13px', fontSize: '13px' }}
+            title="Ver apenas o CV"
           >
-            <Eye size={16} />
-            Ver so o CV
+            <Eye size={15} />
+            Ver CV
+          </button>
+          <div style={{ width: 1, height: 28, background: 'var(--card-border)', margin: '0 2px' }} aria-hidden="true" />
+          <button
+            onClick={exportPDF}
+            className="btn-primary"
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 16px', fontSize: '13px', background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', boxShadow: '0 4px 14px rgba(79,70,229,0.35)' }}
+            title="Exportar CV em PDF"
+          >
+            <Download size={15} /> Exportar PDF
           </button>
         </div>
 
-        <button
-          className="btn-primary editor-mobile-only"
-          onClick={() => setMobilePreviewOpen(true)}
-          style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px' }}
-        >
-          <Eye size={16} /> Ver CV
-        </button>
+        <div className="editor-mobile-only" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button
+            className="btn-outline"
+            onClick={() => setMobilePreviewOpen(true)}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 12px', fontSize: '13px' }}
+          >
+            <Eye size={15} /> Ver CV
+          </button>
+          <button
+            onClick={exportPDF}
+            className="btn-primary"
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 12px', fontSize: '13px' }}
+          >
+            <Download size={15} /> PDF
+          </button>
+        </div>
       </div>
 
       <div className="editor-shell">
@@ -238,24 +264,37 @@ export default function EditorPage() {
                     backdropFilter: 'blur(6px)',
                   }}
                 >
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-                    style={{ color: 'var(--accent)', marginBottom: '16px' }}
-                  >
-                    <Sparkles size={40} />
-                  </motion.div>
-                  <p style={{ color: 'var(--foreground)', fontWeight: 700, fontSize: '18px' }}>
-                    A IA esta a adaptar o seu CV...
+                  <div style={{ position: 'relative', marginBottom: 20 }}>
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                      style={{
+                        width: 56,
+                        height: 56,
+                        borderRadius: '50%',
+                        border: '3px solid var(--accent-soft)',
+                        borderTopColor: 'var(--accent)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <Sparkles size={22} color="var(--accent)" />
+                    </motion.div>
+                  </div>
+                  <p style={{ color: 'var(--foreground)', fontWeight: 800, fontSize: '16px', marginBottom: 6 }}>
+                    A IA está a processar o teu CV…
                   </p>
                   <p
                     style={{
                       color: 'var(--foreground-muted)',
-                      fontSize: '14px',
-                      marginTop: '8px',
+                      fontSize: '13px',
+                      maxWidth: 260,
+                      textAlign: 'center',
+                      lineHeight: 1.5,
                     }}
                   >
-                    Isso pode levar alguns segundos.
+                    Pode demorar alguns segundos. Não feches a página.
                   </p>
                 </motion.div>
               )}

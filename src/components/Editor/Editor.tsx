@@ -21,6 +21,7 @@ import {
   Link as LinkIcon,
   Palette,
   Plus,
+  Settings2,
   Sparkles,
   Trash2,
   Upload,
@@ -352,31 +353,43 @@ export default function Editor() {
           onClick={() => setActiveTab('content')}
           style={{
             flex: 1,
-            padding: '16px',
-            fontSize: '13px',
-            fontWeight: 800,
+            padding: '14px 8px',
+            fontSize: '12px',
+            fontWeight: 700,
+            letterSpacing: '0.04em',
             color: activeTab === 'content' ? 'var(--accent)' : 'var(--muted-foreground)',
             borderBottom:
               activeTab === 'content' ? '2px solid var(--accent)' : '2px solid transparent',
-            background: 'transparent',
+            background: activeTab === 'content' ? 'var(--accent-soft)' : 'transparent',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 6,
+            transition: 'background 0.18s ease, color 0.18s ease',
           }}
         >
-          CONTEUDO
+          <FileText size={14} aria-hidden="true" /> CONTEÚDO
         </button>
         <button
           onClick={() => setActiveTab('design')}
           style={{
             flex: 1,
-            padding: '16px',
-            fontSize: '13px',
-            fontWeight: 800,
+            padding: '14px 8px',
+            fontSize: '12px',
+            fontWeight: 700,
+            letterSpacing: '0.04em',
             color: activeTab === 'design' ? 'var(--accent)' : 'var(--muted-foreground)',
             borderBottom:
               activeTab === 'design' ? '2px solid var(--accent)' : '2px solid transparent',
-            background: 'transparent',
+            background: activeTab === 'design' ? 'var(--accent-soft)' : 'transparent',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 6,
+            transition: 'background 0.18s ease, color 0.18s ease',
           }}
         >
-          DESIGN
+          <Settings2 size={14} aria-hidden="true" /> DESIGN
         </button>
       </div>
 
@@ -389,29 +402,48 @@ export default function Editor() {
             border: '1px solid var(--card-border)',
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-            <span style={{ fontSize: '13px', fontWeight: 800 }}>Forca do Curriculo</span>
-            <span style={{ fontSize: '13px', color: scoreColor, fontWeight: 800 }}>{score}%</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+            <span style={{ fontSize: '13px', fontWeight: 800 }}>Força do Currículo</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span
+                style={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  padding: '2px 8px',
+                  borderRadius: 999,
+                  background: score < 40 ? 'rgba(239,68,68,0.12)' : score < 70 ? 'rgba(245,158,11,0.12)' : 'rgba(16,185,129,0.12)',
+                  color: scoreColor,
+                  letterSpacing: '0.04em',
+                }}
+              >
+                {score < 40 ? 'FRACO' : score < 70 ? 'MÉDIO' : score < 85 ? 'BOM' : 'EXCELENTE'}
+              </span>
+              <span style={{ fontSize: '13px', color: scoreColor, fontWeight: 800 }}>{score}%</span>
+            </div>
           </div>
-          <div style={{ height: '6px', background: 'var(--card-border)', borderRadius: '6px' }}>
+          <div style={{ height: '7px', background: 'var(--card-border)', borderRadius: '6px', overflow: 'hidden' }}>
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${score}%` }}
+              transition={{ duration: 0.6, ease: 'easeOut' }}
               style={{
                 height: '100%',
-                background: scoreColor,
+                background: `linear-gradient(90deg, ${scoreColor}cc, ${scoreColor})`,
                 borderRadius: '6px',
               }}
             />
           </div>
           {scoreSuggestions.length > 0 && (
-            <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--foreground-muted)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                Para melhorar o teu CV
+            <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 5 }}>
+              <div style={{ fontSize: 10.5, fontWeight: 800, color: 'var(--foreground-muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 2 }}>
+                O que podes melhorar
               </div>
-              {scoreSuggestions.slice(0, 6).map((s) => {
-                const dot =
-                  s.severity === 'critical' ? '#ef4444' : s.severity === 'warning' ? '#f59e0b' : '#3b82f6';
+              {scoreSuggestions.slice(0, 5).map((s) => {
+                const isWarning = s.severity === 'warning';
+                const isCritical = s.severity === 'critical';
+                const bg = isCritical ? 'rgba(239,68,68,0.07)' : isWarning ? 'rgba(245,158,11,0.07)' : 'rgba(59,130,246,0.07)';
+                const border = isCritical ? 'rgba(239,68,68,0.2)' : isWarning ? 'rgba(245,158,11,0.2)' : 'rgba(59,130,246,0.2)';
+                const dot = isCritical ? '#ef4444' : isWarning ? '#f59e0b' : '#3b82f6';
                 return (
                   <div
                     key={s.id}
@@ -419,9 +451,12 @@ export default function Editor() {
                       display: 'flex',
                       alignItems: 'flex-start',
                       gap: 8,
-                      fontSize: 12,
-                      lineHeight: 1.45,
-                      color: 'var(--foreground)',
+                      fontSize: 11.5,
+                      lineHeight: 1.5,
+                      padding: '7px 10px',
+                      borderRadius: 8,
+                      background: bg,
+                      border: `1px solid ${border}`,
                     }}
                   >
                     <span
@@ -431,16 +466,15 @@ export default function Editor() {
                         height: 6,
                         borderRadius: 999,
                         background: dot,
-                        marginTop: 6,
+                        marginTop: 5,
                         flexShrink: 0,
                       }}
                     />
-                    <span style={{ flex: 1 }}>
+                    <span style={{ flex: 1, color: 'var(--foreground)' }}>
                       {s.label}
                       {s.worth > 0 && (
-                        <span style={{ color: 'var(--foreground-muted)', fontWeight: 700 }}>
-                          {' '}
-                          (+{s.worth} pts)
+                        <span style={{ color: dot, fontWeight: 700, marginLeft: 4 }}>
+                          +{s.worth}pts
                         </span>
                       )}
                     </span>
@@ -535,9 +569,13 @@ export default function Editor() {
                           Cola o texto do teu CV e deixa a IA organizar tudo.
                         </div>
                         <p style={{ fontSize: '12px', color: 'var(--foreground-muted)', lineHeight: 1.7 }}>
-                          A app tenta extrair experiencias, educacao, skills, resumo e ainda sugerir o melhor modelo
-                          para o teu perfil. Funciona melhor com texto copiado de PDF, Word ou LinkedIn.
+                          A app extrai experiências, educação, competências e resumo, e ainda sugere o melhor modelo para o teu perfil. Funciona melhor com texto copiado de PDF, Word ou LinkedIn.
                         </p>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
+                          {['PDF', 'DOCX', 'TXT', 'LinkedIn', 'Word'].map((fmt) => (
+                            <span key={fmt} style={{ fontSize: 10.5, fontWeight: 700, padding: '2px 8px', borderRadius: 999, background: 'var(--accent-soft)', color: 'var(--accent)', border: '1px solid rgba(79,70,229,0.18)' }}>{fmt}</span>
+                          ))}
+                        </div>
                       </div>
 
                       <div
@@ -1336,25 +1374,33 @@ export default function Editor() {
                             key={`${skill.pt}-${skill.en}-${index}`}
                             style={{
                               background: 'var(--accent)',
-                              padding: '4px 10px',
-                              borderRadius: '12px',
-                              fontSize: '11px',
-                              display: 'flex',
+                              color: 'white',
+                              padding: '5px 10px',
+                              borderRadius: '999px',
+                              fontSize: '11.5px',
+                              fontWeight: 600,
+                              display: 'inline-flex',
                               alignItems: 'center',
                               gap: '6px',
                             }}
                           >
                             {skill[activeLanguage] || skill.pt || skill.en}
-                            <Trash2
-                              size={12}
+                            <button
+                              type="button"
                               onClick={() => removeSkill(index)}
-                              style={{ cursor: 'pointer' }}
-                            />
+                              aria-label={`Remover competência ${skill[activeLanguage] || skill.pt || skill.en}`}
+                              style={{ background: 'transparent', color: 'rgba(255,255,255,0.75)', display: 'inline-flex', alignItems: 'center', padding: 0, lineHeight: 1 }}
+                            >
+                              <Trash2 size={11} />
+                            </button>
                           </span>
                         ))}
                       </div>
+                      <div style={{ fontSize: 11.5, color: 'var(--foreground-muted)', marginBottom: 8 }}>
+                        Escreve uma competência e prime <kbd style={{ fontFamily: 'inherit', fontSize: 10.5, fontWeight: 700, padding: '1px 5px', borderRadius: 4, border: '1px solid var(--card-border)', background: 'var(--background-muted)' }}>Enter</kbd> para adicionar. Clica no ✕ para remover.
+                      </div>
                       <input
-                        placeholder="Pressione Enter para adicionar"
+                        placeholder="Ex: React, Excel, Gestão de Projectos…"
                         onKeyDown={(event) => {
                           if (event.key !== 'Enter') return;
 

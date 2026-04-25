@@ -288,7 +288,7 @@ function Hero() {
               marginBottom: 24,
             }}
           >
-            <Sparkles size={14} /> Novo: exporta o CV em PDF idéntico ao preview
+            <Sparkles size={14} /> Novo: exporta o CV em PDF idêntico ao preview
           </motion.span>
 
           <motion.h1
@@ -424,9 +424,9 @@ function Hero() {
           >
             <CheckCircle2 size={14} color="var(--success)" />
             <div>
-              <div style={{ fontWeight: 800, fontSize: 12 }}>ATS compatible</div>
+              <div style={{ fontWeight: 800, fontSize: 12 }}>Compatível ATS</div>
               <div style={{ fontSize: 10.5, color: 'var(--muted-foreground)' }}>
-                Score 94 / 100
+                Pontuação ATS 94/100
               </div>
             </div>
           </motion.div>
@@ -444,7 +444,7 @@ function LogosBand() {
   const items = [
     { value: '20+', label: 'Templates premium' },
     { value: 'PT / EN', label: 'Bilingue nativo' },
-    { value: 'A4', label: 'Export PDF pixel-perfect' },
+    { value: 'A4', label: 'Export PDF pixel-perfeito' },
     { value: '1-click', label: 'Criação guiada por IA' },
   ];
   return (
