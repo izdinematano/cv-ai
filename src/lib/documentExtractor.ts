@@ -39,7 +39,7 @@ async function extractTextFromPdf(file: File): Promise<string> {
 
   if (typeof window !== 'undefined' && pdfjsNamespace.GlobalWorkerOptions) {
     const version = pdfjsNamespace.version || '5.6.205';
-    pdfjsNamespace.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${version}/pdf.worker.min.mjs`;
+    pdfjsNamespace.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${version}/build/pdf.worker.min.mjs`;
   }
 
   const loadingTask = pdfjsNamespace.getDocument({ data: arrayBuffer });
