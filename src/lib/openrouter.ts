@@ -209,8 +209,8 @@ export async function translateCVField(
   const task: GeminiTask = modelType === 'light' ? 'translate' : 'improve';
   const prompt = `
 You are a professional CV editor specializing in the international job market.
-Convert the following CV field from ${from === 'pt' ? 'Portuguese' : 'English'} to ${
-    to === 'pt' ? 'Portuguese' : 'English'
+Convert the following CV field from ${from === 'pt' ? 'European Portuguese' : 'English'} to ${
+    to === 'pt' ? 'European Portuguese (Portugal)' : 'English'
   }.
 
 Rules:
@@ -219,6 +219,11 @@ Rules:
 3. Improve clarity and impact.
 4. Preserve bullet formatting if it exists.
 5. Return only the converted text.
+${
+    to === 'pt'
+      ? '6. Use STRICT European Portuguese (Portugal), with the OLD spelling (pre-1990 reform / antigo acordo orto\u0301grafico): keep consonants in words like "projecto", "objectivo", "ac\u00e7\u00e3o", "selec\u00e7\u00e3o", "direc\u00e7\u00e3o", "efectivo", "colectivo", "actividade", "ar\u00e7\u00e3o", "correc\u00e7\u00e3o", "adop\u00e7\u00e3o". NEVER use Brazilian Portuguese vocabulary or grammar.'
+      : ''
+  }
 
 TEXT:
 "${text}"
@@ -238,7 +243,7 @@ export async function improveCVField(
   const task: GeminiTask = modelType === 'light' ? 'translate' : 'improve';
   const prompt = `
 You are a senior CV writing agent.
-Improve the following CV text in ${lang === 'pt' ? 'Portuguese' : 'English'}.
+Improve the following CV text in ${lang === 'pt' ? 'European Portuguese (Portugal)' : 'English'}.
 
 Rules:
 1. Keep the same language.
@@ -246,6 +251,11 @@ Rules:
 3. Prefer action verbs and specific outcomes when possible.
 4. Keep the same overall structure and formatting.
 5. Return only the improved text.
+${
+    lang === 'pt'
+      ? '6. Use STRICT European Portuguese (Portugal), with the OLD spelling (pre-1990 reform / antigo acordo orto\u0301grafico): write "projecto", "objectivo", "ac\u00e7\u00e3o", "selec\u00e7\u00e3o", "direc\u00e7\u00e3o", "efectivo", "colectivo", "actividade", "correc\u00e7\u00e3o", "adop\u00e7\u00e3o", "\u00f3ptimo", "contacto". NEVER use Brazilian Portuguese.'
+      : ''
+  }
 
 TEXT:
 "${text}"
@@ -322,11 +332,20 @@ Return JSON only with this exact shape:
 }
 
 Rules:
-1. Preferred language is ${preferredLang}.
+1. Preferred language is ${preferredLang === 'pt' ? 'European Portuguese (Portugal, pre-1990 spelling: "projecto", "objectivo", "ac\u00e7\u00e3o", "actividade", "efectivo")' : 'English'}.
 2. If only one language is clearly present, fill that language first and leave the other blank when necessary.
-3. Improve weak wording, but do not invent jobs, degrees, certifications, or achievements that are not implied.
-4. Normalize obvious sections and contact details.
-5. Return empty arrays when a section does not exist.
+3. Be very rigorous parsing sections. Detect:
+   - Personal info: full name, email, phone, location/city, linkedin URL, website, current job title.
+   - Summary: a paragraph (2-5 sentences) describing the person professionally. If absent, synthesise one from the experience.
+   - Experience: each role with company, position, period (e.g. "Jan 2022 - Present"), and a multi-bullet description (one bullet per achievement, prefixed with action verb).
+   - Education: institution, degree, year (or year range).
+   - Skills: extract a comprehensive list (technical + tools + methodologies). At least 8 if the CV is rich.
+   - Languages: language name + level (e.g. "Native", "C1", "Fluent").
+   - Projects and Certifications when explicit.
+4. NEVER invent achievements, but DO rewrite weak phrasing into action-verb bullets and split run-on paragraphs into separate bullet lines (use "\n" between bullets in description).
+5. Normalize dates to a consistent format (e.g. "Jan 2020 - Dec 2022" or "2020 - Present").
+6. Return empty arrays when a section does not exist.
+7. NEVER use Brazilian Portuguese vocabulary or grammar when writing Portuguese.
 
 CV TEXT:
 """
@@ -452,7 +471,7 @@ export async function tailorCVForJobDescription(
 
   const prompt = `
 You are a senior CV tailoring agent. The candidate wants to adapt their CV to the
-job description below. Respond in ${lang === 'pt' ? 'Portuguese' : 'English'}.
+job description below. Respond in ${lang === 'pt' ? 'European Portuguese (Portugal, pre-1990 spelling: write "projecto", "objectivo", "ac\u00e7\u00e3o", "actividade", "efectivo"; never Brazilian Portuguese)' : 'English'}.
 
 Return JSON only with this exact shape:
 {

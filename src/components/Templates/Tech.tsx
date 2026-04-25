@@ -37,18 +37,18 @@ export default function Tech({ data, lang }: TemplateProps) {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
           <section>
-            <h3 style={{ fontSize: '12px', fontWeight: 800, color: accentColor, textTransform: 'uppercase', marginBottom: '15px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '5px' }}>Contact</h3>
+            <h3 style={{ fontSize: '12px', fontWeight: 800, color: accentColor, textTransform: 'uppercase', marginBottom: '15px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '5px' }}>{lang === 'pt' ? 'Contacto' : 'Contact'}</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '11px', color: '#94a3b8' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Mail size={14} /> {data.personalInfo.email}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Phone size={14} /> {data.personalInfo.phone}</div>
               {data.personalInfo.linkedin && <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Globe size={14} /> {data.personalInfo.linkedin}</div>}
               {data.personalInfo.website && <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Globe size={14} /> {data.personalInfo.website}</div>}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Code2 size={14} /> GitHub Profile</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Code2 size={14} /> {lang === 'pt' ? 'Perfil GitHub' : 'GitHub Profile'}</div>
             </div>
           </section>
 
           <section>
-            <h3 style={{ fontSize: '12px', fontWeight: 800, color: accentColor, textTransform: 'uppercase', marginBottom: '15px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '5px' }}>Stack</h3>
+            <h3 style={{ fontSize: '12px', fontWeight: 800, color: accentColor, textTransform: 'uppercase', marginBottom: '15px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '5px' }}>{lang === 'pt' ? 'Competências' : 'Stack'}</h3>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
               {data.skills.map((s, i) => (
                 <span key={i} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', padding: '4px 8px', borderRadius: '4px', fontSize: '10px' }}>{s[lang] || s.pt || s.en}</span>
@@ -61,14 +61,14 @@ export default function Tech({ data, lang }: TemplateProps) {
       <div style={{ padding: '50px', background: 'white' }}>
         <section style={{ marginBottom: `${sectionSpacing * 1.5}px` }}>
           <h3 style={{ color: '#0f172a', fontSize: '16px', fontWeight: 900, marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ color: accentColor }}>01.</span> Overview
+            <span style={{ color: accentColor }}>01.</span> {lang === 'pt' ? 'Resumo' : 'Overview'}
           </h3>
           <p style={{ color: '#475569', lineHeight: 1.7 }}>{data.summary[lang]}</p>
         </section>
 
         <section style={{ marginBottom: `${sectionSpacing * 1.5}px` }}>
           <h3 style={{ color: '#0f172a', fontSize: '16px', fontWeight: 900, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ color: accentColor }}>02.</span> Experience
+            <span style={{ color: accentColor }}>02.</span> {lang === 'pt' ? 'Experiência' : 'Experience'}
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
             {data.experience.map((exp) => (

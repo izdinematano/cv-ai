@@ -60,6 +60,7 @@ import BulletEditor from './BulletEditor';
 import WritingHints from './WritingHints';
 import AtsPanel from './AtsPanel';
 import AiStatusBanner from './AiStatusBanner';
+import { computeCVScore } from '@/lib/cvScore';
 import { analyzeParagraph } from '@/lib/writingQuality';
 
 function SectionHeader({
@@ -212,30 +213,7 @@ export default function Editor() {
     );
   };
 
-  const calculateScore = () => {
-    let score = 0;
-    const p = data.personalInfo;
-    if (p.photo) score += 8;
-    if (p.fullName) score += 8;
-    if (p.jobTitle[activeLanguage]) score += 6;
-    if (p.email) score += 5;
-    if (p.phone) score += 4;
-    if (p.location) score += 3;
-    if (p.linkedin || p.website) score += 4;
-    if (data.summary[activeLanguage] && data.summary[activeLanguage].length > 50) score += 14;
-    if (data.experience.length >= 1) score += 18;
-    if (data.experience.length >= 2) score += 5;
-    if (data.experience.some((item) => item.description[activeLanguage])) score += 5;
-    if (data.education.length >= 1) score += 10;
-    if (data.skills.length >= 3) score += 8;
-    if (data.skills.length >= 6) score += 4;
-    if (data.languages.length >= 1) score += 4;
-    if (data.projects.length >= 1) score += 4;
-    if (data.certifications.length >= 1) score += 4;
-    return Math.min(score, 100);
-  };
-
-  const score = calculateScore();
+  const { score, suggestions: scoreSuggestions } = computeCVScore(data, activeLanguage);
   const scoreColor = score < 40 ? '#ef4444' : score < 70 ? '#f59e0b' : '#10b981';
   const selectedTemplate = getTemplateDefinition(data.settings.template);
 
@@ -426,6 +404,51 @@ export default function Editor() {
               }}
             />
           </div>
+          {scoreSuggestions.length > 0 && (
+            <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--foreground-muted)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                Para melhorar o teu CV
+              </div>
+              {scoreSuggestions.slice(0, 6).map((s) => {
+                const dot =
+                  s.severity === 'critical' ? '#ef4444' : s.severity === 'warning' ? '#f59e0b' : '#3b82f6';
+                return (
+                  <div
+                    key={s.id}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: 8,
+                      fontSize: 12,
+                      lineHeight: 1.45,
+                      color: 'var(--foreground)',
+                    }}
+                  >
+                    <span
+                      aria-hidden="true"
+                      style={{
+                        width: 6,
+                        height: 6,
+                        borderRadius: 999,
+                        background: dot,
+                        marginTop: 6,
+                        flexShrink: 0,
+                      }}
+                    />
+                    <span style={{ flex: 1 }}>
+                      {s.label}
+                      {s.worth > 0 && (
+                        <span style={{ color: 'var(--foreground-muted)', fontWeight: 700 }}>
+                          {' '}
+                          (+{s.worth} pts)
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         <div
