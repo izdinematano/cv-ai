@@ -59,6 +59,7 @@ import { useCVStore } from '@/store/useCVStore';
 import BulletEditor from './BulletEditor';
 import WritingHints from './WritingHints';
 import AtsPanel from './AtsPanel';
+import AiStatusBanner from './AiStatusBanner';
 import { analyzeParagraph } from '@/lib/writingQuality';
 
 function SectionHeader({
@@ -471,6 +472,8 @@ export default function Editor() {
 
         {activeTab === 'content' ? (
           <>
+            <AiStatusBanner />
+
             <AtsPanel data={data} lang={activeLanguage} />
 
             <div className="glass-card" style={{ padding: 0, overflow: 'hidden' }}>

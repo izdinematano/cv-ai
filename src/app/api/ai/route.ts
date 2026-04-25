@@ -9,6 +9,10 @@ const TASK_MODELS: Record<string, string> = {
   recommend: 'gemini-1.5-flash',
 };
 
+export async function GET() {
+  return NextResponse.json({ configured: !!GEMINI_API_KEY });
+}
+
 export async function POST(req: NextRequest) {
   if (!GEMINI_API_KEY) {
     return NextResponse.json({ error: 'Gemini API key not configured' }, { status: 500 });

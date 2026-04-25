@@ -7,9 +7,10 @@
  */
 
 import { useMemo, useState } from 'react';
-import { ChevronDown, ChevronUp, Target } from 'lucide-react';
+import { Check, ChevronDown, ChevronUp, Plus, Target } from 'lucide-react';
 import { atsMatch } from '@/lib/writingQuality';
 import type { CVData } from '@/store/useCVStore';
+import { useCVStore } from '@/store/useCVStore';
 
 interface Props {
   data: CVData;
@@ -17,8 +18,16 @@ interface Props {
 }
 
 export default function AtsPanel({ data, lang }: Props) {
-  const [open, setOpen] = useState(false);
+  const { addSkill } = useCVStore();
+  const [open, setOpen] = useState(true);
   const [jd, setJd] = useState('');
+  const [addedSkills, setAddedSkills] = useState<Set<string>>(new Set());
+
+  const handleAddSkill = (word: string) => {
+    if (addedSkills.has(word)) return;
+    addSkill(word, lang);
+    setAddedSkills((prev) => new Set(prev).add(word));
+  };
 
   const haystack = useMemo(() => buildHaystack(data, lang), [data, lang]);
   const report = useMemo(() => (jd ? atsMatch(jd, haystack) : null), [jd, haystack]);
@@ -105,13 +114,18 @@ export default function AtsPanel({ data, lang }: Props) {
                   color="var(--success)"
                   emptyLabel="Ainda nenhuma."
                 />
-                <KeywordList
+                <MissingKeywordList
                   title={`✗ Em falta (${report.missing.length})`}
                   words={report.missing}
-                  color="var(--error)"
-                  emptyLabel="Parabéns — cobres todas."
+                  addedSkills={addedSkills}
+                  onAdd={handleAddSkill}
                 />
               </div>
+              {report.missing.length > 0 && (
+                <div style={{ fontSize: 11, color: 'var(--foreground-muted)', marginTop: 4 }}>
+                  Clica numa palavra-chave em falta para a adicionar como competência.
+                </div>
+              )}
             </>
           )}
         </div>
@@ -182,6 +196,59 @@ function KeywordList({
               {w}
             </span>
           ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MissingKeywordList({
+  title,
+  words,
+  addedSkills,
+  onAdd,
+}: {
+  title: string;
+  words: string[];
+  addedSkills: Set<string>;
+  onAdd: (word: string) => void;
+}) {
+  return (
+    <div>
+      <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--error)', marginBottom: 6 }}>{title}</div>
+      {words.length === 0 ? (
+        <div style={{ fontSize: 11, color: 'var(--foreground-muted)' }}>Parabéns — cobres todas.</div>
+      ) : (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+          {words.map((w) => {
+            const added = addedSkills.has(w);
+            return (
+              <button
+                key={w}
+                type="button"
+                onClick={() => onAdd(w)}
+                disabled={added}
+                title={added ? 'Já adicionada' : 'Clica para adicionar como competência'}
+                style={{
+                  fontSize: 10.5,
+                  fontWeight: 600,
+                  padding: '3px 8px',
+                  borderRadius: 999,
+                  background: added ? 'rgba(5,150,105,0.12)' : 'var(--background)',
+                  border: `1px solid ${added ? 'var(--success)' : 'var(--card-border)'}`,
+                  color: added ? 'var(--success)' : 'var(--foreground)',
+                  cursor: added ? 'default' : 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  transition: 'all 120ms ease',
+                }}
+              >
+                {added ? <Check size={10} aria-hidden="true" /> : <Plus size={10} aria-hidden="true" />}
+                {w}
+              </button>
+            );
+          })}
         </div>
       )}
     </div>
