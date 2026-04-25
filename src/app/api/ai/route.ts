@@ -29,10 +29,13 @@ export async function POST(req: NextRequest) {
     const model = TASK_MODELS[task] || 'gemini-1.5-flash';
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/openai/chat/completions?key=${GEMINI_API_KEY}`,
+      'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
       {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${GEMINI_API_KEY}`,
+        },
         body: JSON.stringify({
           model,
           messages: [{ role: 'user', content: prompt }],
