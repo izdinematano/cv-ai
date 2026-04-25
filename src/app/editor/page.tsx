@@ -3,7 +3,6 @@
 import { useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  Download,
   Eye,
   LayoutTemplate,
   Sparkles,
@@ -20,11 +19,6 @@ import Preview from '@/components/Preview/Preview';
 import TemplateGallery from '@/components/Preview/TemplateGallery';
 import { getTemplateDefinition } from '@/lib/templateCatalog';
 import { useCVStore } from '@/store/useCVStore';
-
-function exportPDF() {
-  if (typeof window === 'undefined') return;
-  window.print();
-}
 
 export default function EditorPage() {
   const {
@@ -212,15 +206,6 @@ export default function EditorPage() {
             <Eye size={15} />
             Ver CV
           </button>
-          <div style={{ width: 1, height: 28, background: 'var(--card-border)', margin: '0 2px' }} aria-hidden="true" />
-          <button
-            onClick={exportPDF}
-            className="btn-primary"
-            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 16px', fontSize: '13px', background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', boxShadow: '0 4px 14px rgba(79,70,229,0.35)' }}
-            title="Exportar CV em PDF"
-          >
-            <Download size={15} /> Exportar PDF
-          </button>
         </div>
 
         <div className="editor-mobile-only" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -230,13 +215,6 @@ export default function EditorPage() {
             style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 12px', fontSize: '13px' }}
           >
             <Eye size={15} /> Ver CV
-          </button>
-          <button
-            onClick={exportPDF}
-            className="btn-primary"
-            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 12px', fontSize: '13px' }}
-          >
-            <Download size={15} /> PDF
           </button>
         </div>
       </div>

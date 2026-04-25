@@ -1,6 +1,7 @@
 'use client';
 
 import { CVData } from '@/store/useCVStore';
+import BulletList from './_shared/BulletList';
 
 interface TemplateProps {
   data: CVData;
@@ -43,7 +44,7 @@ export default function MinimalistV2({ data, lang }: TemplateProps) {
                 </div>
                 <div>
                   <h4 style={{ fontSize: '14px', fontWeight: 700, color: accentColor, marginBottom: '8px' }}>{exp.position[lang]}</h4>
-                  <p style={{ fontSize: '13px', lineHeight: '1.6', color: '#64748b' }}>{exp.description[lang]}</p>
+                  <BulletList text={exp.description[lang]} fontSize={13} lineHeight={1.6} bulletColor={accentColor} style={{ color: '#64748b' }} />
                 </div>
               </div>
             ))}

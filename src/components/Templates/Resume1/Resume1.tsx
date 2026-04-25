@@ -1,6 +1,7 @@
 'use client';
 
 import { CVData } from '@/store/useCVStore';
+import BulletList from '../_shared/BulletList';
 import styles from './Resume1.module.css';
 
 interface TemplateProps {
@@ -201,7 +202,7 @@ export default function Resume1({ data, lang }: TemplateProps) {
                           <div className={styles.jobPeriod}>{exp.period}</div>
                         </div>
                         <div className={styles.jobDescription}>
-                          <div className={styles.jobText}>{exp.description[lang]}</div>
+                          <BulletList text={exp.description[lang]} className={styles.jobText} bulletColor="var(--color-chocolate, #0f766e)" />
                         </div>
                       </div>
                     ))}
@@ -220,7 +221,7 @@ export default function Resume1({ data, lang }: TemplateProps) {
                     <div key={p.id} className={styles.projectItem}>
                       <div className={styles.projectName}>{p.name}</div>
                       {p.link && <div className={styles.projectLink}>{p.link}</div>}
-                      <div className={styles.jobText}>{p.description[lang]}</div>
+                      <BulletList text={p.description[lang]} className={styles.jobText} bulletColor="var(--color-chocolate, #0f766e)" />
                     </div>
                   ))}
                 </div>

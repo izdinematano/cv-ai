@@ -1,6 +1,7 @@
 'use client';
 
 import { TemplateProps, a4Frame, fallbackPhoto, labels } from '../_shared/TemplateUtils';
+import BulletList from '../_shared/BulletList';
 
 /**
  * Resume2 - Editorial spread: large left column with photo, name, skills, education, languages;
@@ -139,9 +140,9 @@ export default function Resume2({ data, lang }: TemplateProps) {
                   <div style={{ paddingLeft: 18, fontSize: '12px', fontWeight: 600, marginTop: 2 }}>{exp.position[lang]}</div>
                   <div style={{ paddingLeft: 18, fontSize: '12px', fontWeight: 300, color: '#444' }}>{exp.company}</div>
                   {exp.description[lang] && (
-                    <p style={{ margin: '6px 0 0', paddingLeft: 18, fontSize: '11.5px', fontWeight: 300, lineHeight: 1.55 }}>
-                      {exp.description[lang]}
-                    </p>
+                    <div style={{ margin: '6px 0 0', paddingLeft: 18 }}>
+                      <BulletList text={exp.description[lang]} fontSize={11.5} lineHeight={1.55} bulletColor="#000" />
+                    </div>
                   )}
                 </div>
               ))}
@@ -159,7 +160,9 @@ export default function Resume2({ data, lang }: TemplateProps) {
                   <div style={{ fontSize: '12px', fontWeight: 600 }}>{p.name}</div>
                   {p.link && <div style={{ fontSize: '11px', color: accent, fontWeight: 300 }}>{p.link}</div>}
                   {p.description[lang] && (
-                    <p style={{ margin: '4px 0 0', fontSize: '11.5px', fontWeight: 300, lineHeight: 1.55 }}>{p.description[lang]}</p>
+                    <div style={{ margin: '4px 0 0' }}>
+                      <BulletList text={p.description[lang]} fontSize={11.5} lineHeight={1.55} bulletColor="#000" />
+                    </div>
                   )}
                 </div>
               ))}

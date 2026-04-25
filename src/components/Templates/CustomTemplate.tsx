@@ -22,6 +22,7 @@ import {
   type CustomTemplateBlock,
   type CustomTemplateSpec,
 } from '@/lib/customTemplate';
+import BulletList from './_shared/BulletList';
 
 interface Props {
   spec: CustomTemplateSpec;
@@ -298,9 +299,9 @@ function ExperienceBlock({ block, data, lang, spec }: { block: CustomTemplateBlo
               {e.period && <div style={subtleText(spec)}>{e.period}</div>}
             </div>
             {(e.description[lang] || e.description.pt) && (
-              <p style={{ fontSize: 11.5, lineHeight: 1.5, margin: '4px 0 0', color: spec.mutedColor }}>
-                {e.description[lang] || e.description.pt}
-              </p>
+              <div style={{ margin: '4px 0 0' }}>
+                <BulletList text={e.description[lang] || e.description.pt} fontSize={11.5} lineHeight={1.5} bulletColor={spec.accentColor} style={{ color: spec.mutedColor }} />
+              </div>
             )}
           </div>
         ))}
@@ -405,9 +406,9 @@ function ProjectsBlock({ block, data, lang, spec }: { block: CustomTemplateBlock
               {p.link ? <span style={{ color: spec.accentColor, fontSize: 11, marginLeft: 6 }}>{p.link}</span> : null}
             </div>
             {(p.description[lang] || p.description.pt) && (
-              <p style={{ fontSize: 11.5, lineHeight: 1.5, margin: '2px 0 0', color: spec.mutedColor }}>
-                {p.description[lang] || p.description.pt}
-              </p>
+              <div style={{ margin: '2px 0 0' }}>
+                <BulletList text={p.description[lang] || p.description.pt} fontSize={11.5} lineHeight={1.5} bulletColor={spec.accentColor} style={{ color: spec.mutedColor }} />
+              </div>
             )}
           </div>
         ))}

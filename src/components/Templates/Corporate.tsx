@@ -1,6 +1,7 @@
 'use client';
 
 import { CVData } from '@/store/useCVStore';
+import BulletList from './_shared/BulletList';
 interface TemplateProps {
   data: CVData;
   lang: 'pt' | 'en';
@@ -55,7 +56,7 @@ export default function Corporate({ data, lang }: TemplateProps) {
                 <span style={{ fontSize: '11px', color: '#64748b' }}>{exp.period}</span>
               </div>
               <div style={{ fontSize: '13px', color: accentColor, fontWeight: 600, margin: '4px 0' }}>{exp.position[lang]}</div>
-              <p style={{ fontSize: '12px', color: '#475569', lineHeight: '1.6' }}>{exp.description[lang]}</p>
+              <BulletList text={exp.description[lang]} fontSize={12} lineHeight={1.6} bulletColor={accentColor} style={{ color: '#475569' }} />
             </div>
           ))}
         </section>

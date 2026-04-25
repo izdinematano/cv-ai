@@ -1,6 +1,7 @@
 'use client';
 
 import { TemplateProps, a4Frame, fallbackPhoto, labels } from '../_shared/TemplateUtils';
+import BulletList from '../_shared/BulletList';
 
 /**
  * CV7 - Sidebar with large square photo + centered details (Location/Phone/Email/Languages/Skills);
@@ -63,7 +64,9 @@ export default function CV7({ data, lang }: TemplateProps) {
         <div style={{ fontWeight: 700 }}>{title}</div>
         <div style={{ fontWeight: 500, marginTop: 1 }}>{org}</div>
         {description && (
-          <div style={{ marginTop: 4, fontWeight: 400, lineHeight: 1.45, color: '#444' }}>{description}</div>
+          <div style={{ marginTop: 4 }}>
+            <BulletList text={description} fontSize={9} lineHeight={1.45} bulletColor="#000" style={{ color: '#444' }} />
+          </div>
         )}
       </div>
     </div>
@@ -223,9 +226,9 @@ export default function CV7({ data, lang }: TemplateProps) {
                   <div style={{ fontSize: '11px', fontWeight: 700, color: '#000' }}>{p.name}</div>
                   {p.link && <div style={{ fontSize: '9px', color: accent, marginTop: 2 }}>{p.link}</div>}
                   {p.description[lang] && (
-                    <p style={{ margin: '4px 0 0', fontSize: '9.5px', color: '#444', lineHeight: 1.5 }}>
-                      {p.description[lang]}
-                    </p>
+                    <div style={{ margin: '4px 0 0' }}>
+                      <BulletList text={p.description[lang]} fontSize={9.5} lineHeight={1.5} bulletColor="#000" style={{ color: '#444' }} />
+                    </div>
                   )}
                 </div>
               ))}

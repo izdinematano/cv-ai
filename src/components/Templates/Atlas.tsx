@@ -2,6 +2,7 @@
 
 import { CVData } from '@/store/useCVStore';
 import { Globe, Mail, MapPin, Phone } from 'lucide-react';
+import BulletList from './_shared/BulletList';
 
 interface TemplateProps {
   data: CVData;
@@ -145,7 +146,7 @@ export default function Atlas({ data, lang }: TemplateProps) {
                   </div>
                   <div>
                     <div style={{ fontWeight: 900, fontSize: '18px', marginBottom: '8px' }}>{exp.position[lang]}</div>
-                    <p style={{ color: '#475569', lineHeight: 1.8 }}>{exp.description[lang]}</p>
+                    <BulletList text={exp.description[lang]} lineHeight={1.8} bulletColor={accentColor} style={{ color: '#475569' }} />
                   </div>
                 </div>
               ))}
@@ -165,7 +166,7 @@ export default function Atlas({ data, lang }: TemplateProps) {
                       {project.link && (
                         <div style={{ color: accentColor, fontSize: '12px', marginTop: '4px' }}>{project.link}</div>
                       )}
-                      <div style={{ color: '#475569', lineHeight: 1.7, marginTop: '8px' }}>{project.description[lang]}</div>
+                      <BulletList text={project.description[lang]} lineHeight={1.7} bulletColor={accentColor} style={{ color: '#475569', marginTop: '8px' }} />
                     </div>
                   ))}
                 </div>

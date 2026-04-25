@@ -1,6 +1,7 @@
 'use client';
 
 import { TemplateProps, a4Frame, fallbackPhoto, labels } from '../_shared/TemplateUtils';
+import BulletList from '../_shared/BulletList';
 
 /**
  * Resume3 - Two-column with main column on the left (photo + name + profile + experience + education)
@@ -83,9 +84,8 @@ export default function Resume3({ data, lang }: TemplateProps) {
                   <div style={{ fontSize: '9.5px' }}>{exp.position[lang]}</div>
                   <div style={{ fontSize: '9px', color: 'rgba(0,0,0,0.6)' }}>{exp.period}</div>
                   {exp.description[lang] && (
-                    <div style={{ display: 'flex', gap: 6, marginTop: 5 }}>
-                      <div style={{ lineHeight: '13px' }}>•</div>
-                      <p style={{ margin: 0, lineHeight: 1.55 }}>{exp.description[lang]}</p>
+                    <div style={{ marginTop: 5 }}>
+                      <BulletList text={exp.description[lang]} fontSize={9} lineHeight={1.55} bulletColor="#000" />
                     </div>
                   )}
                 </div>
@@ -119,7 +119,9 @@ export default function Resume3({ data, lang }: TemplateProps) {
                   <div style={{ fontSize: '10px', fontWeight: 700, color: '#000' }}>{p.name}</div>
                   {p.link && <div style={{ fontSize: '9px', color: accent }}>{p.link}</div>}
                   {p.description[lang] && (
-                    <p style={{ margin: '3px 0 0', fontSize: '9px', lineHeight: 1.55 }}>{p.description[lang]}</p>
+                    <div style={{ margin: '3px 0 0' }}>
+                      <BulletList text={p.description[lang]} fontSize={9} lineHeight={1.55} bulletColor="#000" />
+                    </div>
                   )}
                 </div>
               ))}

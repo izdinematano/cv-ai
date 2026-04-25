@@ -6,6 +6,7 @@ import {
   fallbackPhoto,
   labels,
 } from '../_shared/TemplateUtils';
+import BulletList from '../_shared/BulletList';
 
 /**
  * CV5 - Black header with circular avatar; sidebar (Education/Skills/Languages) +
@@ -142,9 +143,9 @@ export default function CV5({ data, lang }: TemplateProps) {
                       {exp.period ? <><br />{exp.period}</> : null}
                     </div>
                     {exp.description[lang] && (
-                      <p style={{ margin: '6px 0 0', lineHeight: 1.55, color: '#444', fontWeight: 300 }}>
-                        {exp.description[lang]}
-                      </p>
+                      <div style={{ margin: '6px 0 0' }}>
+                        <BulletList text={exp.description[lang]} lineHeight={1.55} bulletColor="#000" style={{ color: '#444', fontWeight: 300 }} />
+                      </div>
                     )}
                   </div>
                 ))}
@@ -161,7 +162,9 @@ export default function CV5({ data, lang }: TemplateProps) {
                     <div style={{ fontWeight: 700, fontSize: '11.5px' }}>{p.name}</div>
                     {p.link && <div style={{ color: accent, fontSize: '9.5px', marginTop: 2 }}>{p.link}</div>}
                     {p.description[lang] && (
-                      <p style={{ margin: '4px 0 0', lineHeight: 1.55, color: '#444' }}>{p.description[lang]}</p>
+                      <div style={{ margin: '4px 0 0' }}>
+                        <BulletList text={p.description[lang]} lineHeight={1.55} bulletColor="#000" style={{ color: '#444' }} />
+                      </div>
                     )}
                   </div>
                 ))}

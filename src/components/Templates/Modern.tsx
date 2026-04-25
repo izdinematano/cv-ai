@@ -2,6 +2,7 @@
 
 import { CVData } from '@/store/useCVStore';
 import { Mail, Phone, MapPin, Globe } from 'lucide-react';
+import BulletList from './_shared/BulletList';
 
 interface TemplateProps {
   data: CVData;
@@ -63,7 +64,7 @@ export default function Modern({ data, lang }: TemplateProps) {
                     <span style={{ fontSize: '13px', color: '#64748b' }}>{exp.period}</span>
                   </div>
                   <div style={{ color: accentColor, fontWeight: 800, fontSize: '15px', marginBottom: '12px' }}>{exp.company}</div>
-                  <p style={{ lineHeight: 1.7, color: '#475569' }}>{exp.description[lang]}</p>
+                  <BulletList text={exp.description[lang]} lineHeight={1.7} bulletColor={accentColor} style={{ color: '#475569' }} />
                 </div>
               ))}
             </div>

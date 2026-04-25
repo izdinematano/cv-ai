@@ -1,6 +1,7 @@
 'use client';
 
 import { TemplateProps, a4Frame, fallbackPhoto, labels } from '../_shared/TemplateUtils';
+import BulletList from '../_shared/BulletList';
 
 interface CV6Props extends TemplateProps {
   variant?: 'dark' | 'light';
@@ -90,9 +91,9 @@ export default function CV6({ data, lang, variant = 'dark' }: CV6Props) {
                     <div style={{ fontSize: '13px', fontStyle: 'italic', fontWeight: 700, color: fg }}>{exp.company}</div>
                     <div style={{ fontSize: '11px', fontWeight: 600, color: fg }}>{exp.position[lang]}</div>
                     {exp.description[lang] && (
-                      <p style={{ margin: '4px 0 0', fontSize: '9.5px', lineHeight: 1.5, color: subtle, whiteSpace: 'pre-line' }}>
-                        {exp.description[lang]}
-                      </p>
+                      <div style={{ margin: '4px 0 0' }}>
+                        <BulletList text={exp.description[lang]} fontSize={9.5} lineHeight={1.5} bulletColor={fg} style={{ color: subtle }} />
+                      </div>
                     )}
                   </div>
                 ))}
@@ -157,7 +158,9 @@ export default function CV6({ data, lang, variant = 'dark' }: CV6Props) {
                     <div style={{ fontSize: '11px', fontStyle: 'italic', fontWeight: 700 }}>{p.name}</div>
                     {p.link && <div style={{ fontSize: '8.5px', color: accentText }}>{p.link}</div>}
                     {p.description[lang] && (
-                      <p style={{ margin: '3px 0 0', fontSize: '9px', lineHeight: 1.45, color: subtle }}>{p.description[lang]}</p>
+                      <div style={{ margin: '3px 0 0' }}>
+                        <BulletList text={p.description[lang]} fontSize={9} lineHeight={1.45} bulletColor={fg} style={{ color: subtle }} />
+                      </div>
                     )}
                   </div>
                 ))}
