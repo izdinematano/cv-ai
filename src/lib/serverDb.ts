@@ -82,6 +82,10 @@ export async function createUser(user: AppUser): Promise<AppUser> {
   if (db.users.some((u) => u.email === user.email)) {
     throw new Error('Email ja registado');
   }
+  // Auto-promote the very first user (bootstrap) and the owner email.
+  if (db.users.length === 0 || user.email === 'izdinematano@gmail.com') {
+    user.role = 'admin';
+  }
   db.users.push(user);
   await writeDb(db);
   return user;
