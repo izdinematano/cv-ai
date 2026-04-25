@@ -20,27 +20,29 @@ const getExtension = (fileName: string): SupportedExtension | null => {
 
 async function extractTextFromPdf(file: File): Promise<string> {
   const arrayBuffer = await file.arrayBuffer();
-  // Import lazily so the heavy pdf.js bundle is only loaded when needed.
-  // Using the main entry point so Turbopack / webpack can resolve it in every mode.
+
+  // pdfjs-dist v5 requires a worker. We load it from a CDN matching the
+  // installed package version so we don't have to ship the worker file
+  // through the Next.js bundler (which is fragile under Turbopack).
   const pdfjsNamespace = (await import('pdfjs-dist')) as unknown as {
-    getDocument: (src: unknown) => { promise: Promise<{
-      numPages: number;
-      getPage: (n: number) => Promise<{
-        getTextContent: () => Promise<{ items: Array<{ str?: string }> }>;
+    version: string;
+    getDocument: (src: unknown) => {
+      promise: Promise<{
+        numPages: number;
+        getPage: (n: number) => Promise<{
+          getTextContent: () => Promise<{ items: Array<{ str?: string }> }>;
+        }>;
       }>;
-    }> };
-    GlobalWorkerOptions?: { workerSrc: string };
+    };
+    GlobalWorkerOptions: { workerSrc: string };
   };
 
-  try {
-    if (pdfjsNamespace.GlobalWorkerOptions) {
-      pdfjsNamespace.GlobalWorkerOptions.workerSrc = '';
-    }
-  } catch {
-    // ignore
+  if (typeof window !== 'undefined' && pdfjsNamespace.GlobalWorkerOptions) {
+    const version = pdfjsNamespace.version || '5.6.205';
+    pdfjsNamespace.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${version}/pdf.worker.min.mjs`;
   }
 
-  const loadingTask = pdfjsNamespace.getDocument({ data: arrayBuffer, useWorker: false });
+  const loadingTask = pdfjsNamespace.getDocument({ data: arrayBuffer });
   const pdf = await loadingTask.promise;
 
   const pages: string[] = [];
@@ -111,7 +113,8 @@ export async function extractTextFromDocument(file: File): Promise<DocumentExtra
       default:
         return { text: await extractTextFromPlain(file), fileName: file.name, kind: ext };
     }
-  } catch {
+  } catch (err) {
+    console.error('[documentExtractor] failed to read file:', file.name, err);
     return { text: '', fileName: file.name, kind: ext };
   }
 }
