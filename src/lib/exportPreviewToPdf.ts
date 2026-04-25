@@ -1,16 +1,20 @@
 /**
- * Exports the on-screen CV preview to a multi-page A4 PDF, so the downloaded
- * file matches what the user sees exactly (same template, colours, typography,
- * photo, everything).
+ * Exports the on-screen CV preview to a single continuous-page PDF.
+ *
+ * The PDF has a fixed A4 width (210 mm) but its height grows dynamically to
+ * match the full content height — there are no artificial page breaks and no
+ * content is sliced. Templates normally force `minHeight: 1122px` for the
+ * on-screen preview; we strip that in the html2canvas clone so the capture
+ * reflects the true content height.
  *
  * Strategy:
- *   1. Snapshot the element with id="cv-export-target" using html2canvas-pro
- *      (the fork that supports modern CSS colour functions like oklch).
- *   2. Convert the snapshot to PNG (lossless, sharper text) and place it into
- *      a jsPDF A4 document, slicing it over multiple pages if the preview is
- *      taller than A4.
- *   3. Pages overlap by a small margin so content is never lost at page breaks.
- *   4. Trigger the browser download with the resulting blob.
+ *   1. Snapshot the element with id="cv-export-target" using html2canvas-pro.
+ *   2. In the cloned DOM, remove all `minHeight` / `min-height` / fixed
+ *      `height` declarations so the capture reflects the natural content flow.
+ *   3. Convert the snapshot to PNG (lossless) at 3x scale for crisp text.
+ *   4. Create a jsPDF with a custom format [210, dynamicHeight] so the page
+ *      is exactly as tall as the captured content.
+ *   5. Trigger the browser download.
  */
 import html2canvas from 'html2canvas-pro';
 import jsPDF from 'jspdf';
@@ -44,22 +48,45 @@ export async function exportPreviewToPdf({ fileName }: ExportOptions): Promise<v
     windowWidth: A4_WIDTH_PX,
     windowHeight: Math.max(A4_HEIGHT_PX, target.scrollHeight),
     width: A4_WIDTH_PX,
-    // Strip transforms from ancestors in the cloned tree so the capture is at
-    // the natural (un-zoomed) size regardless of the live preview zoom, and
-    // force the target to render at its natural A4 width so mobile viewports
-    // never squeeze or reflow it.
     onclone: (clonedDoc) => {
       const cloned = clonedDoc.getElementById(CV_EXPORT_TARGET_ID) as HTMLElement | null;
       if (!cloned) return;
+
+      // Reset the export root so it renders at natural height.
       cloned.style.transform = 'none';
       cloned.style.width = '210mm';
       cloned.style.minWidth = '210mm';
       cloned.style.maxWidth = '210mm';
-      // The preview pane is `display:none` on mobile (the user sees a modal
-      // instead). Force every ancestor back to a rendered state in the clone
-      // so the snapshot actually paints content.
+      cloned.style.height = 'auto';
+      cloned.style.minHeight = 'auto';
+      cloned.style.maxHeight = 'none';
       cloned.style.setProperty('display', 'block', 'important');
       cloned.style.setProperty('visibility', 'visible', 'important');
+
+      // Walk every descendant and strip fixed/min heights so nothing forces
+      // an artificial A4-sized frame. This lets the content flow to its true
+      // natural height in the snapshot.
+      const walker = clonedDoc.createTreeWalker(
+        cloned,
+        NodeFilter.SHOW_ELEMENT,
+        null
+      );
+      let el: Node | null = walker.currentNode;
+      while (el) {
+        const htmlEl = el as HTMLElement;
+        htmlEl.style.removeProperty('min-height');
+        htmlEl.style.removeProperty('minHeight');
+        // Only remove hardcoded pixel heights (e.g. 1122px) — keep 'auto',
+        // percentages, or 'fit-content' that authors may rely on.
+        const h = htmlEl.style.height;
+        if (/^\d+(\.\d+)?px$/.test(h) || h === '100vh' || h === '100%') {
+          htmlEl.style.removeProperty('height');
+        }
+        el = walker.nextNode();
+      }
+
+      // Also force every ancestor back to a rendered state in the clone
+      // so the snapshot actually paints content (mobile modal ancestors).
       let parent: HTMLElement | null = cloned.parentElement;
       while (parent && parent !== clonedDoc.body) {
         parent.style.transform = 'none';
@@ -74,37 +101,17 @@ export async function exportPreviewToPdf({ fileName }: ExportOptions): Promise<v
   // PNG is lossless — sharper text than JPEG, especially at high scale.
   const imgData = canvas.toDataURL('image/png');
 
-  const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
-  const pageWidth = pdf.internal.pageSize.getWidth(); // 210
-  const pageHeight = pdf.internal.pageSize.getHeight(); // 297
-  const imgWidth = pageWidth;
-  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+  // The PDF page width is always A4 (210 mm). The page height grows to match
+  // the captured content so everything fits on one continuous page.
+  const pdfWidth = 210; // mm
+  const pdfHeight = (canvas.height * pdfWidth) / canvas.width; // mm
 
-  // Overlap between pages so a section sliced at a page break still appears
-  // on both pages — the user never loses content at the seam.
-  const OVERLAP_MM = 12;
+  const pdf = new jsPDF({
+    unit: 'mm',
+    format: [pdfWidth, pdfHeight],
+    orientation: 'portrait',
+  });
 
-  if (imgHeight <= pageHeight + 1) {
-    // Single page — no slicing needed.
-    pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-  } else {
-    // Multi-page: draw the full image on every page, shifted so each page
-    // shows the next slice with an overlap to the previous one.
-    let heightLeft = imgHeight;
-    let position = 0; // mm offset inside the PDF (negative = shift image up)
-
-    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
-
-    while (heightLeft > 0) {
-      // Shift the image up by (pageHeight - overlap) so the next page
-      // starts a bit earlier than where the previous one ended.
-      position -= (pageHeight - OVERLAP_MM);
-      pdf.addPage();
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= (pageHeight - OVERLAP_MM);
-    }
-  }
-
+  pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
   pdf.save(fileName);
 }
