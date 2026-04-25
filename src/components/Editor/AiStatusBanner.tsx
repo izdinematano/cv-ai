@@ -44,7 +44,7 @@ export default function AiStatusBanner() {
         <Sparkles size={16} color="var(--success)" aria-hidden="true" />
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--success)' }}>
-            AI Gemini activa
+            IA Activa
           </span>
           <span style={{ fontSize: 11.5, color: 'var(--foreground-muted)' }}>
             Clica no ícone <Sparkles size={10} style={{ display: 'inline', verticalAlign: 'middle' }} /> em qualquer descrição para melhorar com IA.
@@ -60,22 +60,10 @@ export default function AiStatusBanner() {
       <AlertTriangle size={16} color="#d97706" aria-hidden="true" />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <span style={{ fontSize: 13, fontWeight: 700, color: '#d97706' }}>
-          AI desactivada
+          IA Indisponível
         </span>
         <span style={{ fontSize: 11.5, color: 'var(--foreground-muted)' }}>
-          A chave Gemini não está configurada. Adiciona{' '}
-          <code style={codeStyle}>NEXT_PUBLIC_GEMINI_API_KEY</code> ao{' '}
-          <code style={codeStyle}>.env.local</code> e reinicia o servidor.
-          Obtém uma chave gratuita em{' '}
-          <a
-            href="https://aistudio.google.com/apikey"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: 'var(--accent)', textDecoration: 'underline' }}
-          >
-            aistudio.google.com/apikey
-          </a>
-          .
+          A IA está temporariamente indisponível. Podes continuar a editar o teu CV manualmente.
         </span>
       </div>
     </div>
