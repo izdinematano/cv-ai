@@ -79,8 +79,14 @@ export async function exportPreviewToPdf({ fileName }: ExportOptions): Promise<v
         // Only remove hardcoded pixel heights (e.g. 1122px) — keep 'auto',
         // percentages, or 'fit-content' that authors may rely on.
         const h = htmlEl.style.height;
-        if (/^\d+(\.\d+)?px$/.test(h) || h === '100vh' || h === '100%') {
+        if (h === '100vh' || h === '100%') {
           htmlEl.style.removeProperty('height');
+        } else if (/^\d+(\.\d+)?px$/.test(h)) {
+          // Only strip large fixed heights (A4 containers like 1122px).
+          // Small heights (bullets, badges, icons ~4-20px) must be preserved.
+          if (parseFloat(h) >= 100) {
+            htmlEl.style.removeProperty('height');
+          }
         }
         el = walker.nextNode();
       }
