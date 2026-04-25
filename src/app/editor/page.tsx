@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Eye,
@@ -33,6 +33,21 @@ export default function EditorPage() {
   const [previewMode, setPreviewMode] = useState<'split' | 'preview'>('split');
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const cvRef = useRef<HTMLDivElement>(null);
+  const [cvSize, setCvSize] = useState({ width: 794, height: 1123 });
+
+  useEffect(() => {
+    const el = cvRef.current;
+    if (!el) return;
+    const update = () => {
+      setCvSize({ width: el.scrollWidth, height: el.scrollHeight });
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [data, zoom]);
+
   const selectedTemplate = useMemo(
     () => getTemplateDefinition(data.settings.template),
     [data.settings.template]
@@ -328,11 +343,21 @@ export default function EditorPage() {
           </div>
 
           <div
-            id="cv-export-target"
-            className="cv-export-target"
-            style={{ transform: `scale(${zoom})` }}
+            style={{
+              width: cvSize.width * zoom,
+              height: cvSize.height * zoom,
+              minWidth: cvSize.width * zoom,
+              minHeight: cvSize.height * zoom,
+            }}
           >
-            <Preview />
+            <div
+              ref={cvRef}
+              id="cv-export-target"
+              className="cv-export-target"
+              style={{ transform: `scale(${zoom})`, transformOrigin: 'top center' }}
+            >
+              <Preview />
+            </div>
           </div>
         </section>
       </div>
