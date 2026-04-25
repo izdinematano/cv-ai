@@ -6,9 +6,11 @@
  * Strategy:
  *   1. Snapshot the element with id="cv-export-target" using html2canvas-pro
  *      (the fork that supports modern CSS colour functions like oklch).
- *   2. Convert the snapshot to JPEG and place it into a jsPDF A4 document,
- *      slicing it over multiple pages if the preview is taller than A4.
- *   3. Trigger the browser download with the resulting blob.
+ *   2. Convert the snapshot to PNG (lossless, sharper text) and place it into
+ *      a jsPDF A4 document, slicing it over multiple pages if the preview is
+ *      taller than A4.
+ *   3. Pages overlap by a small margin so content is never lost at page breaks.
+ *   4. Trigger the browser download with the resulting blob.
  */
 import html2canvas from 'html2canvas-pro';
 import jsPDF from 'jspdf';
@@ -35,7 +37,7 @@ export async function exportPreviewToPdf({ fileName }: ExportOptions): Promise<v
   const A4_HEIGHT_PX = 1123;
 
   const canvas = await html2canvas(target, {
-    scale: 2,
+    scale: 3, // higher scale = sharper text and images in the PDF
     backgroundColor: '#ffffff',
     useCORS: true,
     logging: false,
@@ -69,7 +71,8 @@ export async function exportPreviewToPdf({ fileName }: ExportOptions): Promise<v
     },
   });
 
-  const imgData = canvas.toDataURL('image/jpeg', 0.92);
+  // PNG is lossless — sharper text than JPEG, especially at high scale.
+  const imgData = canvas.toDataURL('image/png');
 
   const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
   const pageWidth = pdf.internal.pageSize.getWidth(); // 210
@@ -77,18 +80,29 @@ export async function exportPreviewToPdf({ fileName }: ExportOptions): Promise<v
   const imgWidth = pageWidth;
   const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
+  // Overlap between pages so a section sliced at a page break still appears
+  // on both pages — the user never loses content at the seam.
+  const OVERLAP_MM = 12;
+
   if (imgHeight <= pageHeight + 1) {
-    pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+    // Single page — no slicing needed.
+    pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
   } else {
+    // Multi-page: draw the full image on every page, shifted so each page
+    // shows the next slice with an overlap to the previous one.
     let heightLeft = imgHeight;
-    let position = 0;
-    pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+    let position = 0; // mm offset inside the PDF (negative = shift image up)
+
+    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
     heightLeft -= pageHeight;
+
     while (heightLeft > 0) {
-      position = heightLeft - imgHeight;
+      // Shift the image up by (pageHeight - overlap) so the next page
+      // starts a bit earlier than where the previous one ended.
+      position -= (pageHeight - OVERLAP_MM);
       pdf.addPage();
-      pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= (pageHeight - OVERLAP_MM);
     }
   }
 
