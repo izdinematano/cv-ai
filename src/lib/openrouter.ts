@@ -148,18 +148,27 @@ async function callGeminiText(task: GeminiTask, prompt: string): Promise<string>
       body: JSON.stringify({ task, prompt }),
     });
 
-    if (!response.ok) return '';
+    const payload = await response.json().catch(() => ({}));
 
-    const payload = await response.json();
+    if (!response.ok) {
+      console.error('[AI] request failed:', {
+        status: response.status,
+        body: payload,
+      });
+      return '';
+    }
+
     const content = String(payload?.content || '').trim();
 
     // Treat provider/rate-limit error messages returned as assistant content as silent failures.
     if (looksLikeProviderError(content) || looksLikeProviderError(payload?.error?.message)) {
+      console.warn('[AI] provider error in content:', content || payload?.error?.message);
       return '';
     }
 
     return content;
-  } catch {
+  } catch (err) {
+    console.error('[AI] network error:', err);
     return '';
   }
 }

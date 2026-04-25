@@ -3,10 +3,10 @@ import { NextRequest, NextResponse } from 'next/server';
 const GEMINI_API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.GEMINI_API_KEY || '';
 
 const TASK_MODELS: Record<string, string> = {
-  translate: 'gemini-1.5-flash',
-  improve: 'gemini-1.5-pro',
-  import: 'gemini-1.5-pro',
-  recommend: 'gemini-1.5-flash',
+  translate: 'gemini-2.5-flash',
+  improve: 'gemini-2.5-flash',
+  import: 'gemini-2.5-flash',
+  recommend: 'gemini-2.5-flash',
 };
 
 export async function GET() {
@@ -44,7 +44,12 @@ export async function POST(req: NextRequest) {
       const errorText = await response.text().catch(() => '');
       console.error('Gemini API error:', response.status, errorText);
       return NextResponse.json(
-        { error: `Gemini API error: ${response.status}` },
+        {
+          error: `Gemini API error: ${response.status}`,
+          status: response.status,
+          detail: errorText.slice(0, 500),
+          model,
+        },
         { status: 502 }
       );
     }
