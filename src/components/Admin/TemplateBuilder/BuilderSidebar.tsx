@@ -17,6 +17,7 @@ import {
   type CustomTemplateBlock,
   type CustomTemplateSpec,
 } from '@/lib/customTemplate';
+import { AVAILABLE_ICONS } from '@/components/Templates/CustomTemplate';
 
 interface Props {
   spec: CustomTemplateSpec;
@@ -293,20 +294,97 @@ function PropsTab({
               options={[
                 ['rect', 'Rectângulo'],
                 ['circle', 'Círculo'],
+                ['triangle', 'Triângulo'],
+                ['diamond', 'Losango'],
+                ['hexagon', 'Hexágono'],
+                ['wave', 'Onda'],
+                ['sidebar-strip', 'Faixa lateral'],
+                ['dots-pattern', 'Padrão pontos'],
               ]}
-              onChange={(v) => patchBlock({ props: { shape: v as 'rect' | 'circle' } })}
+              onChange={(v) => patchBlock({ props: { shape: v as 'rect' | 'circle' | 'triangle' | 'diamond' | 'hexagon' | 'wave' | 'sidebar-strip' | 'dots-pattern' } })}
             />
           )}
         </>
       )}
 
-      {selected.type !== 'shape' && selected.type !== 'divider' && (
+      {/* Icon block */}
+      {selected.type === 'icon' && (
+        <>
+          <div>
+            <label style={labelStyle}>Ícone</label>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 4, marginBottom: 8, maxHeight: 160, overflow: 'auto' }}>
+              {AVAILABLE_ICONS.map((name) => (
+                <button
+                  key={name}
+                  type="button"
+                  onClick={() => patchBlock({ props: { iconName: name } })}
+                  title={name}
+                  style={{
+                    width: 36,
+                    height: 36,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: 8,
+                    border: p.iconName === name ? '2px solid var(--accent)' : '1px solid var(--card-border)',
+                    background: p.iconName === name ? 'var(--accent-soft)' : 'transparent',
+                    cursor: 'pointer',
+                    padding: 0,
+                  }}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={(() => { const paths: Record<string, string> = { star: 'M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01L12 2z', heart: 'M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z', briefcase: 'M20 7h-4V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2H4a2 2 0 00-2 2v11a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z', mail: 'M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z', phone: 'M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07', user: 'M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2 M12 3a4 4 0 100 8 4 4 0 000-8z', award: 'M12 15l-3.5 6.5L12 19l3.5 2.5L12 15z M12 2a7 7 0 100 14 7 7 0 000-14z', code: 'M16 18l6-6-6-6 M8 6l-6 6 6 6', zap: 'M13 2L3 14h9l-1 10 10-12h-9l1-10z', crown: 'M2 17l2-8 4 4 4-8 4 8 4-4 2 8z', shield: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z', rocket: 'M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2', target: 'M12 2a10 10 0 100 20 10 10 0 000-20z', sparkles: 'M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z' }; return paths[name] || 'M12 2a10 10 0 100 20 10 10 0 000-20z'; })()} /></svg>
+                </button>
+              ))}
+            </div>
+          </div>
+          <NumberField label="Tamanho" value={p.iconSize ?? 28} onChange={(v) => patchBlock({ props: { iconSize: v } })} />
+          <ColorField label="Cor" value={p.iconColor ?? '#4f46e5'} onChange={(v) => patchBlock({ props: { iconColor: v } })} />
+        </>
+      )}
+
+      {/* Rating block */}
+      {selected.type === 'rating' && (
+        <>
+          <NumberField label="Máximo" value={p.ratingMax ?? 5} onChange={(v) => patchBlock({ props: { ratingMax: Math.max(1, Math.min(10, v)) } })} />
+          <NumberField label="Valor" value={p.ratingValue ?? 3} onChange={(v) => patchBlock({ props: { ratingValue: Math.max(0, Math.min(p.ratingMax ?? 5, v)) } })} />
+          <ColorField label="Cor activa" value={p.color ?? '#4f46e5'} onChange={(v) => patchBlock({ props: { color: v } })} />
+          <ColorField label="Cor inactiva" value={p.bg ?? '#e2e8f0'} onChange={(v) => patchBlock({ props: { bg: v } })} />
+        </>
+      )}
+
+      {/* Image block */}
+      {selected.type === 'image' && (
+        <>
+          <TextField label="URL da imagem" value={p.imageUrl ?? ''} onChange={(v) => patchBlock({ props: { imageUrl: v } })} />
+          <SelectField label="Ajuste" value={p.imageFit ?? 'cover'} options={[['cover', 'Preencher'], ['contain', 'Conter'], ['fill', 'Esticar']]} onChange={(v) => patchBlock({ props: { imageFit: v as 'cover' | 'contain' | 'fill' } })} />
+          <NumberField label="Raio" value={p.radius ?? 0} onChange={(v) => patchBlock({ props: { radius: v } })} />
+        </>
+      )}
+
+      {/* Contact bar */}
+      {selected.type === 'contact-bar' && (
+        <>
+          <SelectField label="Disposição" value={p.layout ?? 'row'} options={[['row', 'Linha'], ['column', 'Coluna']]} onChange={(v) => patchBlock({ props: { layout: v as 'row' | 'column' } })} />
+          <SelectField label="Mostrar ícones" value={p.showIcons !== false ? 'yes' : 'no'} options={[['yes', 'Sim'], ['no', 'Não']]} onChange={(v) => patchBlock({ props: { showIcons: v === 'yes' } })} />
+        </>
+      )}
+
+      {selected.type !== 'shape' && selected.type !== 'divider' && selected.type !== 'icon' && selected.type !== 'rating' && (
         <ColorField
           label="Cor do texto"
           value={p.color ?? '#0f172a'}
           onChange={(v) => patchBlock({ props: { color: v } })}
         />
       )}
+
+      {/* Universal: opacity, border, shadow */}
+      <NumberField label="Opacidade (0-1)" value={p.opacity ?? 1} onChange={(v) => patchBlock({ props: { opacity: Math.max(0, Math.min(1, v)) } })} />
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+        <NumberField label="Borda (px)" value={p.borderWidth ?? 0} onChange={(v) => patchBlock({ props: { borderWidth: Math.max(0, v) } })} />
+        <ColorField label="Cor borda" value={p.borderColor ?? '#e5e7eb'} onChange={(v) => patchBlock({ props: { borderColor: v } })} />
+      </div>
+      <SelectField label="Sombra" value={p.shadow ?? 'none'} options={[['none', 'Nenhuma'], ['sm', 'Suave'], ['md', 'Média'], ['lg', 'Forte']]} onChange={(v) => patchBlock({ props: { shadow: v as 'none' | 'sm' | 'md' | 'lg' } })} />
+      <TextField label="Gradiente (CSS)" value={p.gradient ?? ''} onChange={(v) => patchBlock({ props: { gradient: v } })} />
 
       <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
         <button type="button" onClick={onDuplicate} className="btn-outline" style={{ flex: 1, fontSize: 12, padding: '8px' }}>

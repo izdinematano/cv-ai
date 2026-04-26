@@ -25,7 +25,11 @@ export type CustomBlockType =
   | 'references'
   | 'text'
   | 'divider'
-  | 'shape';
+  | 'shape'
+  | 'icon'
+  | 'contact-bar'
+  | 'rating'
+  | 'image';
 
 export interface CustomTemplateBlock {
   id: string;
@@ -50,9 +54,27 @@ export interface CustomTemplateBlock {
     padding?: number;
     showTitle?: boolean;
     columns?: 1 | 2;
-    shape?: 'rect' | 'circle';
+    shape?: 'rect' | 'circle' | 'triangle' | 'diamond' | 'hexagon' | 'wave' | 'sidebar-strip' | 'dots-pattern';
     uppercase?: boolean;
     lineHeight?: number;
+    opacity?: number;
+    gradient?: string;
+    borderWidth?: number;
+    borderColor?: string;
+    shadow?: 'none' | 'sm' | 'md' | 'lg';
+    /** Icon block */
+    iconName?: string;
+    iconSize?: number;
+    iconColor?: string;
+    /** Rating block */
+    ratingMax?: number;
+    ratingValue?: number;
+    /** Image block */
+    imageUrl?: string;
+    imageFit?: 'cover' | 'contain' | 'fill';
+    /** Contact bar layout */
+    layout?: 'row' | 'column';
+    showIcons?: boolean;
   };
 }
 
@@ -108,7 +130,11 @@ export const BLOCK_LIBRARY: Array<{
   { type: 'references', label: 'Referências', description: 'Lista de referências', defaultSize: { w: 500, h: 140 } },
   { type: 'text', label: 'Texto livre', description: 'Bloco de texto editável', defaultSize: { w: 400, h: 60 } },
   { type: 'divider', label: 'Linha', description: 'Linha divisora horizontal', defaultSize: { w: 600, h: 2 } },
-  { type: 'shape', label: 'Forma', description: 'Rectângulo/círculo decorativo', defaultSize: { w: 200, h: 80 } },
+  { type: 'shape', label: 'Forma', description: 'Rect/círculo/triângulo/onda decorativa', defaultSize: { w: 200, h: 80 } },
+  { type: 'icon', label: 'Ícone', description: 'Ícone decorativo SVG', defaultSize: { w: 40, h: 40 } },
+  { type: 'contact-bar', label: 'Contactos', description: 'Email, telefone, morada com ícones', defaultSize: { w: 600, h: 36 } },
+  { type: 'rating', label: 'Avaliação', description: 'Barra ou estrelas de nível', defaultSize: { w: 200, h: 24 } },
+  { type: 'image', label: 'Imagem', description: 'Imagem decorativa ou logo', defaultSize: { w: 160, h: 80 } },
 ];
 
 export const blockLabel = (type: CustomBlockType) =>
@@ -119,6 +145,15 @@ export const createBlock = (
   overrides: Partial<CustomTemplateBlock> = {}
 ): CustomTemplateBlock => {
   const def = BLOCK_LIBRARY.find((b) => b.type === type)!;
+  const defaultProps: Record<string, CustomTemplateBlock['props']> = {
+    text: { content: 'Texto livre…', fontSize: 13, color: '#0f172a' },
+    shape: { bg: '#eef2ff', shape: 'rect', radius: 12, opacity: 1 },
+    divider: { bg: '#e5e7eb' },
+    icon: { iconName: 'star', iconSize: 28, iconColor: '#4f46e5' },
+    'contact-bar': { showIcons: true, layout: 'row', fontSize: 11, color: '#475569' },
+    rating: { ratingMax: 5, ratingValue: 4, color: '#4f46e5', bg: '#e2e8f0' },
+    image: { imageUrl: '', imageFit: 'cover', radius: 0, opacity: 1 },
+  };
   return {
     id: createId(),
     type,
@@ -126,14 +161,7 @@ export const createBlock = (
     y: 48,
     w: def.defaultSize.w,
     h: def.defaultSize.h,
-    props:
-      type === 'text'
-        ? { content: 'Texto livre…', fontSize: 13, color: '#0f172a' }
-        : type === 'shape'
-          ? { bg: '#eef2ff', shape: 'rect', radius: 12 }
-          : type === 'divider'
-            ? { bg: '#e5e7eb' }
-            : { showTitle: true },
+    props: defaultProps[type] ?? { showTitle: true },
     ...overrides,
   };
 };
