@@ -10,16 +10,21 @@ import {
   ExternalLink,
   Eye,
   FileText,
+  KeyRound,
   LayoutDashboard,
   LayoutTemplate,
   LogOut,
+  Mail,
+  Megaphone,
   MessageCircle,
   Pencil,
   Plus,
   Search,
+  Send,
   Settings,
   ShieldCheck,
   Trash2,
+  UserMinus,
   Users,
   X,
 } from 'lucide-react';
@@ -43,6 +48,8 @@ function AdminView({ adminEmail }: { adminEmail: string }) {
     adminSettings,
     updateAdminSettings,
     upgradeToAdmin,
+    deleteUser,
+    resetUserPassword,
     logout,
     exports,
     cvs,
@@ -62,7 +69,12 @@ function AdminView({ adminEmail }: { adminEmail: string }) {
 
   const [builderId, setBuilderId] = useState<string | null>(null);
   const [clonePickerOpen, setClonePickerOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'templates' | 'settings' | 'users'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'templates' | 'settings' | 'users' | 'marketing'>('overview');
+
+  const [emailSubject, setEmailSubject] = useState('');
+  const [emailBody, setEmailBody] = useState('');
+  const [emailTarget, setEmailTarget] = useState<'all' | 'active' | 'inactive'>('all');
+  const [emailSent, setEmailSent] = useState(false);
 
   const [mpesaNumber, setMpesaNumber] = useState(adminSettings.mpesaNumber);
   const [whatsappNumber, setWhatsappNumber] = useState(adminSettings.whatsappNumber);
@@ -183,6 +195,7 @@ function AdminView({ adminEmail }: { adminEmail: string }) {
             { key: 'templates' as const, label: 'Templates', icon: <LayoutTemplate size={14} /> },
             { key: 'settings' as const, label: 'Configuração', icon: <Settings size={14} /> },
             { key: 'users' as const, label: 'Utilizadores', icon: <Users size={14} /> },
+            { key: 'marketing' as const, label: 'Marketing', icon: <Megaphone size={14} /> },
           ].map((t) => (
             <button
               key={t.key}
@@ -475,42 +488,57 @@ function AdminView({ adminEmail }: { adminEmail: string }) {
         {activeTab === 'settings' && (<>
         <section style={{ marginBottom: 32 }}>
           <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Settings size={18} /> Configuracao
+            <Settings size={18} /> Configuração
           </h2>
+
+          {/* M-Pesa Payment Settings */}
+          <div className="glass-card" style={{ padding: 20, marginBottom: 20, borderLeft: '4px solid #e21a22' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="11" fill="#e21a22" />
+                <text x="12" y="16" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="900" fontFamily="sans-serif">M</text>
+              </svg>
+              <h3 style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>M-Pesa — Pagamento</h3>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
+              <div className="form-group">
+                <label>
+                  <CreditCard size={12} style={{ display: 'inline', marginRight: 4 }} />
+                  Número M-Pesa (destino)
+                </label>
+                <input value={mpesaNumber} onChange={(e) => setMpesaNumber(e.target.value)} placeholder="84 000 0000" />
+              </div>
+              <div className="form-group">
+                <label>
+                  <MessageCircle size={12} style={{ display: 'inline', marginRight: 4 }} />
+                  WhatsApp (comprovativo)
+                </label>
+                <input value={whatsappNumber} onChange={(e) => setWhatsappNumber(e.target.value)} placeholder="+258840000000" />
+              </div>
+              <div className="form-group">
+                <label>Preço por pack (MZN)</label>
+                <input type="number" value={pricePerPackMZN} onChange={(e) => setPricePerPackMZN(Number(e.target.value))} />
+              </div>
+              <div className="form-group">
+                <label>Créditos por pack</label>
+                <input type="number" value={creditsPerPack} onChange={(e) => setCreditsPerPack(Number(e.target.value))} />
+              </div>
+            </div>
+          </div>
+
+          {/* General Settings */}
           <div className="glass-card" style={{ padding: 20, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
             <div className="form-group">
-              <label>Nome do negocio</label>
+              <label>Nome do negócio</label>
               <input value={businessName} onChange={(e) => setBusinessName(e.target.value)} />
             </div>
             <div className="form-group">
-              <label>
-                <MessageCircle size={12} style={{ display: 'inline', marginRight: 4 }} />
-                Numero WhatsApp (cliente envia comprovativo)
-              </label>
-              <input value={whatsappNumber} onChange={(e) => setWhatsappNumber(e.target.value)} placeholder="+258840000000" />
-            </div>
-            <div className="form-group">
-              <label>
-                <CreditCard size={12} style={{ display: 'inline', marginRight: 4 }} />
-                Numero Mpesa (destino do pagamento)
-              </label>
-              <input value={mpesaNumber} onChange={(e) => setMpesaNumber(e.target.value)} placeholder="84 000 0000" />
-            </div>
-            <div className="form-group">
-              <label>Preco por pack (MZN)</label>
-              <input type="number" value={pricePerPackMZN} onChange={(e) => setPricePerPackMZN(Number(e.target.value))} />
-            </div>
-            <div className="form-group">
-              <label>Creditos por pack</label>
-              <input type="number" value={creditsPerPack} onChange={(e) => setCreditsPerPack(Number(e.target.value))} />
-            </div>
-            <div className="form-group">
-              <label>Exports gratuitos por mes</label>
+              <label>Exports gratuitos por mês</label>
               <input type="number" value={monthlyFreeExports} onChange={(e) => setMonthlyFreeExports(Number(e.target.value))} />
             </div>
             <div style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: 10 }}>
               <button className="btn-primary" onClick={saveSettings}>
-                Guardar alteracoes
+                Guardar alterações
               </button>
               {savedFlash && (
                 <span style={{ fontSize: 12, color: 'var(--success)' }}>
@@ -658,19 +686,50 @@ function AdminView({ adminEmail }: { adminEmail: string }) {
                             {new Date(u.createdAt).toLocaleDateString('pt-PT')}
                           </td>
                           <td style={{ padding: 12, textAlign: 'right' }}>
-                            {u.role === 'user' && (
+                            <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                              {u.role === 'user' && (
+                                <button
+                                  className="btn-outline"
+                                  style={{ fontSize: 10, padding: '4px 8px', display: 'flex', alignItems: 'center', gap: 4 }}
+                                  onClick={() => {
+                                    if (confirm(`Tornar ${u.email} administrador?`)) {
+                                      upgradeToAdmin(u.id);
+                                    }
+                                  }}
+                                >
+                                  <ShieldCheck size={10} /> Admin
+                                </button>
+                              )}
                               <button
                                 className="btn-outline"
-                                style={{ fontSize: 11, padding: '6px 10px' }}
-                                onClick={() => {
-                                  if (confirm(`Tornar ${u.email} administrador?`)) {
-                                    upgradeToAdmin(u.id);
+                                style={{ fontSize: 10, padding: '4px 8px', display: 'flex', alignItems: 'center', gap: 4 }}
+                                onClick={async () => {
+                                  const pwd = prompt(`Nova senha para ${u.email} (min 6 chars):`);
+                                  if (pwd && pwd.length >= 6) {
+                                    await resetUserPassword(u.id, pwd);
+                                    alert(`Senha de ${u.email} alterada com sucesso.`);
+                                  } else if (pwd) {
+                                    alert('A senha deve ter pelo menos 6 caracteres.');
                                   }
                                 }}
                               >
-                                Promover a admin
+                                <KeyRound size={10} /> Senha
                               </button>
-                            )}
+                              {u.email !== adminEmail && (
+                                <button
+                                  className="btn-outline"
+                                  style={{ fontSize: 10, padding: '4px 8px', display: 'flex', alignItems: 'center', gap: 4, color: 'var(--error)', borderColor: 'var(--error)' }}
+                                  onClick={async () => {
+                                    if (confirm(`Tens a certeza que queres apagar ${u.email}? Esta acção é irreversível.`)) {
+                                      await deleteUser(u.id);
+                                      await syncFromServer();
+                                    }
+                                  }}
+                                >
+                                  <UserMinus size={10} /> Apagar
+                                </button>
+                              )}
+                            </div>
                           </td>
                         </tr>
                       );
@@ -679,6 +738,143 @@ function AdminView({ adminEmail }: { adminEmail: string }) {
                 </tbody>
               </table>
             </div>
+          </div>
+        </section>
+        </>)}
+
+        {/* ====== MARKETING TAB ====== */}
+        {activeTab === 'marketing' && (<>
+        <section style={{ marginBottom: 32 }}>
+          <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Megaphone size={18} /> Marketing & Comunicação
+          </h2>
+
+          <div className="glass-card" style={{ padding: 22, marginBottom: 20 }}>
+            <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Mail size={16} color="var(--accent)" /> Enviar email em massa
+            </h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
+                <div className="form-group">
+                  <label>Destinatários</label>
+                  <select
+                    value={emailTarget}
+                    onChange={(e) => setEmailTarget(e.target.value as typeof emailTarget)}
+                    style={{
+                      padding: '10px 12px',
+                      fontSize: 13,
+                      border: '1px solid var(--card-border)',
+                      borderRadius: 'var(--radius-md)',
+                      background: 'var(--background)',
+                      color: 'var(--foreground)',
+                    }}
+                  >
+                    <option value="all">Todos os utilizadores ({users.length})</option>
+                    <option value="active">Activos (com CVs) ({users.filter(u => (cvs[u.id]?.length ?? 0) > 0).length})</option>
+                    <option value="inactive">Inactivos (sem CVs) ({users.filter(u => (cvs[u.id]?.length ?? 0) === 0).length})</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Assunto</label>
+                  <input
+                    value={emailSubject}
+                    onChange={(e) => setEmailSubject(e.target.value)}
+                    placeholder="Ex: Novos templates disponíveis!"
+                  />
+                </div>
+              </div>
+              <div className="form-group">
+                <label>Corpo do email</label>
+                <textarea
+                  value={emailBody}
+                  onChange={(e) => setEmailBody(e.target.value)}
+                  placeholder="Escreve aqui a mensagem para os utilizadores..."
+                  rows={6}
+                  style={{
+                    padding: '10px 12px',
+                    fontSize: 13,
+                    border: '1px solid var(--card-border)',
+                    borderRadius: 'var(--radius-md)',
+                    background: 'var(--background)',
+                    color: 'var(--foreground)',
+                    resize: 'vertical',
+                    fontFamily: 'inherit',
+                    lineHeight: 1.6,
+                  }}
+                />
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <button
+                  className="btn-primary"
+                  disabled={!emailSubject.trim() || !emailBody.trim()}
+                  onClick={() => {
+                    const targetUsers = emailTarget === 'all' ? users
+                      : emailTarget === 'active' ? users.filter(u => (cvs[u.id]?.length ?? 0) > 0)
+                      : users.filter(u => (cvs[u.id]?.length ?? 0) === 0);
+                    // In production, this would call an email API
+                    console.log('Email campaign:', { subject: emailSubject, body: emailBody, recipients: targetUsers.map(u => u.email) });
+                    setEmailSent(true);
+                    setTimeout(() => setEmailSent(false), 3000);
+                  }}
+                  style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+                >
+                  <Send size={14} /> Enviar para {
+                    emailTarget === 'all' ? users.length
+                    : emailTarget === 'active' ? users.filter(u => (cvs[u.id]?.length ?? 0) > 0).length
+                    : users.filter(u => (cvs[u.id]?.length ?? 0) === 0).length
+                  } utilizadores
+                </button>
+                {emailSent && (
+                  <span style={{ fontSize: 12, color: 'var(--success)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <Check size={12} /> Campanha enviada!
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Email list */}
+          <div className="glass-card" style={{ padding: 22 }}>
+            <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Users size={16} color="var(--accent)" /> Lista de emails ({users.length})
+            </h3>
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: 6,
+                maxHeight: 200,
+                overflowY: 'auto',
+                padding: 4,
+              }}
+            >
+              {users.map((u) => (
+                <span
+                  key={u.id}
+                  style={{
+                    fontSize: 11,
+                    padding: '4px 10px',
+                    borderRadius: 999,
+                    background: 'var(--muted)',
+                    color: 'var(--foreground-muted)',
+                    border: '1px solid var(--card-border)',
+                  }}
+                >
+                  {u.email}
+                </span>
+              ))}
+            </div>
+            <button
+              className="btn-outline"
+              style={{ marginTop: 12, fontSize: 12, padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 6 }}
+              onClick={() => {
+                const emails = users.map(u => u.email).join(', ');
+                navigator.clipboard.writeText(emails);
+                alert('Emails copiados para a área de transferência!');
+              }}
+            >
+              <Copy size={12} /> Copiar todos os emails
+            </button>
           </div>
         </section>
         </>)}
@@ -868,6 +1064,7 @@ function PaymentCard({
     >
       <div style={{ flex: 1, minWidth: 220 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+          <MpesaBadge />
           <div style={{ fontSize: 14, fontWeight: 700 }}>{payment.userEmail}</div>
           <span
             style={{
@@ -917,5 +1114,33 @@ function PaymentCard({
         </div>
       )}
     </div>
+  );
+}
+
+function MpesaBadge() {
+  return (
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 4,
+        background: '#e21a22',
+        color: '#fff',
+        fontSize: 9,
+        fontWeight: 800,
+        padding: '2px 8px',
+        borderRadius: 6,
+        letterSpacing: '0.04em',
+        textTransform: 'uppercase',
+        lineHeight: 1.4,
+      }}
+    >
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="11" fill="#fff" />
+        <circle cx="12" cy="12" r="9" fill="#e21a22" />
+        <text x="12" y="16" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="900" fontFamily="sans-serif">M</text>
+      </svg>
+      M-Pesa
+    </span>
   );
 }

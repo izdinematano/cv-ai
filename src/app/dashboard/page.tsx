@@ -609,13 +609,17 @@ function BuyCreditsCard({ userId }: { userId: string }) {
               width: 40,
               height: 40,
               borderRadius: 10,
-              background: 'rgba(59,130,246,0.18)',
+              background: '#e21a22',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
             }}
           >
-            <CreditCard size={20} color="#3b82f6" />
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="11" fill="#fff" />
+              <circle cx="12" cy="12" r="9" fill="#e21a22" />
+              <text x="12" y="16" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="900" fontFamily="sans-serif">M</text>
+            </svg>
           </div>
           <div>
             <h3 style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>Comprar créditos via M-Pesa</h3>

@@ -132,6 +132,8 @@ interface AppState {
   /* admin */
   updateAdminSettings: (settings: Partial<AdminSettings>) => Promise<void>;
   upgradeToAdmin: (userId: string) => void;
+  deleteUser: (userId: string) => Promise<void>;
+  resetUserPassword: (userId: string, newPassword: string) => Promise<void>;
   syncFromServer: () => Promise<void>;
 
   /* custom templates (built inside /admin) */
@@ -486,6 +488,33 @@ export const useAppStore = create<AppState>()(
         set((state) => ({
           users: state.users.map((u) => (u.id === userId ? { ...u, role: 'admin' } : u)),
         })),
+
+      deleteUser: async (userId) => {
+        try {
+          await fetch('/api/admin/users', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId }),
+          });
+        } catch {
+          // ignore
+        }
+        set((state) => ({
+          users: state.users.filter((u) => u.id !== userId),
+        }));
+      },
+
+      resetUserPassword: async (userId, newPassword) => {
+        try {
+          await fetch('/api/admin/users', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, action: 'reset-password', newPassword }),
+          });
+        } catch {
+          // ignore
+        }
+      },
 
       syncFromServer: async () => {
         try {

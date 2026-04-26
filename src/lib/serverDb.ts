@@ -100,6 +100,17 @@ export async function updateUser(userId: string, patch: Partial<AppUser>): Promi
   return db.users[idx];
 }
 
+export async function deleteUser(userId: string): Promise<boolean> {
+  const db = await readDb();
+  const idx = db.users.findIndex((u) => u.id === userId);
+  if (idx === -1) return false;
+  db.users.splice(idx, 1);
+  delete db.cvs[userId];
+  delete db.extraCredits[userId];
+  await writeDb(db);
+  return true;
+}
+
 /* ------------------------------------------------------------------ */
 /* Payments                                                            */
 /* ------------------------------------------------------------------ */

@@ -191,6 +191,17 @@ export default function AuthForm({ mode }: AuthFormProps) {
             />
           </div>
 
+          {!isRegister && (
+            <div style={{ textAlign: 'right', marginTop: -8 }}>
+              <Link
+                href="/forgot-password"
+                style={{ fontSize: 12, color: 'var(--accent)', fontWeight: 500 }}
+              >
+                Esqueci a senha
+              </Link>
+            </div>
+          )}
+
           {error && (
             <div
               style={{
