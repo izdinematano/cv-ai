@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Sparkles, ArrowRight } from 'lucide-react';
+import { Sparkles, ArrowRight, FileText, Shield, Zap, ArrowLeft } from 'lucide-react';
 import { useAppStore } from '@/store/useAppStore';
 
 interface AuthFormProps {
@@ -49,11 +49,64 @@ export default function AuthForm({ mode }: AuthFormProps) {
       style={{
         minHeight: '100vh',
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '24px',
+        alignItems: 'stretch',
       }}
     >
+      {/* Side panel — desktop only */}
+      <div
+        className="desktop-only"
+        style={{
+          width: 420,
+          flexShrink: 0,
+          background: 'linear-gradient(160deg, #4f46e5 0%, #7c3aed 50%, #a855f7 100%)',
+          color: '#fff',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          padding: '48px 40px',
+          gap: 32,
+        }}
+      >
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+            <div style={{ width: 42, height: 42, borderRadius: 12, background: 'rgba(255,255,255,0.18)', display: 'grid', placeItems: 'center' }}>
+              <Sparkles size={22} color="#fff" />
+            </div>
+            <span style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.02em' }}>CV-Gen AI</span>
+          </div>
+          <h2 style={{ fontSize: 26, fontWeight: 800, lineHeight: 1.25, letterSpacing: '-0.02em' }}>
+            CVs profissionais<br />em minutos.
+          </h2>
+          <p style={{ fontSize: 14, opacity: 0.85, marginTop: 12, lineHeight: 1.6 }}>
+            Cria, personaliza e exporta currículos com inteligência artificial.
+          </p>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {[
+            { icon: <FileText size={16} />, text: '+15 templates premium' },
+            { icon: <Zap size={16} />, text: 'Tradução automática PT/EN com IA' },
+            { icon: <Shield size={16} />, text: 'Pagamento seguro via M-Pesa' },
+          ].map((f, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, opacity: 0.9 }}>
+              <div style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(255,255,255,0.15)', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+                {f.icon}
+              </div>
+              {f.text}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Form column */}
+      <div
+        style={{
+          flex: 1,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '24px',
+        }}
+      >
       <div
         className="glass-card"
         style={{
@@ -176,6 +229,22 @@ export default function AuthForm({ mode }: AuthFormProps) {
             {isRegister ? 'Entrar' : 'Criar conta'}
           </Link>
         </div>
+
+        <Link
+          href="/"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 6,
+            fontSize: 12,
+            color: 'var(--foreground-muted)',
+            marginTop: 4,
+          }}
+        >
+          <ArrowLeft size={12} /> Voltar ao início
+        </Link>
+      </div>
       </div>
     </div>
   );

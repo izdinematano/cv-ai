@@ -192,6 +192,13 @@ function DashboardView({ userId, role }: { userId: string; role: 'user' | 'admin
                 <Shield size={14} /> Admin
               </Link>
             )}
+            <Link
+              href="/editor"
+              className="btn-outline"
+              style={{ display: 'flex', gap: 8, alignItems: 'center' }}
+            >
+              <Pencil size={14} /> Editor
+            </Link>
             <button
               onClick={handleLogout}
               className="btn-outline"
