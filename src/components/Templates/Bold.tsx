@@ -36,6 +36,30 @@ export default function Bold({ data, lang }: TemplateProps) {
           transform: 'rotate(22deg)',
         }}
       />
+      {/* Diamond accent shape */}
+      <div
+        style={{
+          position: 'absolute',
+          left: '30px',
+          bottom: '60px',
+          width: '60px',
+          height: '60px',
+          background: accentColor,
+          opacity: 0.06,
+          clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)',
+        }}
+      />
+      {/* Gradient accent line */}
+      <div
+        style={{
+          position: 'absolute',
+          right: '50px',
+          bottom: '0px',
+          width: '3px',
+          height: '180px',
+          background: `linear-gradient(to top, ${accentColor}33, transparent)`,
+        }}
+      />
 
       <div style={{ padding: '52px' }}>
         <header

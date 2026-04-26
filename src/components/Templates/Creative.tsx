@@ -26,6 +26,27 @@ export default function Creative({ data, lang }: TemplateProps) {
         borderRadius: '50%',
         zIndex: 0 
       }} />
+      <div style={{
+        position: 'absolute',
+        bottom: '-60px',
+        right: '-40px',
+        width: '200px',
+        height: '200px',
+        background: accentColor,
+        opacity: 0.06,
+        borderRadius: '50%',
+        zIndex: 0,
+      }} />
+      <div style={{
+        position: 'absolute',
+        top: '50%',
+        left: '280px',
+        width: '2px',
+        height: '120px',
+        background: `linear-gradient(to bottom, ${accentColor}22, transparent)`,
+        zIndex: 0,
+      }} />
+      <svg style={{ position: 'absolute', bottom: 30, left: 20, opacity: 0.08, zIndex: 0 }} width="40" height="40" viewBox="0 0 24 24" fill="none" stroke={accentColor} strokeWidth="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z M2 17l10 5 10-5 M2 12l10 5 10-5" /></svg>
 
       {/* Left Sidebar (Darker/Colored) */}
       <div style={{ 

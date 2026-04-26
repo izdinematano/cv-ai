@@ -21,7 +21,14 @@ export default function Tech({ data, lang }: TemplateProps) {
       fontFamily: '"JetBrains Mono", monospace, system-ui',
       fontSize: `${fontSize}px`
     }}>
-      <div style={{ background: '#0f172a', color: 'white', padding: '40px 25px' }}>
+      <div style={{ background: '#0f172a', color: 'white', padding: '40px 25px', position: 'relative', overflow: 'hidden' }}>
+        {/* Decorative dots pattern */}
+        <svg style={{ position: 'absolute', top: 0, right: 0, opacity: 0.04 }} width="120" height="120">
+          <defs><pattern id="tech-dots" x="0" y="0" width="16" height="16" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.5" fill="#fff" /></pattern></defs>
+          <rect width="120" height="120" fill="url(#tech-dots)" />
+        </svg>
+        {/* Terminal cursor accent */}
+        <svg style={{ position: 'absolute', bottom: 20, left: 20, opacity: 0.06 }} width="30" height="30" viewBox="0 0 24 24" fill="none" stroke={accentColor} strokeWidth="2"><path d="M4 17l6-5-6-5 M12 19h8" /></svg>
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           {data.personalInfo.photo ? (
             <div style={{ width: '120px', height: '120px', borderRadius: '24px', border: `3px solid ${accentColor}`, margin: '0 auto 20px', overflow: 'hidden' }}>

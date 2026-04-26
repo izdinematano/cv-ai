@@ -13,7 +13,11 @@ export default function Modern({ data, lang }: TemplateProps) {
   const { accentColor, fontSize, sectionSpacing } = data.settings;
 
   return (
-    <div style={{ minHeight: '1122px', background: 'white', color: '#1e293b', fontSize: `${fontSize}px` }}>
+    <div style={{ minHeight: '1122px', background: 'white', color: '#1e293b', fontSize: `${fontSize}px`, position: 'relative', overflow: 'hidden' }}>
+      {/* Decorative circle accent */}
+      <div style={{ position: 'absolute', bottom: '-40px', left: '-40px', width: '140px', height: '140px', background: accentColor, opacity: 0.04, borderRadius: '50%' }} />
+      {/* Sparkle SVG */}
+      <svg style={{ position: 'absolute', top: 200, right: 30, opacity: 0.05 }} width="36" height="36" viewBox="0 0 24 24" fill="none" stroke={accentColor} strokeWidth="1.5"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z" /></svg>
       <header style={{ display: 'flex', borderBottom: `8px solid ${accentColor}` }}>
         <div style={{ background: '#0f172a', color: 'white', padding: '60px', flex: 2, display: 'flex', gap: '30px', alignItems: 'center' }}>
           {data.personalInfo.photo && (

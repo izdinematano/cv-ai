@@ -11,9 +11,13 @@ export default function Corporate({ data, lang }: TemplateProps) {
   const { accentColor } = data.settings;
 
   return (
-    <div style={{ display: 'flex', minHeight: '1122px' }}>
+    <div style={{ display: 'flex', minHeight: '1122px', position: 'relative', overflow: 'hidden' }}>
+      {/* Top accent bar */}
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '5px', background: accentColor, zIndex: 2 }} />
+      {/* Corner hexagon accent */}
+      <div style={{ position: 'absolute', bottom: '-20px', right: '-20px', width: '80px', height: '80px', background: accentColor, opacity: 0.05, clipPath: 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)', zIndex: 0 }} />
       {/* Sidebar */}
-      <div style={{ width: '260px', background: '#f8fafc', padding: '40px 30px', borderRight: '1px solid #e2e8f0' }}>
+      <div style={{ width: '260px', background: '#f8fafc', padding: '40px 30px', borderRight: '1px solid #e2e8f0', position: 'relative', zIndex: 1 }}>
         <div style={{ width: '120px', height: '120px', background: '#e2e8f0', borderRadius: '8px', marginBottom: '30px' }} />
         
         <section style={{ marginBottom: '30px' }}>
