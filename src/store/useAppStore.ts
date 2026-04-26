@@ -231,9 +231,12 @@ export const useAppStore = create<AppState>()(
           if (!json.ok) return { ok: false, error: json.error || 'Credenciais invalidas.' };
           // Ensure the user exists locally (for offline fallback later).
           set((state) => {
-            const exists = state.users.find((u) => u.id === json.user.id);
+            const idx = state.users.findIndex((u) => u.id === json.user.id);
+            const updatedUsers = idx >= 0
+              ? state.users.map((u, i) => (i === idx ? { ...u, ...json.user } : u))
+              : [...state.users, json.user];
             return {
-              users: exists ? state.users : [...state.users, json.user],
+              users: updatedUsers,
               currentUserId: json.user.id,
             };
           });
