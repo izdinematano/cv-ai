@@ -615,11 +615,7 @@ function BuyCreditsCard({ userId }: { userId: string }) {
               justifyContent: 'center',
             }}
           >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="11" fill="#fff" />
-              <circle cx="12" cy="12" r="9" fill="#e21a22" />
-              <text x="12" y="16" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="900" fontFamily="sans-serif">M</text>
-            </svg>
+            <img src="/mpesa-logo.png" alt="M-Pesa" width={26} height={26} style={{ objectFit: 'contain', borderRadius: 4 }} />
           </div>
           <div>
             <h3 style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>Comprar créditos via M-Pesa</h3>

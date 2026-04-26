@@ -494,10 +494,7 @@ function AdminView({ adminEmail }: { adminEmail: string }) {
           {/* M-Pesa Payment Settings */}
           <div className="glass-card" style={{ padding: 20, marginBottom: 20, borderLeft: '4px solid #e21a22' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="11" fill="#e21a22" />
-                <text x="12" y="16" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="900" fontFamily="sans-serif">M</text>
-              </svg>
+              <img src="/mpesa-logo.png" alt="M-Pesa" width={20} height={20} style={{ objectFit: 'contain', borderRadius: 4 }} />
               <h3 style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>M-Pesa — Pagamento</h3>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
@@ -1064,7 +1061,7 @@ function PaymentCard({
     >
       <div style={{ flex: 1, minWidth: 220 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-          <MpesaBadge />
+          <img src="/mpesa-logo.png" alt="M-Pesa" width={22} height={22} style={{ objectFit: 'contain', borderRadius: 4 }} />
           <div style={{ fontSize: 14, fontWeight: 700 }}>{payment.userEmail}</div>
           <span
             style={{
@@ -1117,30 +1114,3 @@ function PaymentCard({
   );
 }
 
-function MpesaBadge() {
-  return (
-    <span
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 4,
-        background: '#e21a22',
-        color: '#fff',
-        fontSize: 9,
-        fontWeight: 800,
-        padding: '2px 8px',
-        borderRadius: 6,
-        letterSpacing: '0.04em',
-        textTransform: 'uppercase',
-        lineHeight: 1.4,
-      }}
-    >
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="12" r="11" fill="#fff" />
-        <circle cx="12" cy="12" r="9" fill="#e21a22" />
-        <text x="12" y="16" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="900" fontFamily="sans-serif">M</text>
-      </svg>
-      M-Pesa
-    </span>
-  );
-}
