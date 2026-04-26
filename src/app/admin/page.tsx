@@ -9,6 +9,8 @@ import {
   CreditCard,
   ExternalLink,
   Eye,
+  FileText,
+  LayoutDashboard,
   LayoutTemplate,
   LogOut,
   MessageCircle,
@@ -60,6 +62,7 @@ function AdminView({ adminEmail }: { adminEmail: string }) {
 
   const [builderId, setBuilderId] = useState<string | null>(null);
   const [clonePickerOpen, setClonePickerOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<'overview' | 'templates' | 'settings' | 'users'>('overview');
 
   const [mpesaNumber, setMpesaNumber] = useState(adminSettings.mpesaNumber);
   const [whatsappNumber, setWhatsappNumber] = useState(adminSettings.whatsappNumber);
@@ -140,13 +143,20 @@ function AdminView({ adminEmail }: { adminEmail: string }) {
               {adminEmail} · Faturacao, pagamentos, utilizadores e configuracao.
             </p>
           </div>
-          <div style={{ display: 'flex', gap: 10 }}>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            <Link
+              href="/editor"
+              className="btn-outline"
+              style={{ display: 'flex', gap: 8, alignItems: 'center' }}
+            >
+              <FileText size={14} /> Editor
+            </Link>
             <Link
               href="/dashboard"
               className="btn-outline"
               style={{ display: 'flex', gap: 8, alignItems: 'center' }}
             >
-              Dashboard
+              <LayoutDashboard size={14} /> Dashboard
             </Link>
             <button
               onClick={handleLogout}
@@ -158,6 +168,49 @@ function AdminView({ adminEmail }: { adminEmail: string }) {
           </div>
         </header>
 
+        {/* TAB NAV */}
+        <nav
+          style={{
+            display: 'flex',
+            gap: 2,
+            marginBottom: 24,
+            borderBottom: '2px solid var(--card-border)',
+            overflowX: 'auto',
+          }}
+        >
+          {[
+            { key: 'overview' as const, label: 'Visão geral', icon: <ShieldCheck size={14} /> },
+            { key: 'templates' as const, label: 'Templates', icon: <LayoutTemplate size={14} /> },
+            { key: 'settings' as const, label: 'Configuração', icon: <Settings size={14} /> },
+            { key: 'users' as const, label: 'Utilizadores', icon: <Users size={14} /> },
+          ].map((t) => (
+            <button
+              key={t.key}
+              onClick={() => setActiveTab(t.key)}
+              style={{
+                padding: '10px 18px',
+                fontSize: 13,
+                fontWeight: activeTab === t.key ? 800 : 500,
+                color: activeTab === t.key ? 'var(--accent)' : 'var(--foreground-muted)',
+                background: 'transparent',
+                border: 'none',
+                borderBottom: activeTab === t.key ? '2px solid var(--accent)' : '2px solid transparent',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                marginBottom: -2,
+                whiteSpace: 'nowrap',
+                transition: 'color 0.15s, border-color 0.15s',
+              }}
+            >
+              {t.icon} {t.label}
+            </button>
+          ))}
+        </nav>
+
+        {/* ====== OVERVIEW TAB ====== */}
+        {activeTab === 'overview' && (<>
         {/* Two rows of stats: lifetime totals on top, this-month deltas below */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14, marginBottom: 14 }}>
           <Stat label="Pagamentos pendentes" value={pending.length.toString()} icon={<CreditCard size={18} />} highlight={pending.length > 0} />
@@ -189,6 +242,46 @@ function AdminView({ adminEmail }: { adminEmail: string }) {
             value={users.filter((u) => u.role === 'admin').length.toString()}
             icon={<ShieldCheck size={18} />}
           />
+        </div>
+
+        {/* Quick actions */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginBottom: 28 }}>
+          <button
+            onClick={() => setActiveTab('templates')}
+            className="glass-card"
+            style={{ padding: 18, cursor: 'pointer', textAlign: 'left', border: '1px solid var(--card-border)', display: 'flex', flexDirection: 'column', gap: 8 }}
+          >
+            <LayoutTemplate size={20} color="var(--accent)" />
+            <div style={{ fontSize: 13, fontWeight: 700 }}>Gerir Templates</div>
+            <div style={{ fontSize: 11, color: 'var(--foreground-muted)' }}>{customTemplates.length} customizados</div>
+          </button>
+          <button
+            onClick={() => { const created = createCustomTemplate(); setBuilderId(created.id); }}
+            className="glass-card"
+            style={{ padding: 18, cursor: 'pointer', textAlign: 'left', border: '1px solid var(--card-border)', display: 'flex', flexDirection: 'column', gap: 8 }}
+          >
+            <Plus size={20} color="#10b981" />
+            <div style={{ fontSize: 13, fontWeight: 700 }}>Novo Template</div>
+            <div style={{ fontSize: 11, color: 'var(--foreground-muted)' }}>Abrir builder visual</div>
+          </button>
+          <button
+            onClick={() => setActiveTab('settings')}
+            className="glass-card"
+            style={{ padding: 18, cursor: 'pointer', textAlign: 'left', border: '1px solid var(--card-border)', display: 'flex', flexDirection: 'column', gap: 8 }}
+          >
+            <Settings size={20} color="#f59e0b" />
+            <div style={{ fontSize: 13, fontWeight: 700 }}>Configurações</div>
+            <div style={{ fontSize: 11, color: 'var(--foreground-muted)' }}>Preços, créditos, WhatsApp</div>
+          </button>
+          <button
+            onClick={() => setActiveTab('users')}
+            className="glass-card"
+            style={{ padding: 18, cursor: 'pointer', textAlign: 'left', border: '1px solid var(--card-border)', display: 'flex', flexDirection: 'column', gap: 8 }}
+          >
+            <Users size={20} color="#8b5cf6" />
+            <div style={{ fontSize: 13, fontWeight: 700 }}>Utilizadores</div>
+            <div style={{ fontSize: 11, color: 'var(--foreground-muted)' }}>{users.length} registados</div>
+          </button>
         </div>
 
         {/* PENDING PAYMENTS */}
@@ -231,7 +324,10 @@ function AdminView({ adminEmail }: { adminEmail: string }) {
           </section>
         )}
 
-        {/* TEMPLATES */}
+        </>)}
+
+        {/* ====== TEMPLATES TAB ====== */}
+        {activeTab === 'templates' && (<>
         <section style={{ marginBottom: 32 }}>
           <div
             style={{
@@ -373,7 +469,10 @@ function AdminView({ adminEmail }: { adminEmail: string }) {
           )}
         </section>
 
-        {/* SETTINGS */}
+        </>)}
+
+        {/* ====== SETTINGS TAB ====== */}
+        {activeTab === 'settings' && (<>
         <section style={{ marginBottom: 32 }}>
           <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Settings size={18} /> Configuracao
@@ -422,7 +521,10 @@ function AdminView({ adminEmail }: { adminEmail: string }) {
           </div>
         </section>
 
-        {/* USERS */}
+        </>)}
+
+        {/* ====== USERS TAB ====== */}
+        {activeTab === 'users' && (<>
         <section>
           <div
             style={{
@@ -579,6 +681,7 @@ function AdminView({ adminEmail }: { adminEmail: string }) {
             </div>
           </div>
         </section>
+        </>)}
       </div>
 
       {builderId && (
