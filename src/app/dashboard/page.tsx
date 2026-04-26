@@ -15,13 +15,17 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import {
+  AlertCircle,
+  CheckCircle2,
   Copy,
   CreditCard,
   FilePlus2,
   FileText,
   LayoutTemplate,
+  Loader2,
   LogOut,
   Pencil,
+  Phone,
   Plus,
   Search,
   Shield,
@@ -239,6 +243,9 @@ function DashboardView({ userId, role }: { userId: string; role: 'user' | 'admin
             accent
           />
         </section>
+
+        {/* BUY CREDITS -------------------------------------------------- */}
+        <BuyCreditsCard userId={userId} />
 
         {/* TOOLBAR ------------------------------------------------------ */}
         <section style={{ marginBottom: 16 }}>
@@ -528,6 +535,174 @@ function DashboardView({ userId, role }: { userId: string; role: 'user' | 'admin
 /* -------------------------------------------------------------------------- */
 /* StatCard                                                                   */
 /* -------------------------------------------------------------------------- */
+
+/* -------------------------------------------------------------------------- */
+/* BuyCreditsCard                                                             */
+/* -------------------------------------------------------------------------- */
+
+function BuyCreditsCard({ userId }: { userId: string }) {
+  const { adminSettings, users, syncFromServer } = useAppStore();
+  const user = users.find((u) => u.id === userId);
+
+  const [phone, setPhone] = useState('');
+  const [status, setStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
+  const [message, setMessage] = useState('');
+
+  const handlePay = async () => {
+    if (!user || !phone.trim()) return;
+    setStatus('processing');
+    setMessage('');
+    try {
+      const res = await fetch('/api/mpesa/pay', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          userEmail: user.email,
+          phoneNumber: phone.trim(),
+        }),
+      });
+      const json = await res.json();
+      if (json.ok) {
+        setStatus('success');
+        setMessage(json.message || `${adminSettings.creditsPerPack} créditos adicionados!`);
+        await syncFromServer();
+      } else {
+        setStatus('error');
+        setMessage(json.error || 'Pagamento falhou. Tenta novamente.');
+      }
+    } catch {
+      setStatus('error');
+      setMessage('Erro de ligação. Verifica a tua internet e tenta novamente.');
+    }
+  };
+
+  const handleReset = () => {
+    setStatus('idle');
+    setMessage('');
+    setPhone('');
+  };
+
+  return (
+    <section style={{ marginBottom: 28 }}>
+      <div
+        className="glass-card"
+        style={{
+          padding: 22,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 16,
+          background: 'linear-gradient(135deg, rgba(59,130,246,0.08), rgba(99,102,241,0.05))',
+          border: '1px solid rgba(59,130,246,0.2)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 10,
+              background: 'rgba(59,130,246,0.18)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <CreditCard size={20} color="#3b82f6" />
+          </div>
+          <div>
+            <h3 style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>Comprar créditos via M-Pesa</h3>
+            <p style={{ fontSize: 12, color: 'var(--foreground-muted)', margin: 0, marginTop: 2 }}>
+              {adminSettings.creditsPerPack} exportações por {adminSettings.pricePerPackMZN} MZN — créditos não expiram.
+            </p>
+          </div>
+        </div>
+
+        {status === 'success' ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div
+              style={{
+                display: 'flex',
+                gap: 8,
+                alignItems: 'center',
+                background: 'rgba(16,185,129,0.1)',
+                border: '1px solid rgba(16,185,129,0.3)',
+                borderRadius: 10,
+                padding: 14,
+                fontSize: 13,
+                color: '#6ee7b7',
+              }}
+            >
+              <CheckCircle2 size={18} />
+              <span>{message}</span>
+            </div>
+            <button className="btn-outline" onClick={handleReset} style={{ fontSize: 13 }}>
+              Comprar mais
+            </button>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end', flexWrap: 'wrap' }}>
+            <div className="form-group" style={{ flex: '1 1 200px', marginBottom: 0 }}>
+              <label style={{ fontSize: 12 }}>Número M-Pesa</label>
+              <input
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="84 000 0000"
+                disabled={status === 'processing'}
+                style={{ fontFamily: 'monospace', fontSize: 14, letterSpacing: '0.05em' }}
+              />
+            </div>
+            <button
+              className="btn-primary"
+              onClick={handlePay}
+              disabled={!phone.trim() || status === 'processing'}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                whiteSpace: 'nowrap',
+                cursor: status === 'processing' ? 'wait' : 'pointer',
+              }}
+            >
+              {status === 'processing' ? (
+                <>
+                  <Loader2 size={14} className="animate-spin" /> A processar...
+                </>
+              ) : (
+                <>
+                  <Phone size={14} /> Pagar {adminSettings.pricePerPackMZN} MZN
+                </>
+              )}
+            </button>
+          </div>
+        )}
+
+        {status === 'error' && message && (
+          <div
+            style={{
+              display: 'flex',
+              gap: 8,
+              alignItems: 'flex-start',
+              background: 'rgba(239,68,68,0.1)',
+              border: '1px solid rgba(239,68,68,0.3)',
+              borderRadius: 10,
+              padding: 12,
+              fontSize: 12,
+              color: '#fecaca',
+            }}
+          >
+            <AlertCircle size={16} style={{ flexShrink: 0, marginTop: 1 }} />
+            <div>{message}</div>
+          </div>
+        )}
+
+        <div style={{ fontSize: 11.5, color: 'var(--foreground-muted)', lineHeight: 1.5 }}>
+          Receberás um pedido USSD no telemóvel para confirmar com o teu PIN. Os créditos são adicionados automaticamente.
+        </div>
+      </div>
+    </section>
+  );
+}
 
 function StatCard({
   icon,
