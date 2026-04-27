@@ -93,60 +93,57 @@ async function clientPdf(target: HTMLElement, fileName: string): Promise<void> {
   const { default: jsPDF } = await import('jspdf');
 
   const A4_W_PX = 794;
+  const A4_H_PX = 1123;
   const A4_W_MM = 210;
   const A4_H_MM = 297;
 
   const canvas = await html2canvas(target, {
-    scale: 3,
+    scale: 2,
     backgroundColor: '#ffffff',
     useCORS: true,
-    allowTaint: true,
     logging: false,
-    width: target.scrollWidth,
-    height: target.scrollHeight,
-    onclone: (_doc: Document, el: HTMLElement) => {
+    windowWidth: A4_W_PX,
+    windowHeight: Math.max(A4_H_PX, target.scrollHeight),
+    width: A4_W_PX,
+    onclone: (clonedDoc: Document) => {
+      const el = clonedDoc.getElementById(CV_EXPORT_TARGET_ID);
+      if (!el) return;
       el.style.transform = 'none';
       el.style.width = `${A4_W_PX}px`;
+      el.style.minWidth = `${A4_W_PX}px`;
+      el.style.maxWidth = `${A4_W_PX}px`;
+      el.style.height = 'auto';
       el.style.minHeight = 'auto';
       el.style.maxHeight = 'none';
       el.style.overflow = 'visible';
       el.style.boxShadow = 'none';
       el.style.borderRadius = '0';
-      // Reset parent wrapper transform too
-      if (el.parentElement) {
-        el.parentElement.style.transform = 'none';
-        el.parentElement.style.overflow = 'visible';
-        el.parentElement.style.width = `${A4_W_PX}px`;
-        el.parentElement.style.height = 'auto';
+      // Walk ancestors to reset transforms
+      let parent = el.parentElement;
+      while (parent && parent !== clonedDoc.body) {
+        parent.style.transform = 'none';
+        parent.style.overflow = 'visible';
+        parent = parent.parentElement;
       }
     },
   });
 
-  const imgWidth = A4_W_MM;
-  const imgTotalHeight = (canvas.height * A4_W_MM) / canvas.width;
-  const pageCount = Math.ceil(imgTotalHeight / A4_H_MM);
-
-  const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
-
-  for (let page = 0; page < pageCount; page++) {
-    if (page > 0) pdf.addPage();
-
-    const srcY = page * (canvas.width * A4_H_MM / A4_W_MM);
-    const sliceH = Math.min(canvas.width * A4_H_MM / A4_W_MM, canvas.height - srcY);
-
-    const slice = document.createElement('canvas');
-    slice.width = canvas.width;
-    slice.height = Math.round(sliceH);
-    const ctx = slice.getContext('2d');
-    if (!ctx) continue;
-
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, slice.width, slice.height);
-    ctx.drawImage(canvas, 0, Math.round(srcY), canvas.width, Math.round(sliceH), 0, 0, slice.width, slice.height);
-
-    pdf.addImage(slice.toDataURL('image/png'), 'PNG', 0, 0, imgWidth, (sliceH * A4_W_MM) / canvas.width);
+  if (!canvas.width || !canvas.height) {
+    throw new Error('Não foi possível capturar o CV. Tente novamente.');
   }
 
+  const pdfW = A4_W_MM;
+  const pdfH = (canvas.height * A4_W_MM) / canvas.width;
+
+  // Single continuous page sized to content
+  const pdf = new jsPDF({
+    unit: 'mm',
+    format: [pdfW, Math.max(pdfH, A4_H_MM)],
+    orientation: 'portrait',
+  });
+
+  const imgData = canvas.toDataURL('image/jpeg', 0.92);
+  pdf.addImage(imgData, 'JPEG', 0, 0, pdfW, pdfH);
   pdf.save(fileName);
 }
 
