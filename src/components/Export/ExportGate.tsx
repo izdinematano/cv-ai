@@ -49,6 +49,7 @@ export default function ExportGate({
     users,
     payments,
     upsertCV,
+    syncFromServer,
   } = useAppStore();
 
   const [mpesaPhone, setMpesaPhone] = useState('');
@@ -92,6 +93,8 @@ export default function ExportGate({
       if (json.ok) {
         setPaymentStatus('success');
         setPaymentMessage(json.message || `${adminSettings.creditsPerPack} créditos adicionados!`);
+        // Pull updated credits from server so the export gate reflects the new balance.
+        syncFromServer();
       } else {
         setPaymentStatus('error');
         setPaymentMessage(json.error || 'Pagamento falhou. Tenta novamente.');

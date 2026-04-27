@@ -520,23 +520,26 @@ export const useAppStore = create<AppState>()(
 
       syncFromServer: async () => {
         try {
-          const [usersRes, paymentsRes, settingsRes, exportsRes] = await Promise.all([
+          const [usersRes, paymentsRes, settingsRes, exportsRes, creditsRes] = await Promise.all([
             fetch('/api/users'),
             fetch('/api/payments'),
             fetch('/api/settings'),
             fetch('/api/exports'),
+            fetch('/api/credits'),
           ]);
-          const [usersJson, paymentsJson, settingsJson, exportsJson] = await Promise.all([
+          const [usersJson, paymentsJson, settingsJson, exportsJson, creditsJson] = await Promise.all([
             usersRes.json(),
             paymentsRes.json(),
             settingsRes.json(),
             exportsRes.json(),
+            creditsRes.json(),
           ]);
           set((state) => ({
             users: usersJson.users ?? state.users,
             payments: paymentsJson.payments ?? state.payments,
             adminSettings: settingsJson.settings ?? state.adminSettings,
             exports: exportsJson.exports ?? state.exports,
+            extraCredits: creditsJson.extraCredits ?? state.extraCredits,
           }));
         } catch {
           // ignore — local data remains

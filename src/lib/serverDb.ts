@@ -153,6 +153,11 @@ export async function getExtraCredits(userId: string): Promise<number> {
   return db.extraCredits[userId] || 0;
 }
 
+export async function getAllExtraCredits(): Promise<Record<string, number>> {
+  const db = await readDb();
+  return db.extraCredits;
+}
+
 export async function addExtraCredits(userId: string, amount: number): Promise<number> {
   const db = await readDb();
   db.extraCredits[userId] = (db.extraCredits[userId] || 0) + amount;
