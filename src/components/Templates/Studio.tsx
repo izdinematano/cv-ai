@@ -3,6 +3,7 @@
 import { CVData } from '@/store/useCVStore';
 import { Globe, Mail, MapPin, Phone, Sparkles } from 'lucide-react';
 import BulletList from './_shared/BulletList';
+import { labels } from './_shared/TemplateUtils';
 
 interface TemplateProps {
   data: CVData;
@@ -96,7 +97,7 @@ export default function Studio({ data, lang }: TemplateProps) {
                 letterSpacing: '0.08em',
               }}
             >
-              <Sparkles size={12} /> Premium Profile
+              <Sparkles size={12} /> {labels.profile[lang]}
             </div>
             <h1 style={{ fontSize: '42px', lineHeight: 1.05, marginBottom: '10px', fontWeight: 900 }}>
               {data.personalInfo.fullName}
@@ -146,7 +147,7 @@ export default function Studio({ data, lang }: TemplateProps) {
             }}
           >
             <h3 style={{ fontSize: '13px', color: accentColor, marginBottom: '20px', textTransform: 'uppercase', letterSpacing: '0.14em' }}>
-              Experience
+              {labels.experience[lang]}
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               {data.experience.map((exp) => (
@@ -172,7 +173,7 @@ export default function Studio({ data, lang }: TemplateProps) {
               }}
             >
               <h3 style={{ fontSize: '13px', marginBottom: '18px', textTransform: 'uppercase', letterSpacing: '0.14em' }}>
-                Skills
+                {labels.skills[lang]}
               </h3>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
                 {data.skills.map((skill, index) => (
@@ -201,7 +202,7 @@ export default function Studio({ data, lang }: TemplateProps) {
               }}
             >
               <h3 style={{ fontSize: '13px', color: accentColor, marginBottom: '18px', textTransform: 'uppercase', letterSpacing: '0.14em' }}>
-                Education
+                {labels.education[lang]}
               </h3>
               {data.education.map((edu) => (
                 <div key={edu.id} style={{ marginBottom: '16px' }}>

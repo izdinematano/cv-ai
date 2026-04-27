@@ -2,6 +2,7 @@
 
 import { CVData } from '@/store/useCVStore';
 import BulletList from './_shared/BulletList';
+import { labels } from './_shared/TemplateUtils';
 
 interface TemplateProps {
   data: CVData;
@@ -25,7 +26,7 @@ export default function Student({ data, lang }: TemplateProps) {
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '40px' }}>
         <section>
-          <h3 style={{ fontSize: '14px', fontWeight: 800, textTransform: 'uppercase', color: accentColor, marginBottom: '15px', letterSpacing: '1px' }}>Education</h3>
+          <h3 style={{ fontSize: '14px', fontWeight: 800, textTransform: 'uppercase', color: accentColor, marginBottom: '15px', letterSpacing: '1px' }}>{labels.education[lang]}</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {data.education.map((edu) => (
               <div key={edu.id} style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -40,7 +41,7 @@ export default function Student({ data, lang }: TemplateProps) {
         </section>
 
         <section>
-          <h3 style={{ fontSize: '14px', fontWeight: 800, textTransform: 'uppercase', color: accentColor, marginBottom: '15px', letterSpacing: '1px' }}>Experience and Projects</h3>
+          <h3 style={{ fontSize: '14px', fontWeight: 800, textTransform: 'uppercase', color: accentColor, marginBottom: '15px', letterSpacing: '1px' }}>{labels.experience[lang]}</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
             {data.experience.map((exp) => (
               <div key={exp.id}>
@@ -53,7 +54,7 @@ export default function Student({ data, lang }: TemplateProps) {
         </section>
 
         <section>
-          <h3 style={{ fontSize: '14px', fontWeight: 800, textTransform: 'uppercase', color: accentColor, marginBottom: '15px', letterSpacing: '1px' }}>Skills</h3>
+          <h3 style={{ fontSize: '14px', fontWeight: 800, textTransform: 'uppercase', color: accentColor, marginBottom: '15px', letterSpacing: '1px' }}>{labels.skills[lang]}</h3>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
             {data.skills.map((s, i) => (
               <span key={i} style={{ border: `1px solid ${accentColor}`, color: accentColor, padding: '4px 12px', borderRadius: '4px', fontSize: '12px', fontWeight: 700 }}>{s[lang] || s.pt || s.en}</span>

@@ -3,6 +3,7 @@
 import { CVData } from '@/store/useCVStore';
 import { Globe, Mail, MapPin, Phone } from 'lucide-react';
 import BulletList from './_shared/BulletList';
+import { labels } from './_shared/TemplateUtils';
 
 interface TemplateProps {
   data: CVData;
@@ -73,7 +74,7 @@ export default function Bold({ data, lang }: TemplateProps) {
         >
           <div>
             <div style={{ color: accentColor, fontWeight: 900, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: '14px' }}>
-              Signature Profile
+              {labels.profile[lang]}
             </div>
             <h1 style={{ fontSize: '52px', lineHeight: 0.95, fontWeight: 900, marginBottom: '12px', maxWidth: '560px' }}>
               {data.personalInfo.fullName}
@@ -139,7 +140,7 @@ export default function Bold({ data, lang }: TemplateProps) {
           <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 0.7fr', gap: '28px' }}>
             <div>
               <h3 style={{ fontSize: '13px', fontWeight: 900, color: accentColor, textTransform: 'uppercase', letterSpacing: '0.16em', marginBottom: '18px' }}>
-                Experience
+                {labels.experience[lang]}
               </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
                 {data.experience.map((exp) => (
@@ -157,7 +158,7 @@ export default function Bold({ data, lang }: TemplateProps) {
 
             <div>
               <h3 style={{ fontSize: '13px', fontWeight: 900, color: accentColor, textTransform: 'uppercase', letterSpacing: '0.16em', marginBottom: '18px' }}>
-                Skills
+                {labels.skills[lang]}
               </h3>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '24px' }}>
                 {data.skills.map((skill, index) => (
@@ -178,7 +179,7 @@ export default function Bold({ data, lang }: TemplateProps) {
               </div>
 
               <h3 style={{ fontSize: '13px', fontWeight: 900, color: accentColor, textTransform: 'uppercase', letterSpacing: '0.16em', marginBottom: '18px' }}>
-                Education
+                {labels.education[lang]}
               </h3>
               {data.education.map((edu) => (
                 <div key={edu.id} style={{ marginBottom: '14px' }}>
@@ -194,7 +195,7 @@ export default function Bold({ data, lang }: TemplateProps) {
         <section style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
           <div style={{ background: '#111827', color: 'white', borderRadius: '30px', padding: '24px' }}>
             <h3 style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: '16px' }}>
-              Projects
+              {labels.projects[lang]}
             </h3>
             {data.projects.map((project) => (
               <div key={project.id}>
@@ -207,7 +208,7 @@ export default function Bold({ data, lang }: TemplateProps) {
 
           <div style={{ background: accentColor, color: 'white', borderRadius: '30px', padding: '24px' }}>
             <h3 style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: '16px' }}>
-              Certifications
+              {labels.certifications[lang]}
             </h3>
             {data.certifications.map((cert) => (
               <div key={cert.id} style={{ marginBottom: '14px' }}>

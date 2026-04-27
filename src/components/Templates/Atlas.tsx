@@ -3,6 +3,7 @@
 import { CVData } from '@/store/useCVStore';
 import { Globe, Mail, MapPin, Phone } from 'lucide-react';
 import BulletList from './_shared/BulletList';
+import { labels } from './_shared/TemplateUtils';
 
 interface TemplateProps {
   data: CVData;
@@ -52,7 +53,7 @@ export default function Atlas({ data, lang }: TemplateProps) {
 
           <section style={{ marginBottom: '28px' }}>
             <h3 style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.18em', color: '#94a3b8', marginBottom: '16px' }}>
-              Contact
+              {labels.contact[lang]}
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '12px' }}>
               <div style={{ display: 'flex', gap: '10px' }}><Mail size={14} color={accentColor} /> {data.personalInfo.email}</div>
@@ -86,7 +87,7 @@ export default function Atlas({ data, lang }: TemplateProps) {
 
           <section style={{ marginBottom: '28px' }}>
             <h3 style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.18em', color: '#94a3b8', marginBottom: '16px' }}>
-              Skills
+              {labels.skills[lang]}
             </h3>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
               {data.skills.map((skill, index) => (
@@ -128,14 +129,14 @@ export default function Atlas({ data, lang }: TemplateProps) {
         <main style={{ padding: '52px 48px' }}>
           <section style={{ marginBottom: '30px' }}>
             <div style={{ display: 'inline-flex', padding: '8px 14px', borderRadius: '999px', background: 'rgba(15,118,110,0.08)', color: accentColor, fontSize: '11px', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '16px' }}>
-              Strategic Profile
+              {labels.profile[lang]}
             </div>
             <p style={{ color: '#475569', lineHeight: 1.9, maxWidth: '680px' }}>{data.summary[lang]}</p>
           </section>
 
           <section style={{ marginBottom: '36px' }}>
             <h3 style={{ fontSize: '14px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: '22px' }}>
-              Professional Experience
+              {labels.experience[lang]}
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
               {data.experience.map((exp) => (

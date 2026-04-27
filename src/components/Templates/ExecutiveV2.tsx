@@ -3,6 +3,7 @@
 import { CVData } from '@/store/useCVStore';
 import { Mail, Phone, MapPin, Globe } from 'lucide-react';
 import BulletList from './_shared/BulletList';
+import { labels } from './_shared/TemplateUtils';
 
 interface TemplateProps {
   data: CVData;
@@ -33,12 +34,12 @@ export default function ExecutiveV2({ data, lang }: TemplateProps) {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '45px' }}>
         <section>
-          <h3 style={{ fontFamily: serifFont, fontSize: '20px', fontStyle: 'italic', borderBottom: '1px solid #000', marginBottom: '20px' }}>Executive Summary</h3>
+          <h3 style={{ fontFamily: serifFont, fontSize: '20px', fontStyle: 'italic', borderBottom: '1px solid #000', marginBottom: '20px' }}>{labels.profile[lang]}</h3>
           <p style={{ lineHeight: '1.9', textAlign: 'justify' }}>{data.summary[lang]}</p>
         </section>
 
         <section>
-          <h3 style={{ fontFamily: serifFont, fontSize: '20px', fontStyle: 'italic', borderBottom: '1px solid #000', marginBottom: '25px' }}>Experience</h3>
+          <h3 style={{ fontFamily: serifFont, fontSize: '20px', fontStyle: 'italic', borderBottom: '1px solid #000', marginBottom: '25px' }}>{labels.experience[lang]}</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '35px' }}>
             {data.experience.map((exp) => (
               <div key={exp.id}>

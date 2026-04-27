@@ -3,6 +3,7 @@
 import { CVData } from '@/store/useCVStore';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import BulletList from './_shared/BulletList';
+import { labels } from './_shared/TemplateUtils';
 
 interface TemplateProps {
   data: CVData;
@@ -45,7 +46,7 @@ export default function Executive({ data, lang }: TemplateProps) {
           {/* Left Column */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
             <section>
-              <h3 style={{ fontSize: '14px', fontWeight: 800, textTransform: 'uppercase', color: '#0f172a', marginBottom: '15px', letterSpacing: '1px' }}>Core Expertise</h3>
+              <h3 style={{ fontSize: '14px', fontWeight: 800, textTransform: 'uppercase', color: '#0f172a', marginBottom: '15px', letterSpacing: '1px' }}>{labels.skills[lang]}</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {data.skills.map((skill, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -57,7 +58,7 @@ export default function Executive({ data, lang }: TemplateProps) {
             </section>
 
             <section>
-              <h3 style={{ fontSize: '14px', fontWeight: 800, textTransform: 'uppercase', color: '#0f172a', marginBottom: '15px', letterSpacing: '1px' }}>Education</h3>
+              <h3 style={{ fontSize: '14px', fontWeight: 800, textTransform: 'uppercase', color: '#0f172a', marginBottom: '15px', letterSpacing: '1px' }}>{labels.education[lang]}</h3>
               {data.education.map((edu) => (
                 <div key={edu.id} style={{ marginBottom: '15px' }}>
                   <div style={{ fontSize: '13px', fontWeight: 700, color: '#1e293b' }}>{edu.degree[lang]}</div>
@@ -71,7 +72,7 @@ export default function Executive({ data, lang }: TemplateProps) {
           {/* Right Column */}
           <div>
             <section>
-              <h3 style={{ fontSize: '14px', fontWeight: 800, textTransform: 'uppercase', color: '#0f172a', marginBottom: '25px', letterSpacing: '1px', borderBottom: '2px solid #0f172a', display: 'inline-block' }}>Professional Experience</h3>
+              <h3 style={{ fontSize: '14px', fontWeight: 800, textTransform: 'uppercase', color: '#0f172a', marginBottom: '25px', letterSpacing: '1px', borderBottom: '2px solid #0f172a', display: 'inline-block' }}>{labels.experience[lang]}</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '35px' }}>
                 {data.experience.map((exp) => (
                   <div key={exp.id}>

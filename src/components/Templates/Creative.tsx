@@ -3,6 +3,7 @@
 import { CVData } from '@/store/useCVStore';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import BulletList from './_shared/BulletList';
+import { labels, fallbackPhoto, getInitials } from './_shared/TemplateUtils';
 
 interface TemplateProps {
   data: CVData;
@@ -69,10 +70,13 @@ export default function Creative({ data, lang }: TemplateProps) {
             marginBottom: '30px',
             overflow: 'hidden'
           }}>
-            {/* Placeholder for Photo */}
-            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '40px', fontWeight: 800, color: 'rgba(255,255,255,0.2)' }}>
-              {data.personalInfo.fullName?.charAt(0)}
-            </div>
+            {data.personalInfo.photo ? (
+              <img src={data.personalInfo.photo} alt={data.personalInfo.fullName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
+              <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '40px', fontWeight: 800, color: 'rgba(255,255,255,0.2)' }}>
+                {getInitials(data.personalInfo.fullName)}
+              </div>
+            )}
           </div>
           
           <h1 style={{ fontSize: '28px', fontWeight: 800, lineHeight: '1.2', marginBottom: '10px' }}>
@@ -84,7 +88,7 @@ export default function Creative({ data, lang }: TemplateProps) {
         </div>
 
         <section>
-          <h2 style={{ fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', borderBottom: `2px solid ${accentColor}`, paddingBottom: '8px', marginBottom: '15px' }}>Contact</h2>
+          <h2 style={{ fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', borderBottom: `2px solid ${accentColor}`, paddingBottom: '8px', marginBottom: '15px' }}>{labels.contact[lang]}</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', fontSize: '11px', color: '#cbd5e1' }}>
             {data.personalInfo.email && <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Mail size={14} color={accentColor} /> {data.personalInfo.email}</div>}
             {data.personalInfo.phone && <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Phone size={14} color={accentColor} /> {data.personalInfo.phone}</div>}
@@ -93,7 +97,7 @@ export default function Creative({ data, lang }: TemplateProps) {
         </section>
 
         <section>
-          <h2 style={{ fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', borderBottom: `2px solid ${accentColor}`, paddingBottom: '8px', marginBottom: '15px' }}>Skills</h2>
+          <h2 style={{ fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', borderBottom: `2px solid ${accentColor}`, paddingBottom: '8px', marginBottom: '15px' }}>{labels.skills[lang]}</h2>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
             {data.skills.map((skill, i) => (
               <span key={i} style={{ background: 'rgba(255,255,255,0.1)', padding: '5px 12px', borderRadius: '100px', fontSize: '10px' }}>{skill[lang] || skill.pt || skill.en}</span>
@@ -106,13 +110,13 @@ export default function Creative({ data, lang }: TemplateProps) {
       <div style={{ flex: 1, padding: '60px 50px', background: 'white', zIndex: 1 }}>
         <section style={{ marginBottom: '50px' }}>
           <h2 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-             Professional Summary
+             {labels.profile[lang]}
           </h2>
           <p style={{ fontSize: '14px', lineHeight: '1.8', color: '#475569' }}>{data.summary[lang]}</p>
         </section>
 
         <section style={{ marginBottom: '50px' }}>
-          <h2 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', marginBottom: '25px', borderLeft: `5px solid ${accentColor}`, paddingLeft: '15px' }}>Professional Experience</h2>
+          <h2 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', marginBottom: '25px', borderLeft: `5px solid ${accentColor}`, paddingLeft: '15px' }}>{labels.experience[lang]}</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
             {data.experience.map((exp) => (
               <div key={exp.id} style={{ position: 'relative' }}>
@@ -128,7 +132,7 @@ export default function Creative({ data, lang }: TemplateProps) {
         </section>
 
         <section>
-          <h2 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', marginBottom: '25px', borderLeft: `5px solid ${accentColor}`, paddingLeft: '15px' }}>Education</h2>
+          <h2 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', marginBottom: '25px', borderLeft: `5px solid ${accentColor}`, paddingLeft: '15px' }}>{labels.education[lang]}</h2>
           {data.education.map((edu) => (
             <div key={edu.id} style={{ marginBottom: '20px' }}>
               <h3 style={{ fontSize: '15px', fontWeight: 700 }}>{edu.degree[lang]}</h3>

@@ -54,7 +54,61 @@ const createAvatarDataUri = (name: string, accentColor: string) => {
  */
 export const templateCatalog: TemplateDefinition[] = [
   // ──────────────────────────────────────────────────────────────────────
-  // Novos templates premium (Resume 1-3, CV 5-7) — listados primeiro
+  // 5 novos templates premium (Luxe, Horizon, Slate, Mosaic, Zenith) — TOP
+  // ──────────────────────────────────────────────────────────────────────
+  {
+    id: 'luxe',
+    name: 'Luxe Serif',
+    badge: 'Premium',
+    category: 'Executivo',
+    tone: 'Clássico e refinado',
+    description: 'Tipografia serifada, sidebar elegante e detalhes dourados para perfis de topo e C-level.',
+    accentColor: '#92400e',
+    featured: true,
+  },
+  {
+    id: 'horizon',
+    name: 'Horizon',
+    badge: 'Premium',
+    category: 'Contemporâneo',
+    tone: 'Gradiente moderno',
+    description: 'Cabeçalho com gradiente, sidebar lateral e layout equilibrado para qualquer área.',
+    accentColor: '#0369a1',
+    featured: true,
+  },
+  {
+    id: 'slate',
+    name: 'Slate Night',
+    badge: 'Premium',
+    category: 'Creative Pro',
+    tone: 'Tema escuro profissional',
+    description: 'Visual dark com sidebar e tipografia clara. Moderno e impactante para tech e design.',
+    accentColor: '#6d28d9',
+    featured: true,
+  },
+  {
+    id: 'mosaic',
+    name: 'Mosaic',
+    badge: 'Premium',
+    category: 'Modern Pro',
+    tone: 'Grelha bicolor',
+    description: 'Header bicolor, layout em grelha 50/50 e blocos visuais. Ideal para perfis multidisciplinares.',
+    accentColor: '#0f766e',
+    featured: true,
+  },
+  {
+    id: 'zenith',
+    name: 'Zenith',
+    badge: 'Premium',
+    category: 'Editorial',
+    tone: 'Centrado e elegante',
+    description: 'Layout centrado com tipografia premium, faixa de skills e estrutura simétrica. Sofisticado e memorável.',
+    accentColor: '#b45309',
+    featured: true,
+  },
+
+  // ──────────────────────────────────────────────────────────────────────
+  // Templates premium (Resume 1-3, CV 5-7)
   // ──────────────────────────────────────────────────────────────────────
   {
     id: 'resume1',
@@ -267,59 +321,6 @@ export const templateCatalog: TemplateDefinition[] = [
     featured: true,
   },
 
-  // ──────────────────────────────────────────────────────────────────────
-  // 5 novos templates premium (Luxe, Horizon, Slate, Mosaic, Zenith)
-  // ──────────────────────────────────────────────────────────────────────
-  {
-    id: 'luxe',
-    name: 'Luxe Serif',
-    badge: 'Premium',
-    category: 'Executivo',
-    tone: 'Clássico e refinado',
-    description: 'Tipografia serifada, sidebar elegante e detalhes dourados para perfis de topo e C-level.',
-    accentColor: '#92400e',
-    featured: true,
-  },
-  {
-    id: 'horizon',
-    name: 'Horizon',
-    badge: 'Premium',
-    category: 'Contemporâneo',
-    tone: 'Gradiente moderno',
-    description: 'Cabeçalho com gradiente, sidebar lateral e layout equilibrado para qualquer área.',
-    accentColor: '#0369a1',
-    featured: true,
-  },
-  {
-    id: 'slate',
-    name: 'Slate Night',
-    badge: 'Premium',
-    category: 'Creative Pro',
-    tone: 'Tema escuro profissional',
-    description: 'Visual dark com sidebar e tipografia clara. Moderno e impactante para tech e design.',
-    accentColor: '#6d28d9',
-    featured: true,
-  },
-  {
-    id: 'mosaic',
-    name: 'Mosaic',
-    badge: 'Premium',
-    category: 'Modern Pro',
-    tone: 'Grelha bicolor',
-    description: 'Header bicolor, layout em grelha 50/50 e blocos visuais. Ideal para perfis multidisciplinares.',
-    accentColor: '#0f766e',
-    featured: true,
-  },
-  {
-    id: 'zenith',
-    name: 'Zenith',
-    badge: 'Premium',
-    category: 'Editorial',
-    tone: 'Centrado e elegante',
-    description: 'Layout centrado com tipografia premium, faixa de skills e estrutura simétrica. Sofisticado e memorável.',
-    accentColor: '#b45309',
-    featured: true,
-  },
 ];
 
 export const featuredTemplateIds = templateCatalog
