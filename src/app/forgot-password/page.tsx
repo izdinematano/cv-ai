@@ -25,7 +25,12 @@ export default function ForgotPasswordPage() {
         setMessage(json.message || 'Instruções enviadas.');
       } else {
         setStatus('error');
-        setMessage(json.error || 'Ocorreu um erro.');
+        const isSmtpError = json._debug?.includes('SMTP not configured');
+        if (isSmtpError) {
+          setMessage(json.error + ' O administrador precisa de configurar o envio de email no servidor (SMTP).');
+        } else {
+          setMessage(json.error || 'Ocorreu um erro.');
+        }
       }
     } catch {
       setStatus('error');

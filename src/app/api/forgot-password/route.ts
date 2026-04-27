@@ -41,18 +41,19 @@ export async function POST(req: Request) {
 
     try {
       await sendPasswordResetEmail(user.email, resetUrl, user.fullName);
-    } catch (emailErr) {
+    } catch (emailErr: any) {
       console.error('Email send failed:', emailErr);
-      // Still return success to avoid leaking info, but log for debugging
+      // Return error so the user knows something went wrong
       return NextResponse.json({
-        ok: true,
-        message: 'Se o email existir no sistema, receberás instruções para repor a senha.',
-      });
+        ok: false,
+        error: 'Não foi possível enviar o email. Contacta o suporte ou tenta mais tarde.',
+        _debug: emailErr.message || String(emailErr),
+      }, { status: 502 });
     }
 
     return NextResponse.json({
       ok: true,
-      message: 'Se o email existir no sistema, receberás instruções para repor a senha.',
+      message: 'Verifica a tua caixa de entrada (e spam) para o link de reposição.',
     });
   } catch (err) {
     return NextResponse.json({ ok: false, error: String(err) }, { status: 500 });
