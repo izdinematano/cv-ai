@@ -1,6 +1,6 @@
 'use client';
 
-import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+import { Document, Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import { CVData } from '@/store/useCVStore';
 
 /* Deliberately using react-pdf's built-in Helvetica instead of Font.register
@@ -14,50 +14,73 @@ interface PDFDocumentProps {
   lang: 'pt' | 'en';
 }
 
+const labels = {
+  profile:        { pt: 'Perfil Profissional', en: 'Professional Summary' },
+  experience:     { pt: 'Experiência Profissional', en: 'Professional Experience' },
+  education:      { pt: 'Educação', en: 'Education' },
+  skills:         { pt: 'Competências', en: 'Skills' },
+  languages:      { pt: 'Idiomas', en: 'Languages' },
+  projects:       { pt: 'Projetos', en: 'Projects' },
+  certifications: { pt: 'Certificações', en: 'Certifications' },
+  contact:        { pt: 'Contacto', en: 'Contact' },
+};
+
 export const CVDocument = ({ data, lang }: PDFDocumentProps) => {
   const accentColor = data.settings.accentColor || '#3b82f6';
 
-  const styles = StyleSheet.create({
+  const s = StyleSheet.create({
     page: {
-      paddingTop: 42,
-      paddingBottom: 42,
+      paddingTop: 40,
+      paddingBottom: 40,
       paddingHorizontal: 40,
       fontFamily: 'Helvetica',
       color: '#1e293b',
-      fontSize: 10.5,
+      fontSize: 10,
     },
+
+    /* ── Header ── */
     header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 18,
       borderBottomWidth: 2,
       borderBottomColor: accentColor,
-      paddingBottom: 18,
-      marginBottom: 22,
+      paddingBottom: 16,
+      marginBottom: 20,
     },
+    photo: {
+      width: 64,
+      height: 64,
+      borderRadius: 32,
+      objectFit: 'cover',
+    },
+    headerText: { flex: 1 },
     name: {
-      fontSize: 28,
+      fontSize: 24,
       fontWeight: 700,
       color: '#0f172a',
-      marginBottom: 4,
+      marginBottom: 3,
     },
     title: {
-      fontSize: 15,
+      fontSize: 13,
       color: accentColor,
       fontWeight: 700,
-      marginBottom: 10,
+      marginBottom: 8,
     },
-    contactGrid: {
+    contactRow: {
       flexDirection: 'row',
       flexWrap: 'wrap',
-      gap: 10,
+      gap: 12,
     },
     contactItem: {
-      fontSize: 9.5,
+      fontSize: 9,
       color: '#64748b',
     },
-    section: {
-      marginBottom: 18,
-    },
+
+    /* ── Sections ── */
+    section: { marginBottom: 16 },
     sectionTitle: {
-      fontSize: 11,
+      fontSize: 10.5,
       textTransform: 'uppercase',
       color: accentColor,
       fontWeight: 700,
@@ -65,52 +88,34 @@ export const CVDocument = ({ data, lang }: PDFDocumentProps) => {
       borderBottomColor: '#e2e8f0',
       paddingBottom: 4,
       marginBottom: 10,
-      letterSpacing: 0.6,
+      letterSpacing: 0.5,
     },
     summary: {
-      fontSize: 10.5,
+      fontSize: 10,
       lineHeight: 1.6,
       color: '#334155',
     },
-    item: {
-      marginBottom: 11,
-    },
-    itemHeader: {
+
+    /* ── Items (experience, education, …) ── */
+    item: { marginBottom: 10 },
+    itemRow: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'flex-start',
-      marginBottom: 3,
+      marginBottom: 2,
       gap: 8,
     },
-    itemTitle: {
-      fontSize: 11.5,
-      fontWeight: 700,
-      color: '#0f172a',
-    },
-    itemPeriod: {
-      fontSize: 9.5,
-      color: '#64748b',
-    },
-    itemSubtitle: {
-      fontSize: 10.5,
-      fontWeight: 700,
-      color: '#475569',
-      marginBottom: 4,
-    },
-    itemDescription: {
-      fontSize: 9.8,
-      lineHeight: 1.55,
-      color: '#334155',
-    },
-    chipGrid: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      gap: 6,
-    },
+    itemTitle: { fontSize: 11, fontWeight: 700, color: '#0f172a' },
+    itemPeriod: { fontSize: 9, color: '#64748b' },
+    itemSub: { fontSize: 10, fontWeight: 700, color: '#475569', marginBottom: 3 },
+    itemDesc: { fontSize: 9.5, lineHeight: 1.55, color: '#334155' },
+
+    /* ── Chips (skills, languages) ── */
+    chipGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 5 },
     chip: {
       backgroundColor: '#f1f5f9',
       color: '#334155',
-      paddingVertical: 4,
+      paddingVertical: 3,
       paddingHorizontal: 8,
       borderRadius: 4,
       fontSize: 9,
@@ -118,89 +123,87 @@ export const CVDocument = ({ data, lang }: PDFDocumentProps) => {
     },
   });
 
-  const t = {
-    summary: lang === 'pt' ? 'Resumo' : 'Professional Summary',
-    experience: lang === 'pt' ? 'Experiencia Profissional' : 'Professional Experience',
-    education: lang === 'pt' ? 'Educacao' : 'Education',
-    skills: lang === 'pt' ? 'Competencias' : 'Skills',
-    languages: lang === 'pt' ? 'Idiomas' : 'Languages',
-    projects: lang === 'pt' ? 'Projectos' : 'Projects',
-    certifications: lang === 'pt' ? 'Certificacoes' : 'Certifications',
-  };
+  const contact = [
+    data.personalInfo.email,
+    data.personalInfo.phone,
+    data.personalInfo.location,
+    data.personalInfo.linkedin,
+    data.personalInfo.website,
+  ].filter(Boolean);
 
   return (
     <Document>
-      <Page size="A4" style={styles.page}>
-        <View style={styles.header}>
-          <Text style={styles.name}>{data.personalInfo.fullName || 'Seu Nome'}</Text>
-          <Text style={styles.title}>
-            {data.personalInfo.jobTitle[lang] || 'Professional Title'}
-          </Text>
-          <View style={styles.contactGrid}>
-            {data.personalInfo.email ? (
-              <Text style={styles.contactItem}>{data.personalInfo.email}</Text>
-            ) : null}
-            {data.personalInfo.phone ? (
-              <Text style={styles.contactItem}>{data.personalInfo.phone}</Text>
-            ) : null}
-            {data.personalInfo.location ? (
-              <Text style={styles.contactItem}>{data.personalInfo.location}</Text>
-            ) : null}
-            {data.personalInfo.linkedin ? (
-              <Text style={styles.contactItem}>{data.personalInfo.linkedin}</Text>
-            ) : null}
-            {data.personalInfo.website ? (
-              <Text style={styles.contactItem}>{data.personalInfo.website}</Text>
-            ) : null}
+      <Page size="A4" style={s.page}>
+        {/* ── Header ── */}
+        <View style={s.header}>
+          {data.personalInfo.photo ? (
+            <Image src={data.personalInfo.photo} style={s.photo} />
+          ) : null}
+          <View style={s.headerText}>
+            <Text style={s.name}>{data.personalInfo.fullName || 'Seu Nome'}</Text>
+            <Text style={s.title}>
+              {data.personalInfo.jobTitle[lang] || ''}
+            </Text>
+            <View style={s.contactRow}>
+              {contact.map((c, i) => (
+                <Text key={i} style={s.contactItem}>
+                  {c}{i < contact.length - 1 ? '  ·' : ''}
+                </Text>
+              ))}
+            </View>
           </View>
         </View>
 
+        {/* ── Summary ── */}
         {data.summary[lang] ? (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{t.summary}</Text>
-            <Text style={styles.summary}>{data.summary[lang]}</Text>
+          <View style={s.section}>
+            <Text style={s.sectionTitle}>{labels.profile[lang]}</Text>
+            <Text style={s.summary}>{data.summary[lang]}</Text>
           </View>
         ) : null}
 
+        {/* ── Experience ── */}
         {data.experience.length > 0 ? (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{t.experience}</Text>
+          <View style={s.section}>
+            <Text style={s.sectionTitle}>{labels.experience[lang]}</Text>
             {data.experience.map((exp) => (
-              <View key={exp.id} style={styles.item}>
-                <View style={styles.itemHeader}>
-                  <Text style={styles.itemTitle}>{exp.position[lang]}</Text>
-                  <Text style={styles.itemPeriod}>{exp.period}</Text>
+              <View key={exp.id} style={s.item} wrap={false}>
+                <View style={s.itemRow}>
+                  <Text style={s.itemTitle}>{exp.position[lang]}</Text>
+                  <Text style={s.itemPeriod}>{exp.period}</Text>
                 </View>
-                {exp.company ? <Text style={styles.itemSubtitle}>{exp.company}</Text> : null}
+                {exp.company ? <Text style={s.itemSub}>{exp.company}</Text> : null}
                 {exp.description[lang] ? (
-                  <Text style={styles.itemDescription}>{exp.description[lang]}</Text>
+                  <Text style={s.itemDesc}>{exp.description[lang]}</Text>
                 ) : null}
               </View>
             ))}
           </View>
         ) : null}
 
+        {/* ── Education ── */}
         {data.education.length > 0 ? (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{t.education}</Text>
+          <View style={s.section}>
+            <Text style={s.sectionTitle}>{labels.education[lang]}</Text>
             {data.education.map((edu) => (
-              <View key={edu.id} style={styles.item}>
-                <View style={styles.itemHeader}>
-                  <Text style={styles.itemTitle}>{edu.degree[lang]}</Text>
-                  <Text style={styles.itemPeriod}>{edu.year}</Text>
+              <View key={edu.id} style={s.item} wrap={false}>
+                <View style={s.itemRow}>
+                  <Text style={s.itemTitle}>{edu.degree[lang]}</Text>
+                  <Text style={s.itemPeriod}>{edu.year}</Text>
                 </View>
-                {edu.institution ? <Text style={styles.itemSubtitle}>{edu.institution}</Text> : null}
+                {edu.institution ? <Text style={s.itemSub}>{edu.institution}</Text> : null}
               </View>
             ))}
           </View>
         ) : null}
 
+        {/* ── Skills ── */}
         {data.skills.length > 0 ? (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{t.skills}</Text>
-            <View style={styles.chipGrid}>
-              {data.skills.map((skill, index) => (
-                <Text key={`${skill.pt}-${skill.en}-${index}`} style={styles.chip}>
+          <View style={s.section}>
+            <Text style={s.sectionTitle}>{labels.skills[lang]}</Text>
+            <View style={s.chipGrid}>
+              {data.skills.map((skill, i) => (
+                <Text key={`sk-${i}`} style={s.chip}>
                   {skill[lang] || skill.pt || skill.en}
                 </Text>
               ))}
@@ -208,44 +211,47 @@ export const CVDocument = ({ data, lang }: PDFDocumentProps) => {
           </View>
         ) : null}
 
+        {/* ── Languages ── */}
         {data.languages.length > 0 ? (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{t.languages}</Text>
-            <View style={styles.chipGrid}>
-              {data.languages.map((language, index) => (
-                <Text key={`${language.name}-${index}`} style={styles.chip}>
-                  {language.name} - {language.level[lang]}
+          <View style={s.section}>
+            <Text style={s.sectionTitle}>{labels.languages[lang]}</Text>
+            <View style={s.chipGrid}>
+              {data.languages.map((l, i) => (
+                <Text key={`lg-${i}`} style={s.chip}>
+                  {l.name} – {l.level[lang]}
                 </Text>
               ))}
             </View>
           </View>
         ) : null}
 
+        {/* ── Projects ── */}
         {data.projects.length > 0 ? (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{t.projects}</Text>
-            {data.projects.map((project) => (
-              <View key={project.id} style={styles.item}>
-                <Text style={styles.itemTitle}>{project.name}</Text>
-                {project.link ? <Text style={styles.contactItem}>{project.link}</Text> : null}
-                {project.description[lang] ? (
-                  <Text style={styles.itemDescription}>{project.description[lang]}</Text>
+          <View style={s.section}>
+            <Text style={s.sectionTitle}>{labels.projects[lang]}</Text>
+            {data.projects.map((p) => (
+              <View key={p.id} style={s.item} wrap={false}>
+                <Text style={s.itemTitle}>{p.name}</Text>
+                {p.link ? <Text style={s.contactItem}>{p.link}</Text> : null}
+                {p.description[lang] ? (
+                  <Text style={s.itemDesc}>{p.description[lang]}</Text>
                 ) : null}
               </View>
             ))}
           </View>
         ) : null}
 
+        {/* ── Certifications ── */}
         {data.certifications.length > 0 ? (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{t.certifications}</Text>
+          <View style={s.section}>
+            <Text style={s.sectionTitle}>{labels.certifications[lang]}</Text>
             {data.certifications.map((cert) => (
-              <View key={cert.id} style={styles.item}>
-                <View style={styles.itemHeader}>
-                  <Text style={styles.itemTitle}>{cert.name}</Text>
-                  <Text style={styles.itemPeriod}>{cert.year}</Text>
+              <View key={cert.id} style={s.item} wrap={false}>
+                <View style={s.itemRow}>
+                  <Text style={s.itemTitle}>{cert.name}</Text>
+                  <Text style={s.itemPeriod}>{cert.year}</Text>
                 </View>
-                {cert.issuer ? <Text style={styles.itemSubtitle}>{cert.issuer}</Text> : null}
+                {cert.issuer ? <Text style={s.itemSub}>{cert.issuer}</Text> : null}
               </View>
             ))}
           </View>

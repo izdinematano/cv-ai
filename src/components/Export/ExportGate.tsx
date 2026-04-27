@@ -229,7 +229,7 @@ function ReadyToDownload({
       // We snapshot the live preview DOM (see CV_EXPORT_TARGET_ID in
       // exportPreviewToPdf.ts) so the PDF always matches the exact template
       // and styling the user sees on screen.
-      await exportPreviewToPdf({ fileName });
+      await exportPreviewToPdf({ fileName, data, lang });
       onDownload();
       setStatus('idle');
     } catch (err) {
