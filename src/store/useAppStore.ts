@@ -23,6 +23,8 @@ export interface AppUser {
   password: string; // NOTE: plain text here because this is a localStorage mock
   role: UserRole;
   createdAt: string;
+  resetToken?: string;
+  resetTokenExpiresAt?: string;
 }
 
 export interface CVVersion {

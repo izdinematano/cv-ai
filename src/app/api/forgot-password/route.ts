@@ -1,13 +1,21 @@
 import { NextResponse } from 'next/server';
 import { findUserByEmail, updateUser } from '@/lib/serverDb';
+import { sendPasswordResetEmail } from '@/lib/email';
 
 /**
- * Simple password reset: POST /api/forgot-password { email }
+ * Forgot password: POST /api/forgot-password { email }
  *
- * For now this generates a temporary password and returns it in the response.
- * In production you'd send an email instead. The user can then login with
- * the temporary password and change it later.
+ * Generates a secure reset token, stores it on the user record
+ * (expires in 1 hour), and sends a reset email with a link.
  */
+function createToken() {
+  return Array.from({ length: 32 }, () => Math.random().toString(36).slice(2, 3)).join('');
+}
+
+function tokenExpiry() {
+  return new Date(Date.now() + 60 * 60 * 1000).toISOString(); // 1 hour
+}
+
 export async function POST(req: Request) {
   try {
     const { email } = await req.json();
@@ -24,16 +32,27 @@ export async function POST(req: Request) {
       });
     }
 
-    // Generate a simple temporary password
-    const tempPassword = 'temp-' + Math.random().toString(36).slice(2, 8);
-    await updateUser(user.id, { password: tempPassword });
+    const token = createToken();
+    const expiresAt = tokenExpiry();
+    await updateUser(user.id, { resetToken: token, resetTokenExpiresAt: expiresAt });
+
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://cv.moztraders.com';
+    const resetUrl = `${baseUrl}/reset-password?token=${token}`;
+
+    try {
+      await sendPasswordResetEmail(user.email, resetUrl, user.fullName);
+    } catch (emailErr) {
+      console.error('Email send failed:', emailErr);
+      // Still return success to avoid leaking info, but log for debugging
+      return NextResponse.json({
+        ok: true,
+        message: 'Se o email existir no sistema, receberás instruções para repor a senha.',
+      });
+    }
 
     return NextResponse.json({
       ok: true,
       message: 'Se o email existir no sistema, receberás instruções para repor a senha.',
-      // In production, remove this and send via email instead
-      _tempPassword: tempPassword,
-      _hint: 'Contacta o admin via WhatsApp para receber a nova senha temporária.',
     });
   } catch (err) {
     return NextResponse.json({ ok: false, error: String(err) }, { status: 500 });

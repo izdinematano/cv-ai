@@ -100,6 +100,11 @@ export async function updateUser(userId: string, patch: Partial<AppUser>): Promi
   return db.users[idx];
 }
 
+export async function findUserByResetToken(token: string): Promise<AppUser | undefined> {
+  const db = await readDb();
+  return db.users.find((u) => u.resetToken === token);
+}
+
 export async function deleteUser(userId: string): Promise<boolean> {
   const db = await readDb();
   const idx = db.users.findIndex((u) => u.id === userId);

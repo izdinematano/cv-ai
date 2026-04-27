@@ -2,11 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, KeyRound, Loader2, CheckCircle2, MessageCircle } from 'lucide-react';
-import { useAppStore } from '@/store/useAppStore';
+import { ArrowLeft, KeyRound, Loader2, CheckCircle2 } from 'lucide-react';
 
 export default function ForgotPasswordPage() {
-  const { adminSettings } = useAppStore();
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'sent' | 'error'>('idle');
   const [message, setMessage] = useState('');
@@ -95,33 +93,7 @@ export default function ForgotPasswordPage() {
               }}
             >
               <CheckCircle2 size={20} style={{ flexShrink: 0, marginTop: 1 }} />
-              <div>{message}</div>
-            </div>
-
-            <div
-              className="glass-card"
-              style={{
-                padding: 16,
-                display: 'flex',
-                gap: 12,
-                alignItems: 'center',
-                background: 'rgba(37,211,102,0.06)',
-                border: '1px solid rgba(37,211,102,0.2)',
-              }}
-            >
-              <MessageCircle size={20} color="#25d366" />
-              <div style={{ fontSize: 12, lineHeight: 1.5 }}>
-                <strong>Contacta o suporte via WhatsApp</strong> para receber a tua nova senha temporária:
-                <br />
-                <a
-                  href={`https://wa.me/${adminSettings.whatsappNumber.replace(/\D/g, '')}?text=Olá, esqueci a minha senha. O meu email é: ${encodeURIComponent(email)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ color: '#25d366', fontWeight: 700 }}
-                >
-                  {adminSettings.whatsappNumber}
-                </a>
-              </div>
+              <div>{message} Verifica a tua caixa de entrada (e spam) e segue o link para repor a senha.</div>
             </div>
 
             <Link
@@ -135,7 +107,7 @@ export default function ForgotPasswordPage() {
         ) : (
           <>
             <p style={{ fontSize: 13.5, color: 'var(--foreground-muted)', lineHeight: 1.55 }}>
-              Insere o email da tua conta. Vamos gerar uma senha temporária que podes obter via WhatsApp com o suporte.
+              Insere o email da tua conta. Enviaremos um link seguro para repores a senha. O link expira em 1 hora.
             </p>
 
             <form
