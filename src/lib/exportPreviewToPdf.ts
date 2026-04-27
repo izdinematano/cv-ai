@@ -1,20 +1,10 @@
 /**
  * Exports the on-screen CV preview to a single continuous-page PDF.
  *
- * The PDF has a fixed A4 width (210 mm) but its height grows dynamically to
- * match the full content height — there are no artificial page breaks and no
- * content is sliced. Templates normally force `minHeight: 1122px` for the
- * on-screen preview; we strip that in the html2canvas clone so the capture
- * reflects the true content height.
- *
- * Strategy:
- *   1. Snapshot the element with id="cv-export-target" using html2canvas-pro.
- *   2. In the cloned DOM, remove all `minHeight` / `min-height` / fixed
- *      `height` declarations so the capture reflects the natural content flow.
- *   3. Convert the snapshot to PNG (lossless) at 3x scale for crisp text.
- *   4. Create a jsPDF with a custom format [210, dynamicHeight] so the page
- *      is exactly as tall as the captured content.
- *   5. Trigger the browser download.
+ * Optimized for small file size (< 5 MB):
+ *   - Capture scale reduced to 2x (still crisp for A4 text).
+ *   - JPEG quality 0.85 instead of lossless PNG (much smaller).
+ *   - Large inline base64 images in the cloned DOM are re-compressed.
  */
 import html2canvas from 'html2canvas-pro';
 import jsPDF from 'jspdf';
@@ -25,30 +15,46 @@ export interface ExportOptions {
   fileName: string;
 }
 
+/** Re-compress a base64 image so it doesn't bloat the PDF canvas. */
+function compressBase64Image(dataUrl: string, maxSide = 600, quality = 0.75): Promise<string> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+      const w = Math.round(img.width * scale);
+      const h = Math.round(img.height * scale);
+      const c = document.createElement('canvas');
+      c.width = w;
+      c.height = h;
+      const ctx = c.getContext('2d');
+      if (!ctx) { resolve(dataUrl); return; }
+      ctx.drawImage(img, 0, 0, w, h);
+      resolve(c.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
+}
+
 export async function exportPreviewToPdf({ fileName }: ExportOptions): Promise<void> {
   const target = document.getElementById(CV_EXPORT_TARGET_ID) as HTMLElement | null;
   if (!target) {
     throw new Error('Elemento de pré-visualização não encontrado.');
   }
 
-  // Force an A4-width virtual viewport so media queries, flex/grid breakpoints
-  // and font metrics render *identically* on desktop and on mobile. Without
-  // this, html2canvas inherits `window.innerWidth`, so a phone (~360px) would
-  // render the CV through mobile breakpoints and produce a visibly different
-  // PDF from a desktop capture.
   // 210mm at 96dpi ≈ 794px.
   const A4_WIDTH_PX = 794;
   const A4_HEIGHT_PX = 1123;
 
   const canvas = await html2canvas(target, {
-    scale: 3, // higher scale = sharper text and images in the PDF
+    scale: 2, // 2x is still crisp for A4 text while keeping file size low
     backgroundColor: '#ffffff',
     useCORS: true,
     logging: false,
     windowWidth: A4_WIDTH_PX,
     windowHeight: Math.max(A4_HEIGHT_PX, target.scrollHeight),
     width: A4_WIDTH_PX,
-    onclone: (clonedDoc) => {
+    onclone: async (clonedDoc) => {
       const cloned = clonedDoc.getElementById(CV_EXPORT_TARGET_ID) as HTMLElement | null;
       if (!cloned) return;
 
@@ -63,9 +69,7 @@ export async function exportPreviewToPdf({ fileName }: ExportOptions): Promise<v
       cloned.style.setProperty('display', 'block', 'important');
       cloned.style.setProperty('visibility', 'visible', 'important');
 
-      // Walk every descendant and strip fixed/min heights so nothing forces
-      // an artificial A4-sized frame. This lets the content flow to its true
-      // natural height in the snapshot.
+      // Walk every descendant and strip fixed/min heights.
       const walker = clonedDoc.createTreeWalker(
         cloned,
         NodeFilter.SHOW_ELEMENT,
@@ -76,14 +80,10 @@ export async function exportPreviewToPdf({ fileName }: ExportOptions): Promise<v
         const htmlEl = el as HTMLElement;
         htmlEl.style.removeProperty('min-height');
         htmlEl.style.removeProperty('minHeight');
-        // Only remove hardcoded pixel heights (e.g. 1122px) — keep 'auto',
-        // percentages, or 'fit-content' that authors may rely on.
         const h = htmlEl.style.height;
         if (h === '100vh' || h === '100%') {
           htmlEl.style.removeProperty('height');
         } else if (/^\d+(\.\d+)?px$/.test(h)) {
-          // Only strip large fixed heights (A4 containers like 1122px).
-          // Small heights (bullets, badges, icons ~4-20px) must be preserved.
           if (parseFloat(h) >= 100) {
             htmlEl.style.removeProperty('height');
           }
@@ -91,8 +91,17 @@ export async function exportPreviewToPdf({ fileName }: ExportOptions): Promise<v
         el = walker.nextNode();
       }
 
-      // Also force every ancestor back to a rendered state in the clone
-      // so the snapshot actually paints content (mobile modal ancestors).
+      // Compress large inline base64 images so the canvas stays small.
+      const images = cloned.querySelectorAll('img');
+      for (const img of images) {
+        const src = img.getAttribute('src') || '';
+        if (src.startsWith('data:image') && src.length > 20000) {
+          const compressed = await compressBase64Image(src, 400, 0.72);
+          img.setAttribute('src', compressed);
+        }
+      }
+
+      // Force every ancestor back to a rendered state in the clone.
       let parent: HTMLElement | null = cloned.parentElement;
       while (parent && parent !== clonedDoc.body) {
         parent.style.transform = 'none';
@@ -104,11 +113,9 @@ export async function exportPreviewToPdf({ fileName }: ExportOptions): Promise<v
     },
   });
 
-  // PNG is lossless — sharper text than JPEG, especially at high scale.
-  const imgData = canvas.toDataURL('image/png');
+  // JPEG with 0.85 quality — much smaller than lossless PNG.
+  const imgData = canvas.toDataURL('image/jpeg', 0.85);
 
-  // The PDF page width is always A4 (210 mm). The page height grows to match
-  // the captured content so everything fits on one continuous page.
   const pdfWidth = 210; // mm
   const pdfHeight = (canvas.height * pdfWidth) / canvas.width; // mm
 
@@ -118,6 +125,6 @@ export async function exportPreviewToPdf({ fileName }: ExportOptions): Promise<v
     orientation: 'portrait',
   });
 
-  pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+  pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
   pdf.save(fileName);
 }
