@@ -97,54 +97,96 @@ async function clientPdf(target: HTMLElement, fileName: string): Promise<void> {
   const A4_W_MM = 210;
   const A4_H_MM = 297;
 
-  const canvas = await html2canvas(target, {
-    scale: 2,
-    backgroundColor: '#ffffff',
-    useCORS: true,
-    logging: false,
-    windowWidth: A4_W_PX,
-    windowHeight: Math.max(A4_H_PX, target.scrollHeight),
-    width: A4_W_PX,
-    onclone: (clonedDoc: Document) => {
-      const el = clonedDoc.getElementById(CV_EXPORT_TARGET_ID);
-      if (!el) return;
-      el.style.transform = 'none';
-      el.style.width = `${A4_W_PX}px`;
-      el.style.minWidth = `${A4_W_PX}px`;
-      el.style.maxWidth = `${A4_W_PX}px`;
-      el.style.height = 'auto';
-      el.style.minHeight = 'auto';
-      el.style.maxHeight = 'none';
-      el.style.overflow = 'visible';
-      el.style.boxShadow = 'none';
-      el.style.borderRadius = '0';
-      // Walk ancestors to reset transforms
-      let parent = el.parentElement;
-      while (parent && parent !== clonedDoc.body) {
-        parent.style.transform = 'none';
-        parent.style.overflow = 'visible';
-        parent = parent.parentElement;
-      }
-    },
-  });
+  // ── Force visibility ──
+  // On mobile (<900px) the preview pane is display:none.
+  // We must make it visible before html2canvas can measure / capture it.
+  const overrides: { el: HTMLElement; prev: string }[] = [];
+  const forceShow = (el: HTMLElement | null) => {
+    if (!el) return;
+    const computed = getComputedStyle(el);
+    if (computed.display === 'none' || computed.visibility === 'hidden') {
+      overrides.push({ el, prev: el.style.cssText });
+      el.style.setProperty('display', 'block', 'important');
+      el.style.setProperty('visibility', 'visible', 'important');
+      el.style.setProperty('position', 'absolute', 'important');
+      el.style.setProperty('left', '-9999px', 'important');
+      el.style.setProperty('top', '0', 'important');
+    }
+  };
 
-  if (!canvas.width || !canvas.height) {
-    throw new Error('Não foi possível capturar o CV. Tente novamente.');
+  // Walk up from target to body and force every hidden ancestor visible
+  let node: HTMLElement | null = target;
+  while (node && node !== document.body) {
+    forceShow(node);
+    node = node.parentElement;
   }
 
-  const pdfW = A4_W_MM;
-  const pdfH = (canvas.height * A4_W_MM) / canvas.width;
+  // Also reset transform on target itself so html2canvas sees full-size
+  const origTransform = target.style.transform;
+  const origWidth = target.style.width;
+  target.style.transform = 'none';
+  target.style.width = `${A4_W_PX}px`;
 
-  // Single continuous page sized to content
-  const pdf = new jsPDF({
-    unit: 'mm',
-    format: [pdfW, Math.max(pdfH, A4_H_MM)],
-    orientation: 'portrait',
-  });
+  // Wait a tick for layout recalc
+  await new Promise((r) => requestAnimationFrame(r));
 
-  const imgData = canvas.toDataURL('image/jpeg', 0.92);
-  pdf.addImage(imgData, 'JPEG', 0, 0, pdfW, pdfH);
-  pdf.save(fileName);
+  try {
+    const canvas = await html2canvas(target, {
+      scale: 2,
+      backgroundColor: '#ffffff',
+      useCORS: true,
+      logging: false,
+      windowWidth: A4_W_PX,
+      windowHeight: Math.max(A4_H_PX, target.scrollHeight),
+      width: A4_W_PX,
+      onclone: (clonedDoc: Document) => {
+        const el = clonedDoc.getElementById(CV_EXPORT_TARGET_ID);
+        if (!el) return;
+        el.style.transform = 'none';
+        el.style.width = `${A4_W_PX}px`;
+        el.style.minWidth = `${A4_W_PX}px`;
+        el.style.maxWidth = `${A4_W_PX}px`;
+        el.style.height = 'auto';
+        el.style.minHeight = 'auto';
+        el.style.overflow = 'visible';
+        el.style.boxShadow = 'none';
+        el.style.borderRadius = '0';
+        // Force every ancestor in the clone visible too
+        let p = el.parentElement;
+        while (p && p !== clonedDoc.body) {
+          p.style.setProperty('display', 'block', 'important');
+          p.style.setProperty('visibility', 'visible', 'important');
+          p.style.setProperty('overflow', 'visible', 'important');
+          p.style.transform = 'none';
+          p = p.parentElement;
+        }
+      },
+    });
+
+    if (!canvas.width || !canvas.height) {
+      throw new Error('Não foi possível capturar o CV. Tente novamente.');
+    }
+
+    const pdfW = A4_W_MM;
+    const pdfH = (canvas.height * A4_W_MM) / canvas.width;
+
+    const pdf = new jsPDF({
+      unit: 'mm',
+      format: [pdfW, Math.max(pdfH, A4_H_MM)],
+      orientation: 'portrait',
+    });
+
+    const imgData = canvas.toDataURL('image/jpeg', 0.92);
+    pdf.addImage(imgData, 'JPEG', 0, 0, pdfW, pdfH);
+    pdf.save(fileName);
+  } finally {
+    // ── Restore original styles ──
+    target.style.transform = origTransform;
+    target.style.width = origWidth;
+    for (const { el, prev } of overrides) {
+      el.style.cssText = prev;
+    }
+  }
 }
 
 /* ─── Public API ─── */
