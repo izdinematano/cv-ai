@@ -14,6 +14,13 @@ function getTransporter() {
   const user = process.env.SMTP_USER;
   const pass = process.env.SMTP_PASS;
 
+  console.log('[email] SMTP config check:', {
+    hasHost: !!host,
+    hasUser: !!user,
+    hasPass: !!pass,
+    from: process.env.SMTP_FROM,
+  });
+
   if (!host || !user || !pass) {
     throw new Error(
       'SMTP not configured. Set SMTP_HOST, SMTP_USER, SMTP_PASS env variables on the VPS.'
