@@ -684,6 +684,32 @@ function AdminView({ adminEmail }: { adminEmail: string }) {
                           </td>
                           <td style={{ padding: 12, textAlign: 'right' }}>
                             <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                              <button
+                                className="btn-outline"
+                                style={{ fontSize: 10, padding: '4px 8px', display: 'flex', alignItems: 'center', gap: 4, color: '#10b981', borderColor: '#10b981' }}
+                                onClick={async () => {
+                                  const raw = prompt(`Quantos créditos adicionar a ${u.email}? (número positivo para adicionar, negativo para remover)`);
+                                  if (!raw) return;
+                                  const amount = parseInt(raw, 10);
+                                  if (isNaN(amount) || amount === 0) { alert('Valor inválido.'); return; }
+                                  try {
+                                    const res = await fetch('/api/admin/credits', {
+                                      method: 'POST',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({ userId: u.id, amount }),
+                                    });
+                                    const json = await res.json();
+                                    if (json.ok) {
+                                      alert(`Créditos atualizados! ${u.email} agora tem ${json.credits} créditos.`);
+                                      await syncFromServer();
+                                    } else {
+                                      alert(json.error || 'Erro ao atribuir créditos.');
+                                    }
+                                  } catch { alert('Erro de ligação ao servidor.'); }
+                                }}
+                              >
+                                <CreditCard size={10} /> Créditos
+                              </button>
                               {u.role === 'user' && (
                                 <button
                                   className="btn-outline"

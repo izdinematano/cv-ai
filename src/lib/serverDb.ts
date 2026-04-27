@@ -35,7 +35,7 @@ const DEFAULT_SNAPSHOT: DbSnapshot = {
     whatsappNumber: '+258840000000',
     pricePerPackMZN: 100,
     creditsPerPack: 5,
-    monthlyFreeExports: 5,
+    monthlyFreeExports: 0,
     businessName: 'CV Gen AI',
   },
   cvs: {},

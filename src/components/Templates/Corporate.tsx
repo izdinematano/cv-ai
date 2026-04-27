@@ -2,6 +2,7 @@
 
 import { CVData } from '@/store/useCVStore';
 import BulletList from './_shared/BulletList';
+import { labels } from './_shared/TemplateUtils';
 interface TemplateProps {
   data: CVData;
   lang: 'pt' | 'en';
@@ -21,7 +22,7 @@ export default function Corporate({ data, lang }: TemplateProps) {
         <div style={{ width: '120px', height: '120px', background: '#e2e8f0', borderRadius: '8px', marginBottom: '30px' }} />
         
         <section style={{ marginBottom: '30px' }}>
-          <h2 style={{ fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', color: accentColor, marginBottom: '15px' }}>Contact</h2>
+          <h2 style={{ fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', color: accentColor, marginBottom: '15px' }}>{labels.contact[lang]}</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '11px', color: '#475569' }}>
             {data.personalInfo.email && <div>{data.personalInfo.email}</div>}
             {data.personalInfo.phone && <div>{data.personalInfo.phone}</div>}
@@ -30,7 +31,7 @@ export default function Corporate({ data, lang }: TemplateProps) {
         </section>
 
         <section>
-          <h2 style={{ fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', color: accentColor, marginBottom: '15px' }}>Skills</h2>
+          <h2 style={{ fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', color: accentColor, marginBottom: '15px' }}>{labels.skills[lang]}</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {data.skills.map((skill, i) => (
               <div key={i} style={{ fontSize: '11px', color: '#475569' }}>• {skill[lang] || skill.pt || skill.en}</div>
@@ -52,7 +53,7 @@ export default function Corporate({ data, lang }: TemplateProps) {
         </section>
 
         <section style={{ marginBottom: '40px' }}>
-          <h3 style={{ fontSize: '15px', fontWeight: 700, borderBottom: '2px solid #f1f5f9', paddingBottom: '8px', marginBottom: '20px' }}>Professional Experience</h3>
+          <h3 style={{ fontSize: '15px', fontWeight: 700, borderBottom: '2px solid #f1f5f9', paddingBottom: '8px', marginBottom: '20px' }}>{labels.experience[lang]}</h3>
           {data.experience.map((exp) => (
             <div key={exp.id} style={{ marginBottom: '20px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -66,7 +67,7 @@ export default function Corporate({ data, lang }: TemplateProps) {
         </section>
 
         <section>
-          <h3 style={{ fontSize: '15px', fontWeight: 700, borderBottom: '2px solid #f1f5f9', paddingBottom: '8px', marginBottom: '20px' }}>Education</h3>
+          <h3 style={{ fontSize: '15px', fontWeight: 700, borderBottom: '2px solid #f1f5f9', paddingBottom: '8px', marginBottom: '20px' }}>{labels.education[lang]}</h3>
           {data.education.map((edu) => (
             <div key={edu.id} style={{ marginBottom: '15px' }}>
               <div style={{ fontSize: '13px', fontWeight: 700 }}>{edu.degree[lang]}</div>

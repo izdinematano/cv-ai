@@ -266,6 +266,60 @@ export const templateCatalog: TemplateDefinition[] = [
     accentColor: '#9f1239',
     featured: true,
   },
+
+  // ──────────────────────────────────────────────────────────────────────
+  // 5 novos templates premium (Luxe, Horizon, Slate, Mosaic, Zenith)
+  // ──────────────────────────────────────────────────────────────────────
+  {
+    id: 'luxe',
+    name: 'Luxe Serif',
+    badge: 'Premium',
+    category: 'Executivo',
+    tone: 'Clássico e refinado',
+    description: 'Tipografia serifada, sidebar elegante e detalhes dourados para perfis de topo e C-level.',
+    accentColor: '#92400e',
+    featured: true,
+  },
+  {
+    id: 'horizon',
+    name: 'Horizon',
+    badge: 'Premium',
+    category: 'Contemporâneo',
+    tone: 'Gradiente moderno',
+    description: 'Cabeçalho com gradiente, sidebar lateral e layout equilibrado para qualquer área.',
+    accentColor: '#0369a1',
+    featured: true,
+  },
+  {
+    id: 'slate',
+    name: 'Slate Night',
+    badge: 'Premium',
+    category: 'Creative Pro',
+    tone: 'Tema escuro profissional',
+    description: 'Visual dark com sidebar e tipografia clara. Moderno e impactante para tech e design.',
+    accentColor: '#6d28d9',
+    featured: true,
+  },
+  {
+    id: 'mosaic',
+    name: 'Mosaic',
+    badge: 'Premium',
+    category: 'Modern Pro',
+    tone: 'Grelha bicolor',
+    description: 'Header bicolor, layout em grelha 50/50 e blocos visuais. Ideal para perfis multidisciplinares.',
+    accentColor: '#0f766e',
+    featured: true,
+  },
+  {
+    id: 'zenith',
+    name: 'Zenith',
+    badge: 'Premium',
+    category: 'Editorial',
+    tone: 'Centrado e elegante',
+    description: 'Layout centrado com tipografia premium, faixa de skills e estrutura simétrica. Sofisticado e memorável.',
+    accentColor: '#b45309',
+    featured: true,
+  },
 ];
 
 export const featuredTemplateIds = templateCatalog
@@ -343,6 +397,41 @@ const showcaseProfiles: Record<
     jobTitleEn: 'Growth Product Manager',
     summaryPt: 'Conecta produto, growth e comunicacao com foco em aquisicao, ativacao e resultados mensuraveis.',
     summaryEn: 'Connects product, growth, and communication with a focus on acquisition, activation, and measurable outcomes.',
+  },
+  luxe: {
+    name: 'Eduardo Tembe',
+    jobTitlePt: 'Director Financeiro',
+    jobTitleEn: 'Chief Financial Officer',
+    summaryPt: 'Mais de 15 anos de experiencia em financas corporativas, governance e optimizacao de processos financeiros em mercados emergentes.',
+    summaryEn: 'Over 15 years in corporate finance, governance, and financial process optimization across emerging markets.',
+  },
+  horizon: {
+    name: 'Lina Mahumane',
+    jobTitlePt: 'UX/UI Designer Senior',
+    jobTitleEn: 'Senior UX/UI Designer',
+    summaryPt: 'Cria experiencias digitais intuitivas e esteticas para produtos SaaS, mobile e plataformas de grande escala.',
+    summaryEn: 'Crafts intuitive and aesthetic digital experiences for SaaS, mobile, and large-scale platform products.',
+  },
+  slate: {
+    name: 'Tiago Mondlane',
+    jobTitlePt: 'Engenheiro DevOps',
+    jobTitleEn: 'DevOps Engineer',
+    summaryPt: 'Especialista em infraestrutura cloud, CI/CD, Kubernetes e automacao de deploys para equipas de engenharia ageis.',
+    summaryEn: 'Cloud infrastructure specialist with expertise in CI/CD, Kubernetes, and deploy automation for agile engineering teams.',
+  },
+  mosaic: {
+    name: 'Fatima Nhaca',
+    jobTitlePt: 'Gestora de Projectos',
+    jobTitleEn: 'Project Manager',
+    summaryPt: 'Coordena projectos multidisciplinares com foco em prazos, qualidade e alinhamento entre stakeholders.',
+    summaryEn: 'Coordinates multidisciplinary projects with a focus on deadlines, quality, and stakeholder alignment.',
+  },
+  zenith: {
+    name: 'Ricardo Chissano',
+    jobTitlePt: 'Consultor de Estrategia',
+    jobTitleEn: 'Strategy Consultant',
+    summaryPt: 'Transforma desafios complexos em planos actionaveis com base em dados, benchmarks e experiencia em mercados africanos.',
+    summaryEn: 'Turns complex challenges into actionable plans based on data, benchmarks, and experience across African markets.',
   },
 };
 

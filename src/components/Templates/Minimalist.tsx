@@ -3,6 +3,7 @@
 import { CVData } from '@/store/useCVStore';
 import { Mail, Phone, MapPin, Globe } from 'lucide-react';
 import BulletList from './_shared/BulletList';
+import { labels } from './_shared/TemplateUtils';
 
 interface TemplateProps {
   data: CVData;
@@ -29,12 +30,12 @@ export default function Minimalist({ data, lang }: TemplateProps) {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: `${sectionSpacing}px` }}>
         <section>
-          <h3 style={{ fontSize: '13px', fontWeight: 800, textTransform: 'uppercase', color: '#94a3b8', marginBottom: '12px' }}>Profile</h3>
+          <h3 style={{ fontSize: '13px', fontWeight: 800, textTransform: 'uppercase', color: '#94a3b8', marginBottom: '12px' }}>{labels.profile[lang]}</h3>
           <p style={{ lineHeight: 1.6 }}>{data.summary[lang]}</p>
         </section>
 
         <section>
-          <h3 style={{ fontSize: '13px', fontWeight: 800, textTransform: 'uppercase', color: '#94a3b8', marginBottom: '20px' }}>Experience</h3>
+          <h3 style={{ fontSize: '13px', fontWeight: 800, textTransform: 'uppercase', color: '#94a3b8', marginBottom: '20px' }}>{labels.experience[lang]}</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {data.experience.map((exp) => (
               <div key={exp.id}>
@@ -51,7 +52,7 @@ export default function Minimalist({ data, lang }: TemplateProps) {
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px' }}>
           <section>
-            <h3 style={{ fontSize: '13px', fontWeight: 800, textTransform: 'uppercase', color: '#94a3b8', marginBottom: '15px' }}>Education</h3>
+            <h3 style={{ fontSize: '13px', fontWeight: 800, textTransform: 'uppercase', color: '#94a3b8', marginBottom: '15px' }}>{labels.education[lang]}</h3>
             {data.education.map((edu) => (
               <div key={edu.id} style={{ marginBottom: '10px' }}>
                 <div style={{ fontWeight: 700, fontSize: '12px' }}>{edu.degree[lang]}</div>
@@ -61,7 +62,7 @@ export default function Minimalist({ data, lang }: TemplateProps) {
           </section>
 
           <section>
-            <h3 style={{ fontSize: '13px', fontWeight: 800, textTransform: 'uppercase', color: '#94a3b8', marginBottom: '15px' }}>Skills</h3>
+            <h3 style={{ fontSize: '13px', fontWeight: 800, textTransform: 'uppercase', color: '#94a3b8', marginBottom: '15px' }}>{labels.skills[lang]}</h3>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
               {data.skills.map((s, i) => (
                 <span key={i} style={{ background: '#f8fafc', padding: '4px 10px', borderRadius: '4px', fontSize: '11px', color: '#1e293b' }}>{s[lang] || s.pt || s.en}</span>

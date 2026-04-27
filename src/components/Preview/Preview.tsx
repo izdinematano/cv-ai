@@ -42,6 +42,11 @@ const Resume3 = dynamic(() => import('../Templates/Resume3/Resume3'), { ssr: fal
 const CV5 = dynamic(() => import('../Templates/CV5/CV5'), { ssr: false, loading: loadingFallback });
 const CV6 = dynamic(() => import('../Templates/CV6/CV6'), { ssr: false, loading: loadingFallback });
 const CV7 = dynamic(() => import('../Templates/CV7/CV7'), { ssr: false, loading: loadingFallback });
+const Luxe = dynamic(() => import('../Templates/Luxe'), { ssr: false, loading: loadingFallback });
+const Horizon = dynamic(() => import('../Templates/Horizon'), { ssr: false, loading: loadingFallback });
+const Slate = dynamic(() => import('../Templates/Slate'), { ssr: false, loading: loadingFallback });
+const Mosaic = dynamic(() => import('../Templates/Mosaic'), { ssr: false, loading: loadingFallback });
+const Zenith = dynamic(() => import('../Templates/Zenith'), { ssr: false, loading: loadingFallback });
 
 /**
  * Templates in this list already render Languages/Projects/Certifications natively.
@@ -70,12 +75,18 @@ const PARTIAL_NATIVE_EXTRAS: Record<
 > = {
   atlas: ['languages', 'projects'],
   bold: ['projects', 'certifications'],
+  luxe: ['languages', 'certifications'],
+  horizon: ['languages', 'projects', 'certifications'],
+  slate: ['languages', 'certifications', 'projects'],
+  mosaic: ['languages', 'projects', 'certifications'],
+  zenith: ['languages', 'projects', 'certifications'],
 };
 
 const DARK_BACKGROUND_TEMPLATES = new Set([
   'bold',
   'executive-v2',
   'cv6-dark',
+  'slate',
 ]);
 
 const renderTemplateInner = (
@@ -124,6 +135,16 @@ const renderTemplateInner = (
       return <CV6 data={data} lang={lang} variant="light" />;
     case 'cv7':
       return <CV7 data={data} lang={lang} />;
+    case 'luxe':
+      return <Luxe data={data} lang={lang} />;
+    case 'horizon':
+      return <Horizon data={data} lang={lang} />;
+    case 'slate':
+      return <Slate data={data} lang={lang} />;
+    case 'mosaic':
+      return <Mosaic data={data} lang={lang} />;
+    case 'zenith':
+      return <Zenith data={data} lang={lang} />;
     case 'minimalist':
     default:
       return <Minimalist data={data} lang={lang} />;
