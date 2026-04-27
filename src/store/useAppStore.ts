@@ -104,6 +104,8 @@ interface AppState {
     Promise<{ ok: true; user: AppUser } | { ok: false; error: string }>;
   login: (input: { email: string; password: string }) =>
     Promise<{ ok: true; user: AppUser } | { ok: false; error: string }>;
+  googleLogin: (credential: string) =>
+    Promise<{ ok: true; user: AppUser } | { ok: false; error: string }>;
   logout: () => void;
 
   /* cvs */
@@ -252,6 +254,27 @@ export const useAppStore = create<AppState>()(
           }
           set({ currentUserId: user.id });
           return { ok: true, user };
+        }
+      },
+
+      googleLogin: async (credential) => {
+        try {
+          const res = await fetch('/api/auth/google', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ credential }),
+          });
+          const json = await res.json();
+          if (!json.ok) return { ok: false, error: json.error || 'Falha no login Google.' };
+          set((state) => ({
+            users: state.users.some((u) => u.id === json.user.id)
+              ? state.users.map((u) => (u.id === json.user.id ? { ...u, ...json.user } : u))
+              : [...state.users, json.user],
+            currentUserId: json.user.id,
+          }));
+          return { ok: true, user: json.user };
+        } catch {
+          return { ok: false, error: 'Erro de ligação ao servidor.' };
         }
       },
 

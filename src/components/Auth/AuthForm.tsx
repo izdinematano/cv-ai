@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Sparkles, ArrowRight, FileText, Shield, Zap, ArrowLeft } from 'lucide-react';
+import { GoogleLogin } from '@react-oauth/google';
 import { useAppStore } from '@/store/useAppStore';
 
 interface AuthFormProps {
@@ -12,12 +13,26 @@ interface AuthFormProps {
 
 export default function AuthForm({ mode }: AuthFormProps) {
   const router = useRouter();
-  const { login, register, users } = useAppStore();
+  const { login, register, googleLogin, users } = useAppStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const handleGoogleSuccess = async (credentialResponse: { credential?: string }) => {
+    if (!credentialResponse.credential) return;
+    setError('');
+    setLoading(true);
+    const result = await googleLogin(credentialResponse.credential);
+    setLoading(false);
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
+    const destination = result.user.role === 'admin' ? '/admin' : '/dashboard';
+    router.push(destination);
+  };
 
   const isRegister = mode === 'register';
   // `users` is no longer used here (first-user-as-admin bootstrap removed).
@@ -233,6 +248,29 @@ export default function AuthForm({ mode }: AuthFormProps) {
             <ArrowRight size={16} />
           </button>
         </form>
+
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            fontSize: 12,
+            color: 'var(--muted-foreground)',
+          }}
+        >
+          <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
+          ou
+          <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => setError('Falha no login com Google. Tenta novamente.')}
+            text={isRegister ? 'signup_with' : 'signin_with'}
+            shape="rectangular"
+          />
+        </div>
 
         <div style={{ fontSize: 13, color: 'var(--muted-foreground)', textAlign: 'center' }}>
           {isRegister ? 'Já tens conta? ' : 'Ainda não tens conta? '}
